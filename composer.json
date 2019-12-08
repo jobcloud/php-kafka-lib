@@ -33,7 +33,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Jobcloud\\Messaging\\": "src/"
+      "Jobcloud\\Kafka\\": "src/"
     }
   },
   "extra": {
