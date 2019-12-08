@@ -7,7 +7,6 @@ namespace Jobcloud\Kafka\Producer;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
-use Jobcloud\Kafka\Exception\KafkaProducerException;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 
