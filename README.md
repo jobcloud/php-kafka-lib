@@ -1,2 +1,2 @@
 # php-kafka-lib
-PHP Kafka Library with Avro support
+WIP: to replace [messaging-lib](https://github.com/jobcloud/messaging-lib)
