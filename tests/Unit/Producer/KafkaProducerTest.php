@@ -85,25 +85,6 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->produce($message);
     }
 
-    /**
-     * @return void
-     * @throws KafkaProducerException
-     */
-    public function testProduceErrorOnMessageInterface(): void
-    {
-        self::expectException(KafkaProducerException::class);
-        self::expectExceptionMessage(
-            sprintf(
-                KafkaProducerException::UNSUPPORTED_MESSAGE_EXCEPTION_MESSAGE,
-                KafkaProducerMessageInterface::class
-            )
-        );
-
-        $message = $this->createMock(KafkaMessageInterface::class);
-
-        $this->kafkaProducer->produce($message);
-    }
-
     public function testProduceSuccess()
     {
         $message = KafkaProducerMessage::create('test-topic', 1)

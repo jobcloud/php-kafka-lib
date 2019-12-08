@@ -56,19 +56,9 @@ final class KafkaProducer implements KafkaProducerInterface
      *
      * @param KafkaProducerMessageInterface $message
      * @return void
-     * @throws KafkaProducerException
      */
     public function produce(KafkaProducerMessageInterface $message): void
     {
-        if (false === $message instanceof KafkaProducerMessageInterface) {
-            throw new KafkaProducerException(
-                sprintf(
-                    KafkaProducerException::UNSUPPORTED_MESSAGE_EXCEPTION_MESSAGE,
-                    KafkaProducerMessageInterface::class
-                )
-            );
-        }
-
         $message = $this->encoder->encode($message);
 
         /** @var KafkaProducerMessageInterface $message */

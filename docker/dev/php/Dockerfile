@@ -27,11 +27,9 @@ RUN echo "$HOST_USER:x:$HOST_USER_ID:82:Linux User,,,:/home/$HOST_USER:" >> /etc
     echo "ALL ALL=NOPASSWD: ALL" >> /etc/sudoers && \
     addgroup $HOST_USER www-data
 
-# COMPOSER: install binary
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-
-# COMPOSER: install dependencies
-RUN composer global require hirak/prestissimo
+# COMPOSER: install binary and prestissimo
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
+    composer global require hirak/prestissimo
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
