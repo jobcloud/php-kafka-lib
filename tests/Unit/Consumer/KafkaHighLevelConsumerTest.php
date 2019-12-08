@@ -301,10 +301,10 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $message = new Message();
         $message->key = 'test';
-        $message->payload = 'test';
-        $message->topic_name = 'test';
+        $message->payload = null;
+        $message->topic_name = 'test_topic';
         $message->partition = 9;
-        $message->offset = 500;
+        $message->offset = 501;
         $message->timestamp = 500;
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
@@ -324,6 +324,19 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
         $kafkaConfigurationMock->expects(self::once())->method('getTimeout')->willReturn(0);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $decoderMock->expects(self::once())->method('decode')->with(
+            $this->callback(
+                function (KafkaConsumerMessageInterface $message) {
+                    self::assertEquals('test', $message->getKey());
+                    self::assertNull($message->getBody());
+                    self::assertEquals('test_topic', $message->getTopicName());
+                    self::assertEquals(9, $message->getPartition());
+                    self::assertEquals(501, $message->getOffset());
+                    self::assertEquals(500, $message->getTimestamp());
+                    return true;
+                }
+            )
+        );
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
         $kafkaConsumer->subscribe();
