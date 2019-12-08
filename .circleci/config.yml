@@ -1,0 +1,31 @@
+version: 2.1
+
+orbs:
+  ci-caching: jobcloud/ci-caching@0.5
+  ci-php: jobcloud/ci-php@0.5
+
+workflows:
+  test-php-kafka-lib:
+    jobs:
+      - ci-caching/build-docker-images:
+          dockerComposeFile: "./docker/docker-compose.yml"
+      - ci-php/install-dependencies:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
+          requires:
+            - ci-caching/build-docker-images
+      - ci-php/coverage:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
+          requires:
+            - ci-php/install-dependencies
+      - ci-php/code-style:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
+          requires:
+            - ci-php/install-dependencies
+      - ci-php/static-analysis:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
+          requires:
+            - ci-php/install-dependencies
