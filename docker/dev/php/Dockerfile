@@ -11,14 +11,14 @@ COPY dev/php/files/bin/ /usr/local/bin/
 
 # SYS: Install required packages
 RUN apk --no-cache upgrade && \
-    apk --no-cache add bash git sudo openssh autoconf gcc g++ make gettext
+    apk --no-cache add bash git sudo openssh autoconf gcc g++ make
 
 RUN apk add librdkafka librdkafka-dev \
         --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community
 
-#sadly apple users run into a problem since the AD user has a higher ID than 65k :(
+# we need support for users with ID higher than 65k, so instead of using this:
 #RUN adduser -u $HOST_USER_ID -D -H $HOST_USER
-#so we do it oldschool
+# we do it manually
 RUN echo "$HOST_USER:x:$HOST_USER_ID:82:Linux User,,,:/home/$HOST_USER:" >> /etc/passwd && \
     echo "$HOST_USER:!:$(($(date +%s) / 60 / 60 / 24)):0:99999:7:::" >> /etc/shadow && \
     echo "$HOST_USER:x:$HOST_USER_ID:" >> /etc/group && \
@@ -27,11 +27,9 @@ RUN echo "$HOST_USER:x:$HOST_USER_ID:82:Linux User,,,:/home/$HOST_USER:" >> /etc
     echo "ALL ALL=NOPASSWD: ALL" >> /etc/sudoers && \
     addgroup $HOST_USER www-data
 
-# COMPOSER: install binary
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-
-# COMPOSER: install dependencies
-RUN composer global require hirak/prestissimo
+# COMPOSER: install binary and prestissimo
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
+    composer global require hirak/prestissimo
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
