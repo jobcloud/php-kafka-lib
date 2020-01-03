@@ -61,10 +61,10 @@ interface KafkaConsumerInterface
     /**
      * Queries the broker for metadata on a certain topic
      *
-     * @param RdKafkaConsumerTopic $topic
+     * @param string $topic
      * @return RdKafkaMetadataTopic
      */
-    public function getMetadataForTopic(RdKafkaConsumerTopic $topic): RdKafkaMetadataTopic;
+    public function getMetadataForTopic(string $topic): RdKafkaMetadataTopic;
 
     /**
      * Get the earliest offset for a certain timestamp for topic partitions
