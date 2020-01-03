@@ -77,7 +77,7 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
                 $partitions = $topicSubscription->getPartitions();
 
                 if ([] === $partitions) {
-                    $partitions = $this->getAllTopicPartitions($topic);
+                    $partitions = $this->getAllTopicPartitions($topicName);
                     $topicSubscription->setPartitions($partitions);
                 }
 
