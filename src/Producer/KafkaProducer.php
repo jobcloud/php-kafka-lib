@@ -132,5 +132,4 @@ final class KafkaProducer implements KafkaProducerInterface
 
         return $this->producerTopics[$topic];
     }
-
 }
