@@ -144,7 +144,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->with(false, $rdKafkaConsumerTopicMock, 1000)
             ->willReturn($rdKafkaMetadataMock);
         $this->rdKafkaConsumerMock
-            ->expects(self::once())
+            ->expects(self::exactly(2))
             ->method('newTopic')
             ->with('test-topic')
             ->willReturn($rdKafkaConsumerTopicMock);
