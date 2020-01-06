@@ -2,9 +2,7 @@
 
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Producer;
 
-use Jobcloud\Kafka\Message\KafkaMessageInterface;
 use Jobcloud\Kafka\Message\KafkaProducerMessage;
-use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
@@ -13,6 +11,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
+use RdKafka\Metadata as RdKafkaMetadata;
+use RdKafka\Metadata\Collection as RdKafkaMetadataCollection;
+use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 
 /**
  * @covers \Jobcloud\Kafka\Producer\KafkaProducer
@@ -168,5 +169,39 @@ class KafkaProducerTest extends TestCase
             ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
 
         $this->kafkaProducer->flush(100);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetMetadataForTopic(): void
+    {
+        $topicMock = $this->createMock(RdKafkaProducerTopic::class);
+        $metadataMock = $this->createMock(RdKafkaMetadata::class);
+        $metadataCollectionMock = $this->createMock(RdKafkaMetadataCollection::class);
+        $metadataTopic = $this->createMock(RdKafkaMetadataTopic::class);
+        $metadataMock
+            ->expects(self::once())
+            ->method('getTopics')
+            ->willReturn($metadataCollectionMock);
+        $metadataCollectionMock
+            ->expects(self::once())
+            ->method('current')
+            ->willReturn($metadataTopic);
+        $this->kafkaConfigurationMock
+            ->expects(self::once())
+            ->method('getTimeout')
+            ->willReturn(1000);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('newTopic')
+            ->with('test-topic-name')
+            ->willReturn($topicMock);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('getMetadata')
+            ->with(false, $topicMock, 1000)
+            ->willReturn($metadataMock);
+        $this->kafkaProducer->getMetadataForTopic('test-topic-name');
     }
 }

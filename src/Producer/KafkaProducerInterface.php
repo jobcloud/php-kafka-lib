@@ -3,6 +3,7 @@
 namespace Jobcloud\Kafka\Producer;
 
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
+use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 
 interface KafkaProducerInterface
 {
@@ -28,4 +29,12 @@ interface KafkaProducerInterface
      * @return integer
      */
     public function flush(int $timeout): int;
+
+    /**
+     * Queries the broker for metadata on a certain topic
+     *
+     * @param string $topicName
+     * @return RdKafkaMetadataTopic
+     */
+    public function getMetadataForTopic(string $topicName): RdKafkaMetadataTopic;
 }

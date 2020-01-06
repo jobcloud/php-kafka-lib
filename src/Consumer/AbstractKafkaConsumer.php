@@ -118,13 +118,13 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /**
      * Queries the broker for metadata on a certain topic
      *
-     * @param string $topic
+     * @param string $topicName
      * @return RdKafkaMetadataTopic
      * @throws RdKafkaException
      */
-    public function getMetadataForTopic(string $topic): RdKafkaMetadataTopic
+    public function getMetadataForTopic(string $topicName): RdKafkaMetadataTopic
     {
-        $topic = $this->consumer->newTopic($topic);
+        $topic = $this->consumer->newTopic($topicName);
         return $this->consumer
             ->getMetadata(
                 false,
