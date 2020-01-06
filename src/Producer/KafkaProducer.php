@@ -9,6 +9,8 @@ use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
+use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
+use RdKafka\Exception as RdKafkaException;
 
 final class KafkaProducer implements KafkaProducerInterface
 {
@@ -99,6 +101,26 @@ final class KafkaProducer implements KafkaProducerInterface
     }
 
     /**
+     * Queries the broker for metadata on a certain topic
+     *
+     * @param string $topicName
+     * @return RdKafkaMetadataTopic
+     * @throws RdKafkaException
+     */
+    public function getMetadataForTopic(string $topicName): RdKafkaMetadataTopic
+    {
+        $topic = $this->producer->newTopic($topicName);
+        return $this->producer
+            ->getMetadata(
+                false,
+                $topic,
+                $this->kafkaConfiguration->getTimeout()
+            )
+            ->getTopics()
+            ->current();
+    }
+
+    /**
      * @param string $topic
      * @return RdKafkaProducerTopic
      */
@@ -110,4 +132,5 @@ final class KafkaProducer implements KafkaProducerInterface
 
         return $this->producerTopics[$topic];
     }
+
 }
