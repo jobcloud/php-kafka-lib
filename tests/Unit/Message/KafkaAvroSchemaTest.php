@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message;
 
 use Jobcloud\Kafka\Message\KafkaAvroSchema;
+use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use PHPUnit\Framework\TestCase;
 use \AvroSchema;
 
@@ -47,7 +48,7 @@ class KafkaAvroSchemaTest extends TestCase
         $avroSchema = new KafkaAvroSchema($schemaName);
 
         self::assertEquals($schemaName, $avroSchema->getName());
-        self::assertNull($avroSchema->getVersion());
+        self::assertEquals(KafkaAvroSchemaInterface::LATEST_VERSION, $avroSchema->getVersion());
         self::assertNull($avroSchema->getDefinition());
     }
 }

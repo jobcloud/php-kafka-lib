@@ -95,7 +95,7 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     /**
      * Commits the offset to the broker for the given message(s). This is a blocking function
      *
-     * @param KafkaConsumerMessageInterface[]|KafkaConsumerMessageInterface $messages
+     * @param mixed $messages
      * @return void
      * @throws KafkaConsumerCommitException
      */
