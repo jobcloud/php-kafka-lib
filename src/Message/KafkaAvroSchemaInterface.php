@@ -6,15 +6,18 @@ namespace Jobcloud\Kafka\Message;
 
 interface KafkaAvroSchemaInterface
 {
+
+    public const LATEST_VERSION = -1;
+
     /**
      * @return string
      */
     public function getName(): string;
 
     /**
-     * @return integer|null
+     * @return integer
      */
-    public function getVersion(): ?int;
+    public function getVersion(): int;
 
     /**
      * @param \AvroSchema $definition

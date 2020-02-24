@@ -13,7 +13,7 @@ final class KafkaAvroSchema implements KafkaAvroSchemaInterface
     private $name;
 
     /**
-     * @var integer|null
+     * @var integer
      */
     private $version;
 
@@ -25,11 +25,14 @@ final class KafkaAvroSchema implements KafkaAvroSchemaInterface
     /**
      * KafkaAvroSchema constructor.
      * @param string           $schemaName
-     * @param integer|null     $version
+     * @param integer     $version
      * @param \AvroSchema|null $definition
      */
-    public function __construct(string $schemaName, ?int $version = null, ?\AvroSchema $definition = null)
-    {
+    public function __construct(
+        string $schemaName,
+        int $version = KafkaAvroSchemaInterface::LATEST_VERSION,
+        ?\AvroSchema $definition = null
+    ) {
         $this->name = $schemaName;
         $this->version = $version;
         $this->definition = $definition;
@@ -44,9 +47,9 @@ final class KafkaAvroSchema implements KafkaAvroSchemaInterface
     }
 
     /**
-     * @return integer|null
+     * @return integer
      */
-    public function getVersion(): ?int
+    public function getVersion(): int
     {
         return $this->version;
     }
