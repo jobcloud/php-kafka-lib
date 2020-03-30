@@ -32,7 +32,6 @@ jobs:
   coverage:
     machine: true
     steps:
-      - restore
       - run:
           name:  Download cc-test-reporter
           command: |
