@@ -32,15 +32,15 @@ jobs:
   coverage:
     machine: true
     steps:
+      - ci-php/coverage-command:
+          dockerComposeFile: "./docker/docker-compose.yml"
+          dependencyCheckSumFile: "./composer.json"
       - run:
           name:  Download cc-test-reporter
           command: |
             mkdir -p tmp/
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
             chmod +x ./tmp/cc-test-reporter
-      - ci-php/coverage-command:
-          dockerComposeFile: "./docker/docker-compose.yml"
-          dependencyCheckSumFile: "./composer.json"
       - run:
           name: Upload coverage results to Code Climate
           command: |
