@@ -99,7 +99,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Assigns a consumer to the given TopicPartition(s)
      *
-     * @param array<string>|RdKafkaTopicPartition[] $topicPartitions
+     * @param string[]|RdKafkaTopicPartition[] $topicPartitions
      * @throws KafkaConsumerAssignmentException
      * @return void
      */

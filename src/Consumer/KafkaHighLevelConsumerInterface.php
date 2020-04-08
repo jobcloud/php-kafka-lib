@@ -12,7 +12,7 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
     /**
      * Assigns a consumer to the given TopicPartition(s)
      *
-     * @param array<string>|RdKafkaTopicPartition[] $topicPartitions
+     * @param string[]|RdKafkaTopicPartition[] $topicPartitions
      * @return void
      */
     public function assign(array $topicPartitions): void;

@@ -19,7 +19,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 
     /**
-     * @var array<string>
+     * @var string[]
      */
     private $brokers = [];
 
