@@ -25,7 +25,7 @@ interface KafkaConsumerBuilderInterface
      * Add topic name(s) (and additionally partition(s) and offset(s)) to subscribe to
      *
      * @param string  $topicName
-     * @param array<int>   $partitions
+     * @param int[]   $partitions
      * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
@@ -40,7 +40,7 @@ interface KafkaConsumerBuilderInterface
      * subscribe to
      *
      * @param string  $topicName
-     * @param array<int>   $partitions
+     * @param int[]   $partitions
      * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */

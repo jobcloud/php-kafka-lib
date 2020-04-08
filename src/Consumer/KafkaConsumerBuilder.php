@@ -120,7 +120,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * Add topic name(s) (and additionally partitions and offsets) to subscribe to
      *
      * @param string  $topicName
-     * @param array<int>   $partitions
+     * @param int[]   $partitions
      * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
@@ -141,7 +141,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * subscribe to
      *
      * @param string  $topicName
-     * @param array<int>   $partitions
+     * @param int[]   $partitions
      * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
