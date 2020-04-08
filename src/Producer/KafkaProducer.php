@@ -26,7 +26,7 @@ final class KafkaProducer implements KafkaProducerInterface
     protected $kafkaConfiguration;
 
     /**
-     * @var array
+     * @var array|RdKafkaProducerTopic[]
      */
     protected $producerTopics = [];
 

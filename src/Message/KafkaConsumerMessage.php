@@ -25,7 +25,7 @@ final class KafkaConsumerMessage extends AbstractKafkaMessage implements KafkaCo
      * @param integer     $timestamp
      * @param string|null $key
      * @param mixed       $body
-     * @param array|null  $headers
+     * @param array<string,string>|null  $headers
      */
     public function __construct(
         string $topicName,

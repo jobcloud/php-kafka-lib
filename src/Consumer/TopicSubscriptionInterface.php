@@ -13,12 +13,12 @@ interface TopicSubscriptionInterface
     public function getTopicName(): string;
 
     /**
-     * @return array
+     * @return int[]
      */
     public function getPartitions(): array;
 
     /**
-     * @param array $partitions
+     * @param int[] $partitions
      * @return void
      */
     public function setPartitions(array $partitions): void;

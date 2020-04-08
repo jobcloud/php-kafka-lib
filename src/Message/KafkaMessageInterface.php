@@ -23,7 +23,7 @@ interface KafkaMessageInterface
     public function getPartition(): int;
 
     /**
-     * @return array|null
+     * @return array<string,string>|null
      */
     public function getHeaders(): ?array;
 
