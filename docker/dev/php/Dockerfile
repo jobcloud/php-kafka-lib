@@ -1,4 +1,4 @@
-FROM php:7.3-cli-alpine3.10
+FROM php:7.3-cli-alpine3.11
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER 1
