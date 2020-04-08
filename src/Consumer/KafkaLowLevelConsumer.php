@@ -151,7 +151,7 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
 
     /**
      * @param string $topic
-     * @return array<int,int>
+     * @return int[]
      * @throws RdKafkaException
      */
     private function getAllTopicPartitions(string $topic): array
