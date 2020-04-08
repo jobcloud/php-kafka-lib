@@ -29,7 +29,7 @@ class KafkaConfiguration extends RdKafkaConf
      * @param array<string> $brokers
      * @param array|TopicSubscription[] $topicSubscriptions
      * @param integer $timeout
-     * @param array<string> $config
+     * @param array<mixed> $config
      */
     public function __construct(array $brokers, array $topicSubscriptions, int $timeout, array $config = [])
     {
@@ -75,7 +75,7 @@ class KafkaConfiguration extends RdKafkaConf
     }
 
     /**
-     * @param array<string> $config
+     * @param array<mixed> $config
      * @return void
      */
     protected function initializeConfig(array $config = []): void
