@@ -11,12 +11,12 @@ class KafkaConfiguration extends RdKafkaConf
 {
 
     /**
-     * @var array
+     * @var array<string>
      */
     protected $brokers;
 
     /**
-     * @var array
+     * @var array|TopicSubscription[]
      */
     protected $topicSubscriptions;
 
@@ -26,10 +26,10 @@ class KafkaConfiguration extends RdKafkaConf
     protected $timeout;
 
     /**
-     * @param array $brokers
-     * @param array $topicSubscriptions
+     * @param array<string> $brokers
+     * @param array|TopicSubscription[] $topicSubscriptions
      * @param integer $timeout
-     * @param array $config
+     * @param array<string> $config
      */
     public function __construct(array $brokers, array $topicSubscriptions, int $timeout, array $config = [])
     {
@@ -43,7 +43,7 @@ class KafkaConfiguration extends RdKafkaConf
     }
 
     /**
-     * @return array
+     * @return array<string>
      */
     public function getBrokers(): array
     {
@@ -67,7 +67,7 @@ class KafkaConfiguration extends RdKafkaConf
     }
 
     /**
-     * @return array
+     * @return array<string>
      */
     public function getConfiguration(): array
     {
@@ -75,7 +75,7 @@ class KafkaConfiguration extends RdKafkaConf
     }
 
     /**
-     * @param array $config
+     * @param array<string> $config
      * @return void
      */
     protected function initializeConfig(array $config = []): void
