@@ -260,4 +260,5 @@ while (true) {
 ```
 
 ## Additional information
-Replaces [messaging-lib](https://github.com/jobcloud/messaging-lib)
+Replaces [messaging-lib](https://github.com/jobcloud/messaging-lib)  
+Check [Migration.md](MIGRATION.md) for help to migrate.
