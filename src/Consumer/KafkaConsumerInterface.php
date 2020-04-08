@@ -54,7 +54,7 @@ interface KafkaConsumerInterface
     /**
      * Returns the configuration settings for this consumer instance as array
      *
-     * @return array
+     * @return array<string,mixed>
      */
     public function getConfiguration(): array;
 
@@ -71,7 +71,7 @@ interface KafkaConsumerInterface
      *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
      * @param integer                       $timeout
-     * @return array
+     * @return array|RdKafkaTopicPartition[]
      */
     public function offsetsForTimes(array $topicPartitions, int $timeout): array;
 

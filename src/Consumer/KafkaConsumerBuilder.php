@@ -19,12 +19,12 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 
     /**
-     * @var array
+     * @var array<string>
      */
     private $brokers = [];
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private $config = [
         'enable.auto.offset.store' => false,
@@ -33,7 +33,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     ];
 
     /**
-     * @var array
+     * @var array|TopicSubscription[]
      */
     private $topics = [];
 
@@ -120,7 +120,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * Add topic name(s) (and additionally partitions and offsets) to subscribe to
      *
      * @param string  $topicName
-     * @param array   $partitions
+     * @param array<int>   $partitions
      * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
@@ -141,7 +141,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * subscribe to
      *
      * @param string  $topicName
-     * @param array   $partitions
+     * @param array<int>   $partitions
      * @param integer $offset
      * @return KafkaConsumerBuilderInterface
      */
@@ -159,7 +159,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * Add configuration settings, otherwise the kafka defaults apply
      *
-     * @param array $config
+     * @param array<string,mixed> $config
      * @return KafkaConsumerBuilderInterface
      */
     public function withAdditionalConfig(array $config): KafkaConsumerBuilderInterface
