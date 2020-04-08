@@ -12,7 +12,6 @@ use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Kafka\Message\KafkaConsumerMessage;
 use RdKafka\Consumer as RdKafkaLowLevelConsumer;
-use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
@@ -71,7 +70,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /**
      * Returns the configuration settings for this consumer instance as array
      *
-     * @return array
+     * @return string[]
      */
     public function getConfiguration(): array
     {
@@ -140,7 +139,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
      * @param integer                       $timeout
-     * @return array
+     * @return array|RdKafkaTopicPartition[]
      */
     public function offsetsForTimes(array $topicPartitions, int $timeout): array
     {

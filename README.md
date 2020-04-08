@@ -20,7 +20,7 @@ can help out to understand the internals of this library.
 - ext-rdkafka: ^4.0.0
 
 ## Installation
-```composer require jobcloud/php-kafka-lib "~1.0"```
+```composer require jobcloud/php-kafka-lib "~0.1"```
 
 ## Usage
 
@@ -260,4 +260,5 @@ while (true) {
 ```
 
 ## Additional information
-Replaces [messaging-lib](https://github.com/jobcloud/messaging-lib)
+Replaces [messaging-lib](https://github.com/jobcloud/messaging-lib)  
+Check [Migration.md](MIGRATION.md) for help to migrate.

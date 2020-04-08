@@ -7,6 +7,7 @@ namespace Jobcloud\Kafka\Callback;
 use RdKafka\KafkaConsumer as RdKafkaConsumer;
 use Jobcloud\Kafka\Exception\KafkaRebalanceException;
 use RdKafka\Exception as RdKafkaException;
+use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 // phpcs:disable
 require_once __DIR__ . '/../Exception/KafkaRebalanceException.php'; // @codeCoverageIgnore
@@ -18,7 +19,7 @@ final class KafkaConsumerRebalanceCallback
     /**
      * @param RdKafkaConsumer $consumer
      * @param integer         $errorCode
-     * @param array|null      $partitions
+     * @param array|RdKafkaTopicPartition[]|null      $partitions
      * @throws KafkaRebalanceException
      * @return void
      */

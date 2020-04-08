@@ -24,7 +24,7 @@ final class TopicSubscription implements TopicSubscriptionInterface
 
     /**
      * @param string  $topicName
-     * @param array   $partitions
+     * @param int[]   $partitions
      * @param integer $offset
      */
     public function __construct(
@@ -46,7 +46,7 @@ final class TopicSubscription implements TopicSubscriptionInterface
     }
 
     /**
-     * @param array $partitions
+     * @param int[] $partitions
      * @return void
      */
     public function setPartitions(array $partitions): void

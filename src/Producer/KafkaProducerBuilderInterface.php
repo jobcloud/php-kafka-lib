@@ -25,7 +25,7 @@ interface KafkaProducerBuilderInterface
     public function withAdditionalBroker(string $broker): self;
 
     /**
-     * @param array $config
+     * @param string[] $config
      * @return KafkaProducerBuilderInterface
      */
     public function withAdditionalConfig(array $config): self;

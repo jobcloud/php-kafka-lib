@@ -20,7 +20,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $brokers = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     private $config = [];
 
@@ -80,7 +80,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * Add configuration settings, otherwise the kafka defaults apply
      *
-     * @param array $config
+     * @param string[] $config
      * @return KafkaProducerBuilderInterface
      */
     public function withAdditionalConfig(array $config): KafkaProducerBuilderInterface
