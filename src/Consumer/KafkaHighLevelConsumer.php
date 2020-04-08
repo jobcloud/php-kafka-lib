@@ -99,7 +99,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Assigns a consumer to the given TopicPartition(s)
      *
-     * @param array $topicPartitions
+     * @param array<string>|RdKafkaTopicPartition[] $topicPartitions
      * @throws KafkaConsumerAssignmentException
      * @return void
      */
@@ -127,7 +127,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Gets the current assignment for the consumer
      *
-     * @return array
+     * @return array|RdKafkaTopicPartition[]
      * @throws KafkaConsumerAssignmentException
      */
     public function getAssignment(): array
@@ -160,7 +160,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      * Get current offset positions of the consumer
      *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @return array
+     * @return array|RdKafkaTopicPartition[]
      */
     public function getOffsetPositions(array $topicPartitions): array
     {
@@ -211,8 +211,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param array $messages
-     * @return array
+     * @param array|RdKafkaMessage[] $messages
+     * @return array|RdKafkaTopicPartition[]
      */
     private function getOffsetsToCommitForMessages(array $messages): array
     {
