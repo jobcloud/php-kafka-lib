@@ -12,7 +12,7 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
     /**
      * Assigns a consumer to the given TopicPartition(s)
      *
-     * @param array $topicPartitions
+     * @param array<string>|RdKafkaTopicPartition[] $topicPartitions
      * @return void
      */
     public function assign(array $topicPartitions): void;
@@ -45,7 +45,7 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
      * Get current offset positions of the consumer
      *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @return array
+     * @return array|RdKafkaTopicPartition[]
      */
     public function getOffsetPositions(array $topicPartitions): array;
 

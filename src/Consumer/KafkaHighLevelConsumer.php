@@ -211,7 +211,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param array|RdKafkaMessage[] $messages
+     * @param array|KafkaConsumerMessageInterface[] $messages
      * @return array|RdKafkaTopicPartition[]
      */
     private function getOffsetsToCommitForMessages(array $messages): array
