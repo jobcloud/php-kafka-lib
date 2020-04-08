@@ -54,7 +54,7 @@ final class KafkaProducerMessage extends AbstractKafkaMessage implements KafkaPr
     }
 
     /**
-     * @param array<string,string>|null $headers
+     * @param string[]|null $headers
      * @return KafkaProducerMessageInterface
      */
     public function withHeaders(?array $headers): KafkaProducerMessageInterface
