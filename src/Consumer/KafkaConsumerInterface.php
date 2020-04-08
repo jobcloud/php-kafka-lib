@@ -54,7 +54,7 @@ interface KafkaConsumerInterface
     /**
      * Returns the configuration settings for this consumer instance as array
      *
-     * @return array<string,mixed>
+     * @return string[]
      */
     public function getConfiguration(): array;
 

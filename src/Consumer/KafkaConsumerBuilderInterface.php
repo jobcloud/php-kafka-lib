@@ -53,7 +53,7 @@ interface KafkaConsumerBuilderInterface
     /**
      * Add configuration settings, otherwise the kafka defaults apply
      *
-     * @param array<string,mixed> $config
+     * @param string[] $config
      * @return KafkaConsumerBuilderInterface
      */
     public function withAdditionalConfig(array $config): self;
