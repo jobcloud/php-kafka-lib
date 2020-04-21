@@ -106,10 +106,6 @@ class KafkaProducerTest extends TestCase
                 $message->getHeaders()
             );
 
-        $this->kafkaConfigurationMock
-            ->expects(self::exactly(2))
-            ->method('getTimeout')
-            ->willReturn(1000);
         $this->rdKafkaProducerMock
             ->expects(self::exactly(3))
             ->method('getOutQLen')
@@ -140,7 +136,7 @@ class KafkaProducerTest extends TestCase
             ->method('poll')
             ->with(1000);
 
-        $this->kafkaProducer->produce($message);
+        $this->kafkaProducer->produce($message, 1000);
     }
 
     /**
@@ -188,10 +184,6 @@ class KafkaProducerTest extends TestCase
             ->expects(self::once())
             ->method('current')
             ->willReturn($metadataTopic);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTimeout')
-            ->willReturn(1000);
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('newTopic')
@@ -202,6 +194,6 @@ class KafkaProducerTest extends TestCase
             ->method('getMetadata')
             ->with(false, $topicMock, 1000)
             ->willReturn($metadataMock);
-        $this->kafkaProducer->getMetadataForTopic('test-topic-name');
+        $this->kafkaProducer->getMetadataForTopic('test-topic-name', 1000);
     }
 }

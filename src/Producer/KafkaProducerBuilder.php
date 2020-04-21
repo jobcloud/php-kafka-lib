@@ -148,7 +148,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
             unset($this->config['queue.buffering.max.ms']);
         }
 
-        $kafkaConfig = new KafkaConfiguration($this->brokers, [], $this->pollTimeout, $this->config);
+        $kafkaConfig = new KafkaConfiguration($this->brokers, [], $this->config);
 
         //set producer callbacks
         $this->registerCallbacks($kafkaConfig);

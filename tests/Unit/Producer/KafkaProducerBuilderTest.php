@@ -109,20 +109,6 @@ class KafkaProducerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
-     */
-    public function testSetPollTimeout(): void
-    {
-        $clone = $this->kafkaProducerBuilder->withPollTimeout(1000);
-
-        $reflectionProperty = new \ReflectionProperty($clone, 'pollTimeout');
-        $reflectionProperty->setAccessible(true);
-
-        self::assertSame(1000, $reflectionProperty->getValue($clone));
-    }
-
-    /**
      * @throws KafkaProducerException
      */
     public function testBuildNoBroker(): void

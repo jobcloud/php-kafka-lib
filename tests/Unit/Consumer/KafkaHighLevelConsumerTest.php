@@ -317,12 +317,11 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock
             ->expects(self::once())
             ->method('consume')
-            ->with(0)
+            ->with(10000)
             ->willReturn($message);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
         $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConfigurationMock->expects(self::once())->method('getTimeout')->willReturn(0);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $decoderMock->expects(self::once())->method('decode')->with(
             $this->callback(
