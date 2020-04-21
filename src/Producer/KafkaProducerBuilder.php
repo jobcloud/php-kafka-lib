@@ -35,11 +35,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $errorCallback;
 
     /**
-     * @var int
-     */
-    private $pollTimeout = 1;
-
-    /**
      * @var EncoderInterface
      */
     private $encoder;
@@ -114,19 +109,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     public function withErrorCallback(callable $errorCallback): KafkaProducerBuilderInterface
     {
         $this->errorCallback = $errorCallback;
-
-        return $this;
-    }
-
-    /**
-     * Sets the poll timeout. Poll queries and dispatches events to callbacks.
-     *
-     * @param integer $pollTimeout
-     * @return KafkaProducerBuilderInterface
-     */
-    public function withPollTimeout(int $pollTimeout): KafkaProducerBuilderInterface
-    {
-        $this->pollTimeout = $pollTimeout;
 
         return $this;
     }

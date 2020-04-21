@@ -56,13 +56,13 @@ final class KafkaProducer implements KafkaProducerInterface
      * If a schema name was given, the message body will be avro serialized.
      *
      * @param KafkaProducerMessageInterface $message
+     * @param integer $pollTimeoutMs
      * @return void
      */
-    public function produce(KafkaProducerMessageInterface $message): void
+    public function produce(KafkaProducerMessageInterface $message, int $pollTimeoutMs = 0): void
     {
         $message = $this->encoder->encode($message);
 
-        /** @var KafkaProducerMessageInterface $message */
         $topicProducer = $this->getProducerTopicForTopic($message->getTopicName());
 
         $topicProducer->producev(
@@ -74,7 +74,7 @@ final class KafkaProducer implements KafkaProducerInterface
         );
 
         while ($this->producer->getOutQLen() > 0) {
-            $this->producer->poll($this->kafkaConfiguration->getTimeout());
+            $this->producer->poll($pollTimeoutMs);
         }
     }
 
@@ -92,29 +92,30 @@ final class KafkaProducer implements KafkaProducerInterface
     /**
      * Wait until all outstanding produce requests are completed
      *
-     * @param integer $timeout
+     * @param integer $timeoutMs
      * @return integer
      */
-    public function flush(int $timeout): int
+    public function flush(int $timeoutMs): int
     {
-        return $this->producer->flush($timeout);
+        return $this->producer->flush($timeoutMs);
     }
 
     /**
      * Queries the broker for metadata on a certain topic
      *
      * @param string $topicName
+     * @param integer $timeoutMs
      * @return RdKafkaMetadataTopic
      * @throws RdKafkaException
      */
-    public function getMetadataForTopic(string $topicName): RdKafkaMetadataTopic
+    public function getMetadataForTopic(string $topicName, int $timeoutMs = 10000): RdKafkaMetadataTopic
     {
         $topic = $this->producer->newTopic($topicName);
         return $this->producer
             ->getMetadata(
                 false,
                 $topic,
-                $this->kafkaConfiguration->getTimeout()
+                $timeoutMs
             )
             ->getTopics()
             ->current();

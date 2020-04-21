@@ -31,9 +31,9 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testAddConfig(): void
     {
-        $config = ['timeout' => 1000];
+        $config = ['auto.offset.reset' => 'earliest'];
         $clone = $this->kafkaProducerBuilder->withAdditionalConfig($config);
-        $config = ['timeout' => 1001];
+        $config = ['auto.offset.reset' => 'latest'];
         $clone = $clone->withAdditionalConfig($config);
 
         $reflectionProperty = new \ReflectionProperty($clone, 'config');

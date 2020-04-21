@@ -48,11 +48,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     private $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
 
     /**
-     * @var int
-     */
-    private $timeout = 1000;
-
-    /**
      * @var callable
      */
     private $errorCallback;
@@ -166,20 +161,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     {
         $that = clone $this;
         $that->config = $config + $this->config;
-
-        return $that;
-    }
-
-    /**
-     * Set the timeout for all consumer actions
-     *
-     * @param integer $timeout
-     * @return KafkaConsumerBuilderInterface
-     */
-    public function withTimeout(int $timeout): KafkaConsumerBuilderInterface
-    {
-        $that = clone $this;
-        $that->timeout = $timeout;
 
         return $that;
     }
@@ -321,7 +302,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $kafkaConfig = new KafkaConfiguration(
             $this->brokers,
             $this->topics,
-            $this->timeout,
             $this->config
         );
 

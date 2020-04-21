@@ -545,7 +545,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->method('queryWatermarkOffsets')
             ->with('test-topic', 1, 0, 0, 1000)
             ->willReturnCallback(
-                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeout) {
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeoutMs) {
                     $lowOffset++;
                 }
             );
@@ -567,7 +567,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->method('queryWatermarkOffsets')
             ->with('test-topic', 1, 0, 0, 1000)
             ->willReturnCallback(
-                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeout) {
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeoutMs) {
                     $highOffset += 5;
                 }
             );

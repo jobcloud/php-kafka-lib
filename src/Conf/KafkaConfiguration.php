@@ -21,23 +21,16 @@ class KafkaConfiguration extends RdKafkaConf
     protected $topicSubscriptions;
 
     /**
-     * @var int
-     */
-    protected $timeout;
-
-    /**
      * @param string[] $brokers
      * @param array|TopicSubscription[] $topicSubscriptions
-     * @param integer $timeout
      * @param mixed[] $config
      */
-    public function __construct(array $brokers, array $topicSubscriptions, int $timeout, array $config = [])
+    public function __construct(array $brokers, array $topicSubscriptions, array $config = [])
     {
         parent::__construct();
 
         $this->brokers = $brokers;
         $this->topicSubscriptions = $topicSubscriptions;
-        $this->timeout = $timeout;
 
         $this->initializeConfig($config);
     }
@@ -56,14 +49,6 @@ class KafkaConfiguration extends RdKafkaConf
     public function getTopicSubscriptions(): array
     {
         return $this->topicSubscriptions;
-    }
-
-    /**
-     * @return integer
-     */
-    public function getTimeout(): int
-    {
-        return $this->timeout;
     }
 
     /**

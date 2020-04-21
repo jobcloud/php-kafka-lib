@@ -36,10 +36,10 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
      * Gets the commited offset for a TopicPartition for the configured consumer group
      *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @param integer                       $timeout
+     * @param integer                       $timeoutMs
      * @return array|RdKafkaTopicPartition[]
      */
-    public function getCommittedOffsets(array $topicPartitions, int $timeout): array;
+    public function getCommittedOffsets(array $topicPartitions, int $timeoutMs): array;
 
     /**
      * Get current offset positions of the consumer
