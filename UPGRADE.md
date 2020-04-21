@@ -12,7 +12,11 @@ This affects the following classes:
 - KafkaProducerBuilder / KafkaProducerBuilderInterface
     - Removed `withPollTimeout()`
 - KafkaHighLevelConsumer / KafkaLowLevelConsumer / KafkaConsumerInterface
-    - Added `$timeoutMs` to `consume()`
+    - Added `$timeoutMs` to `consume()`, default is 10s
+    - Added `$timeoutMs` to `getMetadataForTopic()`, default is 10s
+- KafkaProducer / KafkaProducerInterface
+    - Added `pollTimeoutMs` to `produce()`, default is 10s
+    - Added `$timeoutMs` to `getMetadataForTopic()`, default is 10s
 
 ## Default error callback
 The default error callback now only throws exceptions for  
