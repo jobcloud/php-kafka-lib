@@ -10,10 +10,42 @@ interface KafkaProducerInterface
 
     /**
      * @param KafkaProducerMessageInterface $message
+     * @param boolean $autoPoll
      * @param integer $pollTimeoutMs
      * @return void
      */
-    public function produce(KafkaProducerMessageInterface $message, int $pollTimeoutMs = 0): void;
+    public function produce(
+        KafkaProducerMessageInterface $message,
+        bool $autoPoll = true,
+        int $pollTimeoutMs = 0
+    ): void;
+
+    /**
+     * Produces a message to the topic and partition defined in the message
+     * If a schema name was given, the message body will be avro serialized.
+     * Wait for the message to event to arrive before continuing (blocking)
+     *
+     * @param KafkaProducerMessageInterface $message
+     * @return void
+     */
+    public function syncProduce(KafkaProducerMessageInterface $message): void;
+
+    /**
+     * Poll for producer event, pass 0 for non-blocking, pass -1 to block until an event arrives
+     *
+     * @param integer $timeoutMs
+     * @return void
+     */
+    public function poll(int $timeoutMs = 0): void;
+
+    /**
+     * Poll for producer events until the number of $queueSize events remain
+     *
+     * @param integer $timeoutMs
+     * @param integer $queueSize
+     * @return void
+     */
+    public function pollUntilQueueSizeReached(int $timeoutMs = 0, int $queueSize = 0): void;
 
     /**
      * Purge producer messages that are in flight
