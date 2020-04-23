@@ -39,9 +39,18 @@ interface KafkaConsumerInterface
      * Consumes a message and returns it
      * In cases of errors / timeouts a KafkaConsumerConsumeException is thrown
      *
+     * @param boolean $autoDecode
      * @return KafkaConsumerMessageInterface
      */
-    public function consume(): KafkaConsumerMessageInterface;
+    public function consume(bool $autoDecode = true): KafkaConsumerMessageInterface;
+
+    /**
+     * Decode consumer message
+     *
+     * @param KafkaConsumerMessageInterface $message
+     * @return KafkaConsumerMessageInterface
+     */
+    public function decodeMessage(KafkaConsumerMessageInterface $message): KafkaConsumerMessageInterface;
 
     /**
      * Commits the offset to the broker for the given message(s)
