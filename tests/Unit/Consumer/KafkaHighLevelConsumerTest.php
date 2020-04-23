@@ -379,14 +379,14 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
     public function testDecodeMessage(): void
     {
-        $message = new Message();
-        $message->key = 'test';
-        $message->payload = null;
-        $message->topic_name = 'test_topic';
-        $message->partition = 9;
-        $message->offset = 501;
-        $message->timestamp = 500;
-        $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
+        $messageMock = $this->createMock(KafkaConsumerMessageInterface::class);
+        $messageMock->expects(self::once())->method('getKey')->willReturn('test');
+        $messageMock->expects(self::once())->method('getBody')->willReturn('some body');
+        $messageMock->expects(self::once())->method('getTopicName')->willReturn('test_topic');
+        $messageMock->expects(self::once())->method('getPartition')->willReturn(9);
+        $messageMock->expects(self::once())->method('getOffset')->willReturn(501);
+        $messageMock->expects(self::once())->method('getTimestamp')->willReturn(500);
+        $messageMock->expects(self::once())->method('getHeaders')->willReturn(['some' => 'header']);
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
@@ -395,17 +395,18 @@ final class KafkaHighLevelConsumerTest extends TestCase
             $this->callback(
                 function (KafkaConsumerMessageInterface $message) {
                     self::assertEquals('test', $message->getKey());
-                    self::assertNull($message->getBody());
+                    self::assertEquals('some body', $message->getBody());
                     self::assertEquals('test_topic', $message->getTopicName());
                     self::assertEquals(9, $message->getPartition());
                     self::assertEquals(501, $message->getOffset());
                     self::assertEquals(500, $message->getTimestamp());
+                    self::assertEquals(['some' => 'header'], $message->getHeaders());
                     return true;
                 }
             )
         );
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
-        $kafkaConsumer->decodeMessage($message);
+        $kafkaConsumer->decodeMessage($messageMock);
     }
 
     /**
