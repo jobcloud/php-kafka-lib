@@ -82,12 +82,13 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * In cases of errors / timeouts an exception is thrown
      *
      * @param integer $timeoutMs
+     * @param boolean $autoDecode
      * @return KafkaConsumerMessageInterface
      * @throws KafkaConsumerConsumeException
      * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerTimeoutException
      */
-    public function consume(int $timeoutMs = 10000): KafkaConsumerMessageInterface
+    public function consume(int $timeoutMs = 10000, bool $autoDecode = true): KafkaConsumerMessageInterface
     {
         if (false === $this->isSubscribed()) {
             throw new KafkaConsumerConsumeException(KafkaConsumerConsumeException::NOT_SUBSCRIBED_EXCEPTION_MESSAGE);
@@ -112,6 +113,21 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             throw new KafkaConsumerConsumeException($rdKafkaMessage->errstr(), $rdKafkaMessage->err, $message);
         }
 
+        if (true === $autoDecode) {
+            return $this->decoder->decode($message);
+        }
+
+        return $message;
+    }
+
+    /**
+     * Decode consumer message
+     *
+     * @param KafkaConsumerMessageInterface $message
+     * @return KafkaConsumerMessageInterface
+     */
+    public function decodeMessage(KafkaConsumerMessageInterface $message): KafkaConsumerMessageInterface
+    {
         return $this->decoder->decode($message);
     }
 
