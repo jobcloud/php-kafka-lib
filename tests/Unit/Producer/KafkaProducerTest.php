@@ -2,6 +2,9 @@
 
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Producer;
 
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionAbortException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionFatalException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionRetryException;
 use Jobcloud\Kafka\Message\KafkaProducerMessage;
 use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Kafka\Exception\KafkaProducerException;
@@ -14,6 +17,8 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 use RdKafka\Metadata as RdKafkaMetadata;
 use RdKafka\Metadata\Collection as RdKafkaMetadataCollection;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
+use RdKafka\KafkaError as RdKafkaError;
+
 
 /**
  * @covers \Jobcloud\Kafka\Producer\KafkaProducer
@@ -203,5 +208,105 @@ class KafkaProducerTest extends TestCase
             ->with(false, $topicMock, 1000)
             ->willReturn($metadataMock);
         $this->kafkaProducer->getMetadataForTopic('test-topic-name');
+    }
+
+    /**
+     * @return void
+     */
+    public function testInitTransactionsSuccess(): void
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+
+        self::assertNull($this->kafkaProducer->initTransactions(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testInitTransactionsWithRetriableError(): void
+    {
+        self::expectException(KafkaProducerTransactionRetryException::class);
+
+        $errorMock = $this->createMock(RdKafkaError::class);
+        $errorMock->expects(self::once())->method('isRetriable')->willReturn(true);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willReturn($errorMock);
+
+        self::assertNull($this->kafkaProducer->initTransactions(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testInitTransactionsWithAbortError(): void
+    {
+        self::expectException(KafkaProducerTransactionAbortException::class);
+
+        $errorMock = $this->createMock(RdKafkaError::class);
+        $errorMock->expects(self::once())->method('isRetriable')->willReturn(false);
+        $errorMock->expects(self::once())->method('transactionRequiresAbort')->willReturn(true);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willReturn($errorMock);
+
+        self::assertNull($this->kafkaProducer->initTransactions(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testInitTransactionsWithFatalError(): void
+    {
+        self::expectException(KafkaProducerTransactionFatalException::class);
+
+        $errorMock = $this->createMock(RdKafkaError::class);
+        $errorMock->expects(self::once())->method('isRetriable')->willReturn(false);
+        $errorMock->expects(self::once())->method('transactionRequiresAbort')->willReturn(false);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willReturn($errorMock);
+
+        self::assertNull($this->kafkaProducer->initTransactions(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testBeginTransactionSuccess(): void
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('beginTransaction')
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+
+        self::assertNull($this->kafkaProducer->beginTransaction());
+    }
+
+    /**
+     * @return void
+     */
+    public function testCommitTransactionSuccess(): void
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('commitTransaction')
+            ->with(10000)
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+
+        self::assertNull($this->kafkaProducer->commitTransaction(10000));
     }
 }

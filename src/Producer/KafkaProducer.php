@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Producer;
 
+use Jobcloud\Kafka\Exception\KafkaProducerException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionAbortException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionFatalException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionRetryException;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
@@ -11,6 +15,8 @@ use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Exception as RdKafkaException;
+use RdKafka\KafkaError as RdKafkaError;
+
 
 final class KafkaProducer implements KafkaProducerInterface
 {
@@ -121,6 +127,81 @@ final class KafkaProducer implements KafkaProducerInterface
     }
 
     /**
+     * Initialize producer transactions
+     *
+     * @param int $timeoutMs
+     * @return void
+     *
+     * @throws KafkaProducerTransactionAbortException
+     * @throws KafkaProducerTransactionFatalException
+     * @throws KafkaProducerTransactionRetryException
+     */
+    public function initTransactions(int $timeoutMs): void
+    {
+        $result = $this->producer->initTransactions($timeoutMs);
+
+        if ($result instanceof RdKafkaError) {
+            $this->handleTransactionError($result);
+        }
+    }
+
+    /**
+     * Start a producer transaction
+     *
+     * @return void
+     *
+     * @throws KafkaProducerTransactionAbortException
+     * @throws KafkaProducerTransactionFatalException
+     * @throws KafkaProducerTransactionRetryException
+     */
+    public function beginTransaction(): void
+    {
+        $result = $this->producer->beginTransaction();
+
+        if ($result instanceof RdKafkaError) {
+            $this->handleTransactionError($result);
+        }
+    }
+
+    /**
+     * Commit the current producer transaction
+     *
+     * @param int $timeoutMs
+     * @return void
+     *
+     * @throws KafkaProducerTransactionAbortException
+     * @throws KafkaProducerTransactionFatalException
+     * @throws KafkaProducerTransactionRetryException
+     */
+    public function commitTransaction(int $timeoutMs): void
+    {
+        $result = $this->producer->commitTransaction($timeoutMs);
+
+        if ($result instanceof RdKafkaError) {
+            $this->handleTransactionError($result);
+        }
+    }
+
+    /**
+     * Abort the current producer transaction
+     *
+     * @param int $timeoutMs
+     * @return void
+     *
+     * @throws KafkaProducerTransactionAbortException
+     * @throws KafkaProducerTransactionFatalException
+     * @throws KafkaProducerTransactionRetryException
+     */
+    public function abortTransaction(int $timeoutMs): void
+    {
+        $result = $this->producer->abortTransaction($timeoutMs);
+
+        if ($result instanceof RdKafkaError) {
+            $this->handleTransactionError($result);
+        }
+    }
+
+    /**
      * @param string $topic
      * @return RdKafkaProducerTopic
      */
@@ -131,5 +212,23 @@ final class KafkaProducer implements KafkaProducerInterface
         }
 
         return $this->producerTopics[$topic];
+    }
+
+    private function handleTransactionError(RdKafkaError $kafkaError)
+    {
+        if (true === $kafkaError->isRetriable()) {
+            throw new KafkaProducerTransactionRetryException(
+                KafkaProducerTransactionRetryException::RETRIABLE_TRANSCATION_EXCEPTION_MESSAGE
+            );
+        } else if (true === $kafkaError->transactionRequiresAbort()) {
+            throw new KafkaProducerTransactionAbortException(
+                KafkaProducerTransactionAbortException::TRANSCATION_REQUIRES_ABORT_EXCEPTION_MESSAGE
+            );
+        } else {
+            // according to librdkafka documentation, everything that is not retriable, abortable or fatal is fatal
+            throw new KafkaProducerTransactionFatalException(
+                KafkaProducerTransactionFatalException::FATAL_TRANSCATION_EXCEPTION_MESSAGE
+            );
+        }
     }
 }
