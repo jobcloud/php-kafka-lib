@@ -13,7 +13,7 @@ We have added the following new functions:
 
 ## Possibility to decode message later (Consumer)
 Default behaviour is the same.  
-Consume has now an optional parameter `consume(bool $autoDecode = true)`.  
+Consume has now an second optional parameter `consume(int $timeoutMs = 10000, bool $autoDecode = true)`.  
 If set to false, you must decode your message later using `$consumer->decodeMessage($message)`.  
 For high throughput, you don't need to decode immediately, some decisions can be made  
 relying on the message headers alone. This helps to leverage that.
