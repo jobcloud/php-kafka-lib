@@ -43,12 +43,6 @@ interface KafkaProducerBuilderInterface
     public function withErrorCallback(callable $errorCallback): self;
 
     /**
-     * @param integer $pollTimeout
-     * @return KafkaProducerBuilderInterface
-     */
-    public function withPollTimeout(int $pollTimeout): self;
-
-    /**
      * Lets you set a custom encoder for produce message
      *
      * @param EncoderInterface $encoder

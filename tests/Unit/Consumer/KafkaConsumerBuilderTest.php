@@ -96,24 +96,10 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testSetTimeout(): void
-    {
-        self::assertNotSame($this->kafkaConsumerBuilder, $clone = $this->kafkaConsumerBuilder->withTimeout(1000));
-
-        $reflectionProperty = new \ReflectionProperty($clone, 'timeout');
-        $reflectionProperty->setAccessible(true);
-
-        self::assertSame(1000, $reflectionProperty->getValue($clone));
-    }
-
-    /**
-     * @return void
-     * @throws \ReflectionException
-     */
     public function testAddConfig(): void
     {
-        $intialConfig = ['timeout' => 1000, 'group.id' => 'test-group', 'enable.auto.offset.store' => true];
-        $newConfig = ['timeout' => 1001, 'offset.store.sync.interval.ms' => 60e3];
+        $intialConfig = ['group.id' => 'test-group', 'enable.auto.offset.store' => true];
+        $newConfig = ['offset.store.sync.interval.ms' => 60e3];
         $clone = $this->kafkaConsumerBuilder->withAdditionalConfig($intialConfig);
         $clone = $clone->withAdditionalConfig($newConfig);
 
@@ -122,7 +108,6 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         self::assertSame(
             [
-                'timeout' => 1001,
                 'offset.store.sync.interval.ms' => 60e3,
                 'group.id' => 'test-group',
                 'enable.auto.offset.store' => true,

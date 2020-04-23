@@ -18,7 +18,7 @@ class KafkaConfigurationTest extends TestCase
      */
     public function testInstance(): void
     {
-        self::assertInstanceOf(KafkaConfiguration::class, new KafkaConfiguration([], [], 1000));
+        self::assertInstanceOf(KafkaConfiguration::class, new KafkaConfiguration([], []));
     }
 
     /**
@@ -45,11 +45,10 @@ class KafkaConfigurationTest extends TestCase
      */
     public function testGettersAndSetters(array $brokers, array $topicSubscriptions): void
     {
-        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, 1000);
+        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions);
 
         self::assertEquals($brokers, $kafkaConfiguration->getBrokers());
         self::assertEquals($topicSubscriptions, $kafkaConfiguration->getTopicSubscriptions());
-        self::assertEquals(1000, $kafkaConfiguration->getTimeout());
     }
 
     /**
@@ -60,7 +59,7 @@ class KafkaConfigurationTest extends TestCase
      */
     public function testGetConfiguration(array $brokers, array $topicSubscriptions): void
     {
-        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions, 1000);
+        $kafkaConfiguration = new KafkaConfiguration($brokers, $topicSubscriptions);
 
         self::assertEquals($kafkaConfiguration->dump(), $kafkaConfiguration->getConfiguration());
     }
@@ -95,10 +94,7 @@ class KafkaConfigurationTest extends TestCase
         $kafkaConfiguration = new KafkaConfiguration(
             ['localhost'],
             [new TopicSubscription('test-topic')],
-            1000,
-            [
-                'group.id' => $inputValue,
-            ]
+            ['group.id' => $inputValue]
         );
 
         $config = $kafkaConfiguration->getConfiguration();
