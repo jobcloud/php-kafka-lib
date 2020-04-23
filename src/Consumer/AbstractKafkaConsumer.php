@@ -81,19 +81,20 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * Consumes a message and returns it
      * In cases of errors / timeouts an exception is thrown
      *
+     * @param integer $timeoutMs
      * @param boolean $autoDecode
      * @return KafkaConsumerMessageInterface
      * @throws KafkaConsumerConsumeException
      * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerTimeoutException
      */
-    public function consume(bool $autoDecode = true): KafkaConsumerMessageInterface
+    public function consume(int $timeoutMs = 10000, bool $autoDecode = true): KafkaConsumerMessageInterface
     {
         if (false === $this->isSubscribed()) {
             throw new KafkaConsumerConsumeException(KafkaConsumerConsumeException::NOT_SUBSCRIBED_EXCEPTION_MESSAGE);
         }
 
-        if (null === $rdKafkaMessage = $this->kafkaConsume($this->kafkaConfiguration->getTimeout())) {
+        if (null === $rdKafkaMessage = $this->kafkaConsume($timeoutMs)) {
             throw new KafkaConsumerEndOfPartitionException(
                 rd_kafka_err2str(RD_KAFKA_RESP_ERR__PARTITION_EOF),
                 RD_KAFKA_RESP_ERR__PARTITION_EOF
@@ -134,17 +135,18 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * Queries the broker for metadata on a certain topic
      *
      * @param string $topicName
+     * @param integer $timeoutMs
      * @return RdKafkaMetadataTopic
      * @throws RdKafkaException
      */
-    public function getMetadataForTopic(string $topicName): RdKafkaMetadataTopic
+    public function getMetadataForTopic(string $topicName, int $timeoutMs = 10000): RdKafkaMetadataTopic
     {
         $topic = $this->consumer->newTopic($topicName);
         return $this->consumer
             ->getMetadata(
                 false,
                 $topic,
-                $this->kafkaConfiguration->getTimeout()
+                $timeoutMs
             )
             ->getTopics()
             ->current();
@@ -154,12 +156,12 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * Get the earliest offset for a certain timestamp for topic partitions
      *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @param integer                       $timeout
+     * @param integer                       $timeoutMs
      * @return array|RdKafkaTopicPartition[]
      */
-    public function offsetsForTimes(array $topicPartitions, int $timeout): array
+    public function offsetsForTimes(array $topicPartitions, int $timeoutMs): array
     {
-        return $this->consumer->offsetsForTimes($topicPartitions, $timeout);
+        return $this->consumer->offsetsForTimes($topicPartitions, $timeoutMs);
     }
 
     /**
@@ -167,15 +169,15 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      *
      * @param string  $topic
      * @param integer $partition
-     * @param integer $timeout
+     * @param integer $timeoutMs
      * @return integer
      */
-    public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeout): int
+    public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeoutMs): int
     {
         $lowOffset = 0;
         $highOffset = 0;
 
-        $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeout);
+        $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeoutMs);
 
         return $lowOffset;
     }
@@ -185,15 +187,15 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      *
      * @param string  $topic
      * @param integer $partition
-     * @param integer $timeout
+     * @param integer $timeoutMs
      * @return integer
      */
-    public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeout): int
+    public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeoutMs): int
     {
         $lowOffset = 0;
         $highOffset = 0;
 
-        $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeout);
+        $this->consumer->queryWatermarkOffsets($topic, $partition, $lowOffset, $highOffset, $timeoutMs);
 
         return $highOffset;
     }
@@ -216,8 +218,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
-     * @param integer $timeout
+     * @param integer $timeoutMs
      * @return null|RdKafkaMessage
      */
-    abstract protected function kafkaConsume(int $timeout): ?RdKafkaMessage;
+    abstract protected function kafkaConsume(int $timeoutMs): ?RdKafkaMessage;
 }
