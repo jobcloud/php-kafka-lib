@@ -141,12 +141,12 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
-     * @param integer $timeout
+     * @param integer $timeoutMs
      * @return null|RdKafkaMessage
      */
-    protected function kafkaConsume(int $timeout): ?RdKafkaMessage
+    protected function kafkaConsume(int $timeoutMs): ?RdKafkaMessage
     {
-        return $this->queue->consume($timeout);
+        return $this->queue->consume($timeoutMs);
     }
 
     /**

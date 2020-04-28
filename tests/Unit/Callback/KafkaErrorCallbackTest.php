@@ -11,51 +11,17 @@ use Jobcloud\Kafka\Callback\KafkaErrorCallback;
  */
 class KafkaErrorCallbackTest extends TestCase
 {
-
-    public function getConsumerMock()
-    {
-        return $this->getMockBuilder(RdKafkaConsumer::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['unsubscribe', 'getSubscription'])
-            ->getMock();
-    }
-
     public function testInvokeWithBrokerException()
     {
         self::expectException('Jobcloud\Kafka\Exception\KafkaBrokerException');
-
-        $consumerMock = $this->getConsumerMock();
-
-        $consumerMock
-            ->expects(self::any())
-            ->method('unsubscribe')
-            ->willReturn(null);
-
-        $consumerMock
-            ->expects(self::any())
-            ->method('getSubscription')
-            ->willReturn([]);
-
         $callback = new KafkaErrorCallback();
-        call_user_func($callback, $consumerMock, 1, 'error');
+        call_user_func($callback, null, RD_KAFKA_RESP_ERR__FATAL, 'error');
     }
 
     public function testInvokeWithAcceptableError()
     {
-        $consumerMock = $this->getConsumerMock();
-
-        $consumerMock
-            ->expects(self::any())
-            ->method('unsubscribe')
-            ->willReturn(null);
-
-        $consumerMock
-            ->expects(self::any())
-            ->method('getSubscription')
-            ->willReturn([]);
-
         $callback = new KafkaErrorCallback();
-        $result = call_user_func($callback, $consumerMock, RD_KAFKA_RESP_ERR__TRANSPORT, 'error');
+        $result = call_user_func($callback, null, RD_KAFKA_RESP_ERR__TRANSPORT, 'error');
 
         self::assertNull($result);
     }

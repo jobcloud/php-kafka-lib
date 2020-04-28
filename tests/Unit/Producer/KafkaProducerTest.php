@@ -106,10 +106,92 @@ class KafkaProducerTest extends TestCase
                 $message->getHeaders()
             );
 
-        $this->kafkaConfigurationMock
-            ->expects(self::exactly(2))
-            ->method('getTimeout')
-            ->willReturn(1000);
+        $this->encoderMock
+            ->expects(self::once())
+            ->method('encode')
+            ->with($message)
+            ->willReturn($message);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('newTopic')
+            ->with('test-topic')
+            ->willReturn($rdKafkaProducerTopicMock);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('poll')
+            ->with(0);
+
+        $this->kafkaProducer->produce($message);
+    }
+
+    public function testSyncProduceSuccess()
+    {
+        $message = KafkaProducerMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ]);
+
+        /** @var RdKafkaProducerTopic|MockObject $rdKafkaProducerTopicMock */
+        $rdKafkaProducerTopicMock = $this->createMock(RdKafkaProducerTopic::class);
+        $rdKafkaProducerTopicMock
+            ->expects(self::once())
+            ->method('producev')
+            ->with(
+                $message->getPartition(),
+                RD_KAFKA_MSG_F_BLOCK,
+                $message->getBody(),
+                $message->getKey(),
+                $message->getHeaders()
+            );
+
+        $this->encoderMock
+            ->expects(self::once())
+            ->method('encode')
+            ->with($message)
+            ->willReturn($message);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('newTopic')
+            ->with('test-topic')
+            ->willReturn($rdKafkaProducerTopicMock);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('poll')
+            ->with(-1);
+
+        $this->kafkaProducer->syncProduce($message);
+    }
+
+    public function testPoll()
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('poll')
+            ->with(1000);
+
+        $this->kafkaProducer->poll(1000);
+    }
+
+    public function testPollUntilQueueSizeReached()
+    {
+        $message = KafkaProducerMessage::create('test-topic', 1)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test content')
+            ->withHeaders([ 'key' => 'value' ]);
+
+        /** @var RdKafkaProducerTopic|MockObject $rdKafkaProducerTopicMock */
+        $rdKafkaProducerTopicMock = $this->createMock(RdKafkaProducerTopic::class);
+        $rdKafkaProducerTopicMock
+            ->expects(self::once())
+            ->method('producev')
+            ->with(
+                $message->getPartition(),
+                RD_KAFKA_MSG_F_BLOCK,
+                $message->getBody(),
+                $message->getKey(),
+                $message->getHeaders()
+            );
+
         $this->rdKafkaProducerMock
             ->expects(self::exactly(3))
             ->method('getOutQLen')
@@ -138,9 +220,10 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock
             ->expects(self::exactly(2))
             ->method('poll')
-            ->with(1000);
+            ->with(0);
 
-        $this->kafkaProducer->produce($message);
+        $this->kafkaProducer->produce($message, false);
+        $this->kafkaProducer->pollUntilQueueSizeReached();
     }
 
     /**
@@ -188,10 +271,6 @@ class KafkaProducerTest extends TestCase
             ->expects(self::once())
             ->method('current')
             ->willReturn($metadataTopic);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTimeout')
-            ->willReturn(1000);
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('newTopic')
@@ -202,6 +281,6 @@ class KafkaProducerTest extends TestCase
             ->method('getMetadata')
             ->with(false, $topicMock, 1000)
             ->willReturn($metadataMock);
-        $this->kafkaProducer->getMetadataForTopic('test-topic-name');
+        $this->kafkaProducer->getMetadataForTopic('test-topic-name', 1000);
     }
 }
