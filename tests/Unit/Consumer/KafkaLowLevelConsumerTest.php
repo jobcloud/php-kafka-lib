@@ -128,20 +128,16 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(1000)
+            ->with(10000)
             ->willReturn($rdKafkaMessageMock);
         $this->kafkaConfigurationMock
             ->expects(self::once())
             ->method('getTopicSubscriptions')
             ->willReturn([new TopicSubscription('test-topic')]);
-        $this->kafkaConfigurationMock
-            ->expects(self::exactly(2))
-            ->method('getTimeout')
-            ->willReturn(1000);
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('getMetadata')
-            ->with(false, $rdKafkaConsumerTopicMock, 1000)
+            ->with(false, $rdKafkaConsumerTopicMock, 10000)
             ->willReturn($rdKafkaMetadataMock);
         $this->rdKafkaConsumerMock
             ->expects(self::exactly(2))
@@ -176,12 +172,8 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(1000)
+            ->with(10000)
             ->willReturn(null);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTimeout')
-            ->willReturn(1000);
 
         $this->kafkaConsumer->subscribe();
         $this->kafkaConsumer->consume();
@@ -206,12 +198,8 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(1000)
+            ->with(10000)
             ->willReturn($message);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTimeout')
-            ->willReturn(1000);
 
         $this->kafkaConsumer->subscribe();
         $this->kafkaConsumer->consume();
@@ -238,13 +226,9 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->method('consume')
             ->with(1000)
             ->willReturn($message);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTimeout')
-            ->willReturn(1000);
 
         $this->kafkaConsumer->subscribe();
-        $this->kafkaConsumer->consume();
+        $this->kafkaConsumer->consume(1000);
     }
 
     /**
@@ -283,16 +267,12 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(1000)
+            ->with(10000)
             ->willReturn($rdKafkaMessageMock);
         $this->kafkaConfigurationMock
             ->expects(self::once())
             ->method('getTopicSubscriptions')
             ->willReturn([$topicSubscription]);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTimeout')
-            ->willReturn(1000);
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('newTopic')
@@ -341,16 +321,12 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $this->rdKafkaQueueMock
             ->expects(self::once())
             ->method('consume')
-            ->with(1000)
+            ->with(10000)
             ->willReturn($rdKafkaMessageMock);
         $this->kafkaConfigurationMock
             ->expects(self::once())
             ->method('getTopicSubscriptions')
             ->willReturn([$topicSubscription]);
-        $this->kafkaConfigurationMock
-            ->expects(self::once())
-            ->method('getTimeout')
-            ->willReturn(1000);
         $this->rdKafkaConsumerMock
             ->expects(self::once())
             ->method('newTopic')
@@ -545,7 +521,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->method('queryWatermarkOffsets')
             ->with('test-topic', 1, 0, 0, 1000)
             ->willReturnCallback(
-                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeout) {
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeoutMs) {
                     $lowOffset++;
                 }
             );
@@ -567,7 +543,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
             ->method('queryWatermarkOffsets')
             ->with('test-topic', 1, 0, 0, 1000)
             ->willReturnCallback(
-                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeout) {
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeoutMs) {
                     $highOffset += 5;
                 }
             );

@@ -59,14 +59,6 @@ interface KafkaConsumerBuilderInterface
     public function withAdditionalConfig(array $config): self;
 
     /**
-     * Set the timeout for all consumer actions
-     *
-     * @param integer $timeout
-     * @return KafkaConsumerBuilderInterface
-     */
-    public function withTimeout(int $timeout): self;
-
-    /**
      * Set the consumer group
      *
      * @param string $consumerGroup

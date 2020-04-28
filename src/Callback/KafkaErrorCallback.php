@@ -22,7 +22,8 @@ final class KafkaErrorCallback
      */
     public function __invoke($kafka, int $errorCode, string $reason)
     {
-        if (RD_KAFKA_RESP_ERR__TRANSPORT === $errorCode) {
+        // non fatal errors are retried by librdkafka
+        if (RD_KAFKA_RESP_ERR__FATAL !== $errorCode) {
             return;
         }
 

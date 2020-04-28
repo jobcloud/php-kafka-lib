@@ -143,14 +143,14 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      * Gets the commited offset for a TopicPartition for the configured consumer group
      *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @param integer                       $timeout
+     * @param integer                       $timeoutMs
      * @return array|RdKafkaTopicPartition[]
      * @throws KafkaConsumerRequestException
      */
-    public function getCommittedOffsets(array $topicPartitions, int $timeout): array
+    public function getCommittedOffsets(array $topicPartitions, int $timeoutMs): array
     {
         try {
-            return $this->consumer->getCommittedOffsets($topicPartitions, $timeout);
+            return $this->consumer->getCommittedOffsets($topicPartitions, $timeoutMs);
         } catch (RdKafkaException $e) {
             throw new KafkaConsumerRequestException($e->getMessage(), $e->getCode());
         }
@@ -178,13 +178,13 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param integer $timeout
+     * @param integer $timeoutMs
      * @return RdKafkaMessage|null
      * @throws RdKafkaException
      */
-    protected function kafkaConsume(int $timeout): ?RdKafkaMessage
+    protected function kafkaConsume(int $timeoutMs): ?RdKafkaMessage
     {
-        return $this->consumer->consume($timeout);
+        return $this->consumer->consume($timeoutMs);
     }
 
     /**

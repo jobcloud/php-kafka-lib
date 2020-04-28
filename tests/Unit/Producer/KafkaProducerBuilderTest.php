@@ -31,9 +31,9 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testAddConfig(): void
     {
-        $config = ['timeout' => 1000];
+        $config = ['auto.offset.reset' => 'earliest'];
         $clone = $this->kafkaProducerBuilder->withAdditionalConfig($config);
-        $config = ['timeout' => 1001];
+        $config = ['auto.offset.reset' => 'latest'];
         $clone = $clone->withAdditionalConfig($config);
 
         $reflectionProperty = new \ReflectionProperty($clone, 'config');
@@ -106,20 +106,6 @@ class KafkaProducerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
-    }
-
-    /**
-     * @return void
-     * @throws \ReflectionException
-     */
-    public function testSetPollTimeout(): void
-    {
-        $clone = $this->kafkaProducerBuilder->withPollTimeout(1000);
-
-        $reflectionProperty = new \ReflectionProperty($clone, 'pollTimeout');
-        $reflectionProperty->setAccessible(true);
-
-        self::assertSame(1000, $reflectionProperty->getValue($clone));
     }
 
     /**

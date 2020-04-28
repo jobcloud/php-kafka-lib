@@ -35,11 +35,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $errorCallback;
 
     /**
-     * @var int
-     */
-    private $pollTimeout = 1;
-
-    /**
      * @var EncoderInterface
      */
     private $encoder;
@@ -119,19 +114,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
-     * Sets the poll timeout. Poll queries and dispatches events to callbacks.
-     *
-     * @param integer $pollTimeout
-     * @return KafkaProducerBuilderInterface
-     */
-    public function withPollTimeout(int $pollTimeout): KafkaProducerBuilderInterface
-    {
-        $this->pollTimeout = $pollTimeout;
-
-        return $this;
-    }
-
-    /**
      * Lets you set a custom encoder for produce message
      *
      * @param EncoderInterface $encoder
@@ -166,7 +148,7 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
             unset($this->config['queue.buffering.max.ms']);
         }
 
-        $kafkaConfig = new KafkaConfiguration($this->brokers, [], $this->pollTimeout, $this->config);
+        $kafkaConfig = new KafkaConfiguration($this->brokers, [], $this->config);
 
         //set producer callbacks
         $this->registerCallbacks($kafkaConfig);

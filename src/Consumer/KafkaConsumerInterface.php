@@ -39,9 +39,19 @@ interface KafkaConsumerInterface
      * Consumes a message and returns it
      * In cases of errors / timeouts a KafkaConsumerConsumeException is thrown
      *
+     * @param integer $timeoutMs
+     * @param boolean $autoDecode
      * @return KafkaConsumerMessageInterface
      */
-    public function consume(): KafkaConsumerMessageInterface;
+    public function consume(int $timeoutMs = 10000, bool $autoDecode = true): KafkaConsumerMessageInterface;
+
+    /**
+     * Decode consumer message
+     *
+     * @param KafkaConsumerMessageInterface $message
+     * @return KafkaConsumerMessageInterface
+     */
+    public function decodeMessage(KafkaConsumerMessageInterface $message): KafkaConsumerMessageInterface;
 
     /**
      * Commits the offset to the broker for the given message(s)
@@ -62,36 +72,37 @@ interface KafkaConsumerInterface
      * Queries the broker for metadata on a certain topic
      *
      * @param string $topicName
+     * @param integer $timeoutMs
      * @return RdKafkaMetadataTopic
      */
-    public function getMetadataForTopic(string $topicName): RdKafkaMetadataTopic;
+    public function getMetadataForTopic(string $topicName, int $timeoutMs = 10000): RdKafkaMetadataTopic;
 
     /**
      * Get the earliest offset for a certain timestamp for topic partitions
      *
      * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @param integer                       $timeout
+     * @param integer                       $timeoutMs
      * @return array|RdKafkaTopicPartition[]
      */
-    public function offsetsForTimes(array $topicPartitions, int $timeout): array;
+    public function offsetsForTimes(array $topicPartitions, int $timeoutMs): array;
 
     /**
      * Queries the broker for the first offset of a given topic and partition
      *
      * @param string  $topic
      * @param integer $partition
-     * @param integer $timeout
+     * @param integer $timeoutMs
      * @return integer
      */
-    public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeout): int;
+    public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeoutMs): int;
 
     /**
      * Queries the broker for the last offset of a given topic and partition
      *
      * @param string  $topic
      * @param integer $partition
-     * @param integer $timeout
+     * @param integer $timeoutMs
      * @return integer
      */
-    public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeout): int;
+    public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeoutMs): int;
 }
