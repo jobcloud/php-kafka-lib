@@ -14,13 +14,18 @@ Avro support relies on [flix-tech/avro-serde-php](https://github.com/flix-tech/a
 The [documentation](https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.html) of the php extension,  
 can help out to understand the internals of this library.
 
-
 ## Requirements
 - php: ^7.3
 - ext-rdkafka: ^4.0.0
 
 ## Installation
-```composer require jobcloud/php-kafka-lib "~0.1"```
+```
+composer require jobcloud/php-kafka-lib "~0.1"
+```
+If you need Avro support, you need to install:
+```
+composer require flix-tech/avro-serde-php "~1.3"
+```
 
 ## Usage
 
