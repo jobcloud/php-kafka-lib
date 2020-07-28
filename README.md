@@ -20,7 +20,7 @@ can help out to understand the internals of this library.
 - ext-rdkafka: ^4.0.0
 
 ## Installation
-```composer require jobcloud/php-kafka-lib "~0.1"```
+```composer require jobcloud/php-kafka-lib "~1.0"```
 
 ## Usage
 

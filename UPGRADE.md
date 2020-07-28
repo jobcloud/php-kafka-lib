@@ -1,7 +1,11 @@
 # Upgrade to 1.0
 
-## Producer transactions
-Added support for producer transactions, check [README.md](README.md) for more details.
+## Avro encoding / decoding
+Has been removed as a fixed dependency. If you rely on it you need to run  
+the following in your project:
+```
+composer require flix-tech/avro-serde-php "~1.3"
+```
 
 ## Producer control improvements
 Producer used to poll all events after `produce`, now per default only one  
