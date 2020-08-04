@@ -96,7 +96,12 @@ class KafkaConfiguration extends RdKafkaConf
         $this->set('metadata.broker.list', implode(',', $this->getBrokers()));
     }
 
-    private function isLowLevelTopicConfSetting(string $settingName) {
+    /**
+     * @param string $settingName
+     * @return bool
+     */
+    private function isLowLevelTopicConfSetting(string $settingName): bool
+    {
         return true === isset($this->lowLevelTopicSettings[$settingName]);
     }
 }
