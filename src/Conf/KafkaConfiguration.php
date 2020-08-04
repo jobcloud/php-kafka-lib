@@ -74,7 +74,7 @@ class KafkaConfiguration extends RdKafkaConf
 
             if ('auto.commit.interval.ms' === $name) {
                 $topicConf = new RdKafkaTopicConf();
-                $topicConf->set($name, $value);
+                $topicConf->set($name, (string) $value);
                 $this->setDefaultTopicConf($topicConf);
             }
 
