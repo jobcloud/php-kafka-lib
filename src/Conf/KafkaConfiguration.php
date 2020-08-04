@@ -22,6 +22,14 @@ class KafkaConfiguration extends RdKafkaConf
     protected $topicSubscriptions;
 
     /**
+     * @var array<string,int>
+     */
+    private $lowLevelTopicSettings = [
+        'auto.commit.interval.ms' => 1,
+        'auto.offset.reset' => 1,
+    ];
+
+    /**
      * @param string[] $brokers
      * @param array|TopicSubscription[] $topicSubscriptions
      * @param mixed[] $config
@@ -66,14 +74,14 @@ class KafkaConfiguration extends RdKafkaConf
      */
     protected function initializeConfig(array $config = []): void
     {
+        $topicConf = new RdKafkaTopicConf();
 
         foreach ($config as $name => $value) {
             if (false === is_scalar($value)) {
                 continue;
             }
 
-            if ('auto.commit.interval.ms' === $name) {
-                $topicConf = new RdKafkaTopicConf();
+            if (true === $this->isLowLevelTopicConfSetting($name)) {
                 $topicConf->set($name, (string) $value);
                 $this->setDefaultTopicConf($topicConf);
             }
@@ -86,5 +94,9 @@ class KafkaConfiguration extends RdKafkaConf
         }
 
         $this->set('metadata.broker.list', implode(',', $this->getBrokers()));
+    }
+
+    private function isLowLevelTopicConfSetting(string $settingName) {
+        return true === isset($this->lowLevelTopicSettings[$settingName]);
     }
 }
