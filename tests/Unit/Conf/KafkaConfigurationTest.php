@@ -94,7 +94,10 @@ class KafkaConfigurationTest extends TestCase
         $kafkaConfiguration = new KafkaConfiguration(
             ['localhost'],
             [new TopicSubscription('test-topic')],
-            ['group.id' => $inputValue]
+            [
+                'group.id' => $inputValue,
+                'auto.commit.interval.ms' => 100
+            ]
         );
 
         $config = $kafkaConfiguration->getConfiguration();
@@ -105,5 +108,8 @@ class KafkaConfigurationTest extends TestCase
         }
 
         self::assertEquals($expectedValue, $config['group.id']);
+        self::assertEquals('100', $config['auto.commit.interval.ms']);
+        self::assertArrayHasKey('default_topic_conf', $config);
+        self::assertIsString($config['default_topic_conf']);
     }
 }

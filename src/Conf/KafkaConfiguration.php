@@ -6,6 +6,7 @@ namespace Jobcloud\Kafka\Conf;
 
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use RdKafka\Conf as RdKafkaConf;
+use RdKafka\TopicConf as RdKafkaTopicConf;
 
 class KafkaConfiguration extends RdKafkaConf
 {
@@ -19,6 +20,14 @@ class KafkaConfiguration extends RdKafkaConf
      * @var array|TopicSubscription[]
      */
     protected $topicSubscriptions;
+
+    /**
+     * @var array<string,int>
+     */
+    private $lowLevelTopicSettings = [
+        'auto.commit.interval.ms' => 1,
+        'auto.offset.reset' => 1,
+    ];
 
     /**
      * @param string[] $brokers
@@ -65,10 +74,16 @@ class KafkaConfiguration extends RdKafkaConf
      */
     protected function initializeConfig(array $config = []): void
     {
+        $topicConf = new RdKafkaTopicConf();
 
         foreach ($config as $name => $value) {
             if (false === is_scalar($value)) {
                 continue;
+            }
+
+            if (true === $this->isLowLevelTopicConfSetting($name)) {
+                $topicConf->set($name, (string) $value);
+                $this->setDefaultTopicConf($topicConf);
             }
 
             if (true === is_bool($value)) {
@@ -79,5 +94,14 @@ class KafkaConfiguration extends RdKafkaConf
         }
 
         $this->set('metadata.broker.list', implode(',', $this->getBrokers()));
+    }
+
+    /**
+     * @param string $settingName
+     * @return bool
+     */
+    private function isLowLevelTopicConfSetting(string $settingName): bool
+    {
+        return true === isset($this->lowLevelTopicSettings[$settingName]);
     }
 }
