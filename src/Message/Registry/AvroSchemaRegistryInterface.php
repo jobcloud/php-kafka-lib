@@ -15,10 +15,17 @@ interface AvroSchemaRegistryInterface
      * @param KafkaAvroSchemaInterface $avroSchema
      * @return void
      */
-    public function addSchemaMappingForTopic(string $topicName, KafkaAvroSchemaInterface $avroSchema): void;
+    public function addBodySchemaMappingForTopic(string $topicName, KafkaAvroSchemaInterface $avroSchema): void;
 
     /**
-     * @return array|KafkaAvroSchemaInterface[]
+     * @param string                   $topicName
+     * @param KafkaAvroSchemaInterface $avroSchema
+     * @return void
+     */
+    public function addKeySchemaMappingForTopic(string $topicName, KafkaAvroSchemaInterface $avroSchema): void;
+
+    /**
+     * @return array<string, KafkaAvroSchemaInterface[]>
      */
     public function getTopicSchemaMapping(): array;
 
@@ -27,5 +34,12 @@ interface AvroSchemaRegistryInterface
      * @return KafkaAvroSchemaInterface|null
      * @throws SchemaRegistryException
      */
-    public function getSchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface;
+    public function getBodySchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface;
+
+    /**
+     * @param string $topicName
+     * @return KafkaAvroSchemaInterface|null
+     * @throws SchemaRegistryException
+     */
+    public function getKeySchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface;
 }

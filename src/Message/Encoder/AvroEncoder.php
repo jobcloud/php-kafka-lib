@@ -24,13 +24,23 @@ final class AvroEncoder implements AvroEncoderInterface
     private $recordSerializer;
 
     /**
+     * @var string
+     */
+    private $encodeMode;
+
+    /**
      * @param AvroSchemaRegistryInterface $registry
      * @param RecordSerializer            $recordSerializer
+     * @param string                      $encodeMode
      */
-    public function __construct(AvroSchemaRegistryInterface $registry, RecordSerializer $recordSerializer)
-    {
+    public function __construct(
+        AvroSchemaRegistryInterface $registry,
+        RecordSerializer $recordSerializer,
+        string $encodeMode = self::DECODE_ALL
+    ) {
         $this->recordSerializer = $recordSerializer;
         $this->registry = $registry;
+        $this->encodeMode = $encodeMode;
     }
 
     /**
@@ -41,14 +51,31 @@ final class AvroEncoder implements AvroEncoderInterface
      */
     public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
-        if (null === $producerMessage->getBody()) {
-            return $producerMessage;
+        $body = $this->encodeBody($producerMessage);
+        $key = $this->encodeKey($producerMessage);
+
+        return $producerMessage->withBody($body)->withKey($key);
+    }
+
+    /**
+     * @param KafkaProducerMessageInterface $producerMessage
+     * @return mixed
+     * @throws SchemaRegistryException
+     */
+    private function encodeBody(KafkaProducerMessageInterface $producerMessage)
+    {
+        if (self::DECODE_KEY === $this->encodeMode) {
+            return $producerMessage->getBody();
         }
 
-        if (null === $avroSchema = $this->registry->getSchemaForTopic($producerMessage->getTopicName())) {
+        if (null === $producerMessage->getBody()) {
+            return null;
+        }
+
+        if (null === $avroSchema = $this->registry->getBodySchemaForTopic($producerMessage->getTopicName())) {
             throw new AvroEncoderException(
                 sprintf(
-                    AvroEncoderException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
+                    AvroEncoderException::NO_BODY_SCHEMA_FOR_TOPIC_MESSAGE,
                     $producerMessage->getTopicName()
                 )
             );
@@ -63,13 +90,51 @@ final class AvroEncoder implements AvroEncoderInterface
             );
         }
 
-        $body = $this->recordSerializer->encodeRecord(
+        return $this->recordSerializer->encodeRecord(
             $avroSchema->getName(),
             $avroSchema->getDefinition(),
             $producerMessage->getBody()
         );
+    }
 
-        return $producerMessage->withBody($body);
+    /**
+     * @param KafkaProducerMessageInterface $producerMessage
+     * @return string|null
+     * @throws SchemaRegistryException
+     */
+    private function encodeKey(KafkaProducerMessageInterface $producerMessage): ?string
+    {
+        if (self::DECODE_BODY === $this->encodeMode) {
+            return $producerMessage->getKey();
+        }
+
+        if (null === $producerMessage->getKey()) {
+            return null;
+        }
+
+        if (null === $avroSchema = $this->registry->getKeySchemaForTopic($producerMessage->getTopicName())) {
+            throw new AvroEncoderException(
+                sprintf(
+                    AvroEncoderException::NO_KEY_SCHEMA_FOR_TOPIC_MESSAGE,
+                    $producerMessage->getTopicName()
+                )
+            );
+        }
+
+        if (null === $avroSchema->getDefinition()) {
+            throw new AvroEncoderException(
+                sprintf(
+                    AvroEncoderException::UNABLE_TO_LOAD_DEFINITION_MESSAGE,
+                    $avroSchema->getName()
+                )
+            );
+        }
+
+        return $this->recordSerializer->encodeRecord(
+            $avroSchema->getName(),
+            $avroSchema->getDefinition(),
+            $producerMessage->getKey()
+        );
     }
 
     /**

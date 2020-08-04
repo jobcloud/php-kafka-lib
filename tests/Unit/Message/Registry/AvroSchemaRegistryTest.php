@@ -23,7 +23,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $registry = new AvroSchemaRegistry($flixRegistry);
 
-        $registry->addSchemaMappingForTopic('test', $schema);
+        $registry->addBodySchemaMappingForTopic('test', $schema);
 
         $reflectionProperty = new \ReflectionProperty($registry, 'schemaMapping');
         $reflectionProperty->setAccessible(true);
@@ -54,7 +54,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $registry = new AvroSchemaRegistry($flixRegistry);
 
-        $registry->addSchemaMappingForTopic('test', $schema);
+        $registry->addBodySchemaMappingForTopic('test', $schema);
 
         self::assertSame($schema, $registry->getSchemaForTopic('test'));
     }
@@ -74,7 +74,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $registry = new AvroSchemaRegistry($flixRegistry);
 
-        $registry->addSchemaMappingForTopic('test', $schema);
+        $registry->addBodySchemaMappingForTopic('test', $schema);
 
         $registry->getSchemaForTopic('test');
     }
@@ -94,7 +94,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $registry = new AvroSchemaRegistry($flixRegistry);
 
-        $registry->addSchemaMappingForTopic('test', $schema);
+        $registry->addBodySchemaMappingForTopic('test', $schema);
 
         $registry->getSchemaForTopic('test');
     }

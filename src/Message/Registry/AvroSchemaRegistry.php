@@ -10,6 +10,11 @@ use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 
 final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
 {
+    /** @var string */
+    private const BODY_IDX = 'body';
+
+    /** @var string */
+    private const KEY_IDX = 'key';
 
     /**
      * @var Registry
@@ -17,9 +22,12 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
     private $registry;
 
     /**
-     * @var array|KafkaAvroSchemaInterface[]
+     * @var array<string, KafkaAvroSchemaInterface[]>
      */
-    private $schemaMapping = [];
+    private $schemaMapping = [
+        self::BODY_IDX => [],
+        self::KEY_IDX => [],
+    ];
 
     /**
      * AvroSchemaRegistry constructor.
@@ -35,9 +43,19 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
      * @param KafkaAvroSchemaInterface $avroSchema
      * @return void
      */
-    public function addSchemaMappingForTopic(string $topicName, KafkaAvroSchemaInterface $avroSchema): void
+    public function addBodySchemaMappingForTopic(string $topicName, KafkaAvroSchemaInterface $avroSchema): void
     {
-        $this->schemaMapping[$topicName] = $avroSchema;
+        $this->schemaMapping[self::BODY_IDX][$topicName] = $avroSchema;
+    }
+
+    /**
+     * @param string                   $topicName
+     * @param KafkaAvroSchemaInterface $avroSchema
+     * @return void
+     */
+    public function addKeySchemaMappingForTopic(string $topicName, KafkaAvroSchemaInterface $avroSchema): void
+    {
+        $this->schemaMapping[self::KEY_IDX][$topicName] = $avroSchema;
     }
 
     /**
@@ -45,20 +63,40 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
      * @return KafkaAvroSchemaInterface|null
      * @throws SchemaRegistryException
      */
-    public function getSchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface
+    public function getBodySchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface
     {
-        if (false === isset($this->schemaMapping[$topicName])) {
+        return $this->getSchemaForTopicAndType($topicName, self::BODY_IDX);
+    }
+
+    /**
+     * @param string $topicName
+     * @return KafkaAvroSchemaInterface|null
+     * @throws SchemaRegistryException
+     */
+    public function getKeySchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface
+    {
+        return $this->getSchemaForTopicAndType($topicName, self::KEY_IDX);
+    }
+
+    /**
+     * @param string $topicName
+     * @return KafkaAvroSchemaInterface|null
+     * @throws SchemaRegistryException
+     */
+    private function getSchemaForTopicAndType(string $topicName, string $type): ?KafkaAvroSchemaInterface
+    {
+        if (false === isset($this->schemaMapping[$type][$topicName])) {
             return null;
         }
 
-        $avroSchema = $this->schemaMapping[$topicName];
+        $avroSchema = $this->schemaMapping[$type][$topicName];
 
         if (null !== $avroSchema->getDefinition()) {
             return $avroSchema;
         }
 
         $avroSchema->setDefinition($this->getSchemaDefinition($avroSchema));
-        $this->schemaMapping[$topicName] = $avroSchema;
+        $this->schemaMapping[$type][$topicName] = $avroSchema;
 
         return $avroSchema;
     }
@@ -78,7 +116,7 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
     }
 
     /**
-     * @return array|KafkaAvroSchemaInterface[]
+     * @return array<string, KafkaAvroSchemaInterface[]>
      */
     public function getTopicSchemaMapping(): array
     {

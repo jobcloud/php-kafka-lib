@@ -43,7 +43,7 @@ class AvroEncoderTest extends TestCase
         self::expectException(AvroEncoderException::class);
         self::expectExceptionMessage(
             sprintf(
-                AvroEncoderException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
+                AvroEncoderException::NO_BODY_SCHEMA_FOR_TOPIC_MESSAGE,
                 $producerMessage->getTopicName()
             )
         );

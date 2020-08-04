@@ -79,7 +79,7 @@ $recordSerializer = new RecordSerializer($cachedRegistry);
 
 //if no version is defined, latest version will be used
 //if no schema definition is defined, the appropriate version will be fetched form the registry
-$registry->addSchemaMappingForTopic(
+$registry->addBodySchemaMappingForTopic(
     'test-topic',
     new KafkaAvroSchema('schemaName' /*, int $version, AvroSchema $definition */)
 );
@@ -222,7 +222,7 @@ $recordSerializer = new RecordSerializer($cachedRegistry);
 
 //if no version is defined, latest version will be used
 //if no schema definition is defined, the appropriate version will be fetched form the registry
-$registry->addSchemaMappingForTopic(
+$registry->addBodySchemaMappingForTopic(
     'test-topic',
     new KafkaAvroSchema('someSchema' , 9 /* , AvroSchema $definition */)
 );
