@@ -96,7 +96,7 @@ class KafkaConfigurationTest extends TestCase
             [new TopicSubscription('test-topic')],
             [
                 'group.id' => $inputValue,
-                'auto.commit.interval.ms' => '100'
+                'auto.commit.interval.ms' => 100
             ]
         );
 
