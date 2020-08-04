@@ -6,6 +6,7 @@ namespace Jobcloud\Kafka\Conf;
 
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use RdKafka\Conf as RdKafkaConf;
+use RdKafka\TopicConf as RdKafkaTopicConf;
 
 class KafkaConfiguration extends RdKafkaConf
 {
@@ -69,6 +70,12 @@ class KafkaConfiguration extends RdKafkaConf
         foreach ($config as $name => $value) {
             if (false === is_scalar($value)) {
                 continue;
+            }
+
+            if ('auto.commit.interval.ms' === $name) {
+                $topicConf = new RdKafkaTopicConf();
+                $topicConf->set($name, $value);
+                $this->setDefaultTopicConf($topicConf);
             }
 
             if (true === is_bool($value)) {
