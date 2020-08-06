@@ -47,4 +47,18 @@ interface AvroSchemaRegistryInterface
      * @throws SchemaRegistryException
      */
     public function getKeySchemaForTopic(string $topicName): KafkaAvroSchemaInterface;
+
+    /**
+     * @param string $topicName
+     * @return boolean
+     * @throws SchemaRegistryException
+     */
+    public function hasBodySchemaForTopic(string $topicName): bool;
+
+    /**
+     * @param string $topicName
+     * @return boolean
+     * @throws SchemaRegistryException
+     */
+    public function hasKeySchemaForTopic(string $topicName): bool;
 }
