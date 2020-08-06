@@ -74,9 +74,7 @@ final class AvroEncoder implements AvroEncoderInterface
         }
 
         $topicName = $producerMessage->getTopicName();
-        $avroSchema = $this->getAvroSchema(
-            $this->registry->getBodySchemaForTopic($topicName), $topicName, self::DECODE_KEY
-        );
+        $avroSchema = $this->registry->getBodySchemaForTopic($topicName);
 
 
         return $this->recordSerializer->encodeRecord(
@@ -102,38 +100,13 @@ final class AvroEncoder implements AvroEncoderInterface
         }
 
         $topicName = $producerMessage->getTopicName();
-        $avroSchema = $this->getAvroSchema(
-            $this->registry->getKeySchemaForTopic($topicName), $topicName, self::DECODE_KEY
-        );
+        $avroSchema = $this->registry->getKeySchemaForTopic($topicName);
 
         return $this->recordSerializer->encodeRecord(
             $avroSchema->getName(),
             $this->getAvroSchemaDefinition($avroSchema),
             $producerMessage->getKey()
         );
-    }
-
-    /**
-     * @param KafkaAvroSchemaInterface|null $avroSchema
-     * @param string $topicName
-     * @param string $type
-     */
-    private function getAvroSchema(
-        ?KafkaAvroSchemaInterface $avroSchema,
-        string $topicName,
-        string $type
-    ): KafkaAvroSchemaInterface {
-        if (null === $avroSchema) {
-            throw new AvroEncoderException(
-                sprintf(
-                    AvroEncoderException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
-                    $type,
-                    $topicName
-                )
-            );
-        }
-
-        return $avroSchema;
     }
 
     private function getAvroSchemaDefinition(KafkaAvroSchemaInterface $avroSchema): AvroSchema

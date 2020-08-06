@@ -31,15 +31,15 @@ interface AvroSchemaRegistryInterface
 
     /**
      * @param string $topicName
-     * @return KafkaAvroSchemaInterface|null
+     * @return KafkaAvroSchemaInterface
      * @throws SchemaRegistryException
      */
-    public function getBodySchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface;
+    public function getBodySchemaForTopic(string $topicName): KafkaAvroSchemaInterface;
 
     /**
      * @param string $topicName
-     * @return KafkaAvroSchemaInterface|null
+     * @return KafkaAvroSchemaInterface
      * @throws SchemaRegistryException
      */
-    public function getKeySchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface;
+    public function getKeySchemaForTopic(string $topicName): KafkaAvroSchemaInterface;
 }

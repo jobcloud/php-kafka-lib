@@ -79,10 +79,7 @@ final class AvroDecoder implements AvroDecoderInterface
         }
 
         $avroSchema = $this->registry->getBodySchemaForTopic($consumerMessage->getTopicName());
-
-        if (true === $avroSchema instanceof KafkaAvroSchemaInterface) {
-            $schemaDefinition = $avroSchema->getDefinition();
-        }
+        $schemaDefinition = $avroSchema->getDefinition();
 
         return $this->recordSerializer->decodeMessage($consumerMessage->getBody(), $schemaDefinition);
     }
@@ -105,10 +102,7 @@ final class AvroDecoder implements AvroDecoderInterface
         }
 
         $avroSchema = $this->registry->getKeySchemaForTopic($consumerMessage->getTopicName());
-
-        if (true === $avroSchema instanceof KafkaAvroSchemaInterface) {
-            $schemaDefinition = $avroSchema->getDefinition();
-        }
+        $schemaDefinition = $avroSchema->getDefinition();
 
         return $this->recordSerializer->decodeMessage($consumerMessage->getKey(), $schemaDefinition);
     }

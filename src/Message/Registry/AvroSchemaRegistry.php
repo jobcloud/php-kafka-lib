@@ -6,6 +6,7 @@ namespace Jobcloud\Kafka\Message\Registry;
 
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
+use Jobcloud\Kafka\Exception\AvroSchemaRegistryException;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 
 final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
@@ -60,33 +61,40 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
 
     /**
      * @param string $topicName
-     * @return KafkaAvroSchemaInterface|null
+     * @return KafkaAvroSchemaInterface
      * @throws SchemaRegistryException
      */
-    public function getBodySchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface
+    public function getBodySchemaForTopic(string $topicName): KafkaAvroSchemaInterface
     {
         return $this->getSchemaForTopicAndType($topicName, self::BODY_IDX);
     }
 
     /**
      * @param string $topicName
-     * @return KafkaAvroSchemaInterface|null
+     * @return KafkaAvroSchemaInterface
      * @throws SchemaRegistryException
      */
-    public function getKeySchemaForTopic(string $topicName): ?KafkaAvroSchemaInterface
+    public function getKeySchemaForTopic(string $topicName): KafkaAvroSchemaInterface
     {
         return $this->getSchemaForTopicAndType($topicName, self::KEY_IDX);
     }
 
     /**
      * @param string $topicName
-     * @return KafkaAvroSchemaInterface|null
-     * @throws SchemaRegistryException
+     * @param string $type
+     * @return KafkaAvroSchemaInterface
+     * @throws SchemaRegistryException|AvroSchemaRegistryException
      */
-    private function getSchemaForTopicAndType(string $topicName, string $type): ?KafkaAvroSchemaInterface
+    private function getSchemaForTopicAndType(string $topicName, string $type): KafkaAvroSchemaInterface
     {
         if (false === isset($this->schemaMapping[$type][$topicName])) {
-            return null;
+            throw new AvroSchemaRegistryException(
+                sprintf(
+                    AvroSchemaRegistryException::SCHEMA_MAPPING_NOT_FOUND,
+                    $topicName,
+                    $type
+                )
+            );
         }
 
         $avroSchema = $this->schemaMapping[$type][$topicName];
