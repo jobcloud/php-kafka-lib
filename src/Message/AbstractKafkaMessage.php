@@ -33,9 +33,9 @@ abstract class AbstractKafkaMessage implements KafkaMessageInterface
     protected $headers;
 
     /**
-     * @return string|null
+     * @return mixed
      */
-    public function getKey(): ?string
+    public function getKey()
     {
         return $this->key;
     }

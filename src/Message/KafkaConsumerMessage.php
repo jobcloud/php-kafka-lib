@@ -6,7 +6,7 @@ namespace Jobcloud\Kafka\Message;
 
 final class KafkaConsumerMessage extends AbstractKafkaMessage implements KafkaConsumerMessageInterface
 {
-    
+
     /**
      * @var int
      */
@@ -23,7 +23,7 @@ final class KafkaConsumerMessage extends AbstractKafkaMessage implements KafkaCo
      * @param integer     $partition
      * @param integer     $offset
      * @param integer     $timestamp
-     * @param string|null $key
+     * @param mixed       $key
      * @param mixed       $body
      * @param string[]|null  $headers
      */
@@ -32,7 +32,7 @@ final class KafkaConsumerMessage extends AbstractKafkaMessage implements KafkaCo
         int $partition,
         int $offset,
         int $timestamp,
-        ?string $key,
+        $key,
         $body,
         ?array $headers
     ) {

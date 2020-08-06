@@ -84,12 +84,18 @@ $recordSerializer = new RecordSerializer($cachedRegistry);
 
 //if no version is defined, latest version will be used
 //if no schema definition is defined, the appropriate version will be fetched form the registry
-$registry->addSchemaMappingForTopic(
+$registry->addBodySchemaMappingForTopic(
     'test-topic',
-    new KafkaAvroSchema('schemaName' /*, int $version, AvroSchema $definition */)
+    new KafkaAvroSchema('bodySchemaName' /*, int $version, AvroSchema $definition */)
+);
+$registry->addKeySchemaMappingForTopic(
+    'test-topic',
+    new KafkaAvroSchema('keySchemaName' /*, int $version, AvroSchema $definition */)
 );
 
-$encoder = new AvroEncoder($registry, $recordSerializer);
+// if you are only encoding key or value, you can pass that mode as additional third argument
+// per default both key and body will get encoded
+$encoder = new AvroEncoder($registry, $recordSerializer /*, AvroEncoderInterface::ENCODE_BODY */);
 
 $producer = KafkaProducerBuilder::create()
     ->withAdditionalBroker('kafka:9092')
@@ -227,12 +233,18 @@ $recordSerializer = new RecordSerializer($cachedRegistry);
 
 //if no version is defined, latest version will be used
 //if no schema definition is defined, the appropriate version will be fetched form the registry
-$registry->addSchemaMappingForTopic(
+$registry->addBodySchemaMappingForTopic(
     'test-topic',
-    new KafkaAvroSchema('someSchema' , 9 /* , AvroSchema $definition */)
+    new KafkaAvroSchema('bodySchema' , 9 /* , AvroSchema $definition */)
+);
+$registry->addKeySchemaMappingForTopic(
+    'test-topic',
+    new KafkaAvroSchema('keySchema' , 9 /* , AvroSchema $definition */)
 );
 
-$decoder = new AvroDecoder($registry, $recordSerializer);
+// if you are only decoding key or value, you can pass that mode as additional third argument
+// per default both key and body will get decoded
+$decoder = new AvroDecoder($registry, $recordSerializer /*, AvroDecoderInterface::DECODE_BODY */);
 
 $consumer = KafkaConsumerBuilder::create()
      ->withAdditionalConfig(

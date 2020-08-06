@@ -8,9 +8,10 @@ interface KafkaMessageInterface
 {
 
     /**
-     * @return string|null
+     * Returns the message key or null if the message doesn't have a body
+     * @return mixed
      */
-    public function getKey(): ?string;
+    public function getKey();
 
     /**
      * @return string
@@ -28,7 +29,7 @@ interface KafkaMessageInterface
     public function getHeaders(): ?array;
 
     /**
-     * Returns the message body as string or null if the message doesn't have a body
+     * Returns the message body or null if the message doesn't have a body
      * @return mixed
      */
     public function getBody();
