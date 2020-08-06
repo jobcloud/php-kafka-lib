@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Message\Encoder;
 
+use AvroSchema;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Kafka\Exception\AvroEncoderException;
+use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
@@ -51,10 +53,9 @@ final class AvroEncoder implements AvroEncoderInterface
      */
     public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
-        $body = $this->encodeBody($producerMessage);
-        $key = $this->encodeKey($producerMessage);
-
-        return $producerMessage->withBody($body)->withKey($key);
+        return $producerMessage
+            ->withBody($this->encodeBody($producerMessage))
+            ->withKey($this->encodeKey($producerMessage));
     }
 
     /**
@@ -72,27 +73,15 @@ final class AvroEncoder implements AvroEncoderInterface
             return null;
         }
 
-        if (null === $avroSchema = $this->registry->getBodySchemaForTopic($producerMessage->getTopicName())) {
-            throw new AvroEncoderException(
-                sprintf(
-                    AvroEncoderException::NO_BODY_SCHEMA_FOR_TOPIC_MESSAGE,
-                    $producerMessage->getTopicName()
-                )
-            );
-        }
+        $topicName = $producerMessage->getTopicName();
+        $avroSchema = $this->getAvroSchema(
+            $this->registry->getBodySchemaForTopic($topicName), $topicName, self::DECODE_KEY
+        );
 
-        if (null === $avroSchema->getDefinition()) {
-            throw new AvroEncoderException(
-                sprintf(
-                    AvroEncoderException::UNABLE_TO_LOAD_DEFINITION_MESSAGE,
-                    $avroSchema->getName()
-                )
-            );
-        }
 
         return $this->recordSerializer->encodeRecord(
             $avroSchema->getName(),
-            $avroSchema->getDefinition(),
+            $this->getAvroSchemaDefinition($avroSchema),
             $producerMessage->getBody()
         );
     }
@@ -112,16 +101,46 @@ final class AvroEncoder implements AvroEncoderInterface
             return null;
         }
 
-        if (null === $avroSchema = $this->registry->getKeySchemaForTopic($producerMessage->getTopicName())) {
+        $topicName = $producerMessage->getTopicName();
+        $avroSchema = $this->getAvroSchema(
+            $this->registry->getKeySchemaForTopic($topicName), $topicName, self::DECODE_KEY
+        );
+
+        return $this->recordSerializer->encodeRecord(
+            $avroSchema->getName(),
+            $this->getAvroSchemaDefinition($avroSchema),
+            $producerMessage->getKey()
+        );
+    }
+
+    /**
+     * @param KafkaAvroSchemaInterface|null $avroSchema
+     * @param string $topicName
+     * @param string $type
+     */
+    private function getAvroSchema(
+        ?KafkaAvroSchemaInterface $avroSchema,
+        string $topicName,
+        string $type
+    ): KafkaAvroSchemaInterface {
+        if (null === $avroSchema) {
             throw new AvroEncoderException(
                 sprintf(
-                    AvroEncoderException::NO_KEY_SCHEMA_FOR_TOPIC_MESSAGE,
-                    $producerMessage->getTopicName()
+                    AvroEncoderException::NO_SCHEMA_FOR_TOPIC_MESSAGE,
+                    $type,
+                    $topicName
                 )
             );
         }
 
-        if (null === $avroSchema->getDefinition()) {
+        return $avroSchema;
+    }
+
+    private function getAvroSchemaDefinition(KafkaAvroSchemaInterface $avroSchema): AvroSchema
+    {
+        $schemaDefinition = $avroSchema->getDefinition();
+
+        if (null === $schemaDefinition) {
             throw new AvroEncoderException(
                 sprintf(
                     AvroEncoderException::UNABLE_TO_LOAD_DEFINITION_MESSAGE,
@@ -130,11 +149,7 @@ final class AvroEncoder implements AvroEncoderInterface
             );
         }
 
-        return $this->recordSerializer->encodeRecord(
-            $avroSchema->getName(),
-            $avroSchema->getDefinition(),
-            $producerMessage->getKey()
-        );
+        return $schemaDefinition;
     }
 
     /**

@@ -50,16 +50,13 @@ final class AvroDecoder implements AvroDecoderInterface
      */
     public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
     {
-        $body = $this->decodeBody($consumerMessage);
-        $key = $this->decodeKey($consumerMessage);
-
         return new KafkaConsumerMessage(
             $consumerMessage->getTopicName(),
             $consumerMessage->getPartition(),
             $consumerMessage->getOffset(),
             $consumerMessage->getTimestamp(),
-            $key,
-            $body,
+            $this->decodeKey($consumerMessage),
+            $this->decodeBody($consumerMessage),
             $consumerMessage->getHeaders()
         );
     }
