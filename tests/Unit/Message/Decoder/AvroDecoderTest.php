@@ -6,6 +6,7 @@ namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Decoder;
 
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use Jobcloud\Kafka\Message\Decoder\AvroDecoder;
+use Jobcloud\Kafka\Message\Decoder\AvroDecoderInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
@@ -29,35 +30,80 @@ class AvroDecoderTest extends TestCase
 
         $result = $decoder->decode($message);
 
-        self::assertSame($message, $result);
+        self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
+        self::assertNull($result->getBody());
     }
 
-    public function testDecodeWithoutSchema()
+    public function testDecodeWithSchema()
     {
+        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+
+        $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $avroSchema->expects(self::exactly(2))->method('getDefinition')->willReturn($schemaDefinition);
+
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
-        $message->expects(self::exactly(2))->method('getTopicName')->willReturn('test-topic');
+        $message->expects(self::exactly(3))->method('getTopicName')->willReturn('test-topic');
         $message->expects(self::once())->method('getPartition')->willReturn(0);
         $message->expects(self::once())->method('getOffset')->willReturn(1);
         $message->expects(self::once())->method('getTimestamp')->willReturn(time());
-        $message->expects(self::once())->method('getKey')->willReturn('test-key');
-        $message->expects(self::exactly(3))->method('getBody')->willReturn('body');
+        $message->expects(self::exactly(2))->method('getKey')->willReturn('test-key');
+        $message->expects(self::exactly(2))->method('getBody')->willReturn('body');
         $message->expects(self::once())->method('getHeaders')->willReturn([]);
 
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
-        $registry->expects(self::once())->method('getSchemaForTopic')->willReturn(null);
+        $registry->expects(self::once())->method('getBodySchemaForTopic')->willReturn($avroSchema);
+        $registry->expects(self::once())->method('getKeySchemaForTopic')->willReturn($avroSchema);
+
 
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
-        $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getBody(), null)->willReturn(['test']);
+        $recordSerializer->expects(self::at(0))->method('decodeMessage')->with($message->getKey(), $schemaDefinition)->willReturn('decoded-key');
+        $recordSerializer->expects(self::at(1))->method('decodeMessage')->with($message->getBody(), $schemaDefinition)->willReturn(['test']);
 
         $decoder = new AvroDecoder($registry, $recordSerializer);
 
         $result = $decoder->decode($message);
 
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
-        self::assertSame([ 0 => 'test'], $result->getBody());
+        self::assertSame(['test'], $result->getBody());
+        self::assertSame('decoded-key', $result->getKey());
+
     }
 
-    public function testDecodeWithSchema()
+    public function testDecodeKeyMode()
+    {
+        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+
+        $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $avroSchema->expects(self::once())->method('getDefinition')->willReturn($schemaDefinition);
+
+        $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $message->expects(self::exactly(2))->method('getTopicName')->willReturn('test-topic');
+        $message->expects(self::once())->method('getPartition')->willReturn(0);
+        $message->expects(self::once())->method('getOffset')->willReturn(1);
+        $message->expects(self::once())->method('getTimestamp')->willReturn(time());
+        $message->expects(self::exactly(2))->method('getKey')->willReturn('test-key');
+        $message->expects(self::once())->method('getBody')->willReturn('body');
+        $message->expects(self::once())->method('getHeaders')->willReturn([]);
+
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+        $registry->expects(self::never())->method('getBodySchemaForTopic');
+        $registry->expects(self::once())->method('getKeySchemaForTopic')->willReturn($avroSchema);
+
+
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getKey(), $schemaDefinition)->willReturn('decoded-key');
+
+        $decoder = new AvroDecoder($registry, $recordSerializer, AvroDecoderInterface::DECODE_KEY);
+
+        $result = $decoder->decode($message);
+
+        self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
+        self::assertSame('decoded-key', $result->getKey());
+        self::assertSame('body', $result->getBody());
+
+    }
+
+    public function testDecodeBodyMode()
     {
         $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -70,21 +116,25 @@ class AvroDecoderTest extends TestCase
         $message->expects(self::once())->method('getOffset')->willReturn(1);
         $message->expects(self::once())->method('getTimestamp')->willReturn(time());
         $message->expects(self::once())->method('getKey')->willReturn('test-key');
-        $message->expects(self::exactly(3))->method('getBody')->willReturn('body');
+        $message->expects(self::exactly(2))->method('getBody')->willReturn('body');
         $message->expects(self::once())->method('getHeaders')->willReturn([]);
 
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
-        $registry->expects(self::once())->method('getSchemaForTopic')->willReturn($avroSchema);
+        $registry->expects(self::once())->method('getBodySchemaForTopic')->willReturn($avroSchema);
+        $registry->expects(self::never())->method('getKeySchemaForTopic');
+
 
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
         $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getBody(), $schemaDefinition)->willReturn(['test']);
 
-        $decoder = new AvroDecoder($registry, $recordSerializer);
+        $decoder = new AvroDecoder($registry, $recordSerializer, AvroDecoderInterface::DECODE_BODY);
 
         $result = $decoder->decode($message);
 
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
-        self::assertSame([ 0 => 'test'], $result->getBody());
+        self::assertSame('test-key', $result->getKey());
+        self::assertSame(['test'], $result->getBody());
+
     }
 
     public function testGetRegistry()

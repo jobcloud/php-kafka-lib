@@ -13,7 +13,6 @@ use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
 final class AvroDecoder implements AvroDecoderInterface
 {
-
     /**
      * @var AvroSchemaRegistryInterface
      */
@@ -25,13 +24,23 @@ final class AvroDecoder implements AvroDecoderInterface
     private $recordSerializer;
 
     /**
+     * @var string
+     */
+    private $decodeMode;
+
+    /**
      * @param AvroSchemaRegistryInterface $registry
      * @param RecordSerializer            $recordSerializer
+     * @param string                      $decodeMode
      */
-    public function __construct(AvroSchemaRegistryInterface $registry, RecordSerializer $recordSerializer)
-    {
+    public function __construct(
+        AvroSchemaRegistryInterface $registry,
+        RecordSerializer $recordSerializer,
+        string $decodeMode = self::DECODE_ALL
+    ) {
         $this->recordSerializer = $recordSerializer;
         $this->registry = $registry;
+        $this->decodeMode = $decodeMode;
     }
 
     /**
@@ -41,29 +50,63 @@ final class AvroDecoder implements AvroDecoderInterface
      */
     public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
     {
-        $schemaDefinition = null;
-
-        if (null === $consumerMessage->getBody()) {
-            return $consumerMessage;
-        }
-
-        $avroSchema = $this->registry->getSchemaForTopic($consumerMessage->getTopicName());
-
-        if (true === $avroSchema instanceof KafkaAvroSchemaInterface) {
-            $schemaDefinition = $avroSchema->getDefinition();
-        }
-
-        $body = $this->recordSerializer->decodeMessage($consumerMessage->getBody(), $schemaDefinition);
-
         return new KafkaConsumerMessage(
             $consumerMessage->getTopicName(),
             $consumerMessage->getPartition(),
             $consumerMessage->getOffset(),
             $consumerMessage->getTimestamp(),
-            $consumerMessage->getKey(),
-            $body,
+            $this->decodeKey($consumerMessage),
+            $this->decodeBody($consumerMessage),
             $consumerMessage->getHeaders()
         );
+    }
+
+    /**
+     * @param KafkaConsumerMessageInterface $consumerMessage
+     * @return mixed
+     * @throws SchemaRegistryException
+     */
+    private function decodeBody(KafkaConsumerMessageInterface $consumerMessage)
+    {
+        $schemaDefinition = null;
+        $body = $consumerMessage->getBody();
+
+        if (self::DECODE_KEY === $this->decodeMode) {
+            return $body;
+        }
+
+        if (null === $body) {
+            return null;
+        }
+
+        $avroSchema = $this->registry->getBodySchemaForTopic($consumerMessage->getTopicName());
+        $schemaDefinition = $avroSchema->getDefinition();
+
+        return $this->recordSerializer->decodeMessage($body, $schemaDefinition);
+    }
+
+    /**
+     * @param KafkaConsumerMessageInterface $consumerMessage
+     * @return mixed
+     * @throws SchemaRegistryException
+     */
+    private function decodeKey(KafkaConsumerMessageInterface $consumerMessage)
+    {
+        $schemaDefinition = null;
+        $key = $consumerMessage->getKey();
+
+        if (self::DECODE_BODY === $this->decodeMode) {
+            return $key;
+        }
+
+        if (null === $key) {
+            return null;
+        }
+
+        $avroSchema = $this->registry->getKeySchemaForTopic($consumerMessage->getTopicName());
+        $schemaDefinition = $avroSchema->getDefinition();
+
+        return $this->recordSerializer->decodeMessage($key, $schemaDefinition);
     }
 
     /**
