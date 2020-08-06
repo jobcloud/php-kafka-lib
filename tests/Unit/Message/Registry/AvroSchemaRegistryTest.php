@@ -58,6 +58,30 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertSame($schema, $schemaMapping[AvroSchemaRegistryInterface::KEY_IDX]['test2']);
     }
 
+    public function testHasBodySchemaMappingForTopic()
+    {
+        $flixRegistry = $this->getMockForAbstractClass(Registry::class);
+        $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+
+        $registry = new AvroSchemaRegistry($flixRegistry);
+        $registry->addBodySchemaMappingForTopic('test', $schema);
+
+        self::assertTrue($registry->hasBodySchemaForTopic('test'));
+        self::assertFalse($registry->hasBodySchemaForTopic('test2'));
+    }
+
+    public function testHasKeySchemaMappingForTopic()
+    {
+        $flixRegistry = $this->getMockForAbstractClass(Registry::class);
+        $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+
+        $registry = new AvroSchemaRegistry($flixRegistry);
+        $registry->addKeySchemaMappingForTopic('test', $schema);
+
+        self::assertTrue($registry->hasKeySchemaForTopic('test'));
+        self::assertFalse($registry->hasKeySchemaForTopic('test2'));
+    }
+
     public function testGetBodySchemaForTopicWithNoMapping()
     {
         self::expectException(AvroSchemaRegistryException::class);
@@ -65,7 +89,7 @@ class AvroSchemaRegistryTest extends TestCase
             sprintf(
                 AvroSchemaRegistryException::SCHEMA_MAPPING_NOT_FOUND,
                 'test',
-                AvroEncoderInterface::ENCODE_BODY
+                AvroSchemaRegistryInterface::BODY_IDX
             )
         );
 

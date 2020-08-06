@@ -75,6 +75,26 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
 
     /**
      * @param string $topicName
+     * @return boolean
+     * @throws SchemaRegistryException
+     */
+    public function hasBodySchemaForTopic(string $topicName): bool
+    {
+        return isset($this->schemaMapping[self::BODY_IDX][$topicName]);
+    }
+
+    /**
+     * @param string $topicName
+     * @return boolean
+     * @throws SchemaRegistryException
+     */
+    public function hasKeySchemaForTopic(string $topicName): bool
+    {
+        return isset($this->schemaMapping[self::KEY_IDX][$topicName]);
+    }
+
+    /**
+     * @param string $topicName
      * @param string $type
      * @return KafkaAvroSchemaInterface
      * @throws SchemaRegistryException|AvroSchemaRegistryException
