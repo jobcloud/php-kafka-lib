@@ -24,23 +24,15 @@ final class AvroDecoder implements AvroDecoderInterface
     private $recordSerializer;
 
     /**
-     * @var string
-     */
-    private $decodeMode;
-
-    /**
      * @param AvroSchemaRegistryInterface $registry
      * @param RecordSerializer            $recordSerializer
-     * @param string                      $decodeMode
      */
     public function __construct(
         AvroSchemaRegistryInterface $registry,
-        RecordSerializer $recordSerializer,
-        string $decodeMode = self::DECODE_ALL
+        RecordSerializer $recordSerializer
     ) {
         $this->recordSerializer = $recordSerializer;
         $this->registry = $registry;
-        $this->decodeMode = $decodeMode;
     }
 
     /**
@@ -68,18 +60,18 @@ final class AvroDecoder implements AvroDecoderInterface
      */
     private function decodeBody(KafkaConsumerMessageInterface $consumerMessage)
     {
-        $schemaDefinition = null;
         $body = $consumerMessage->getBody();
-
-        if (self::DECODE_KEY === $this->decodeMode) {
-            return $body;
-        }
+        $topicName = $consumerMessage->getTopicName();
 
         if (null === $body) {
             return null;
         }
 
-        $avroSchema = $this->registry->getBodySchemaForTopic($consumerMessage->getTopicName());
+        if (false === $this->registry->hasBodySchemaForTopic($topicName)) {
+            return $body;
+        }
+
+        $avroSchema = $this->registry->getBodySchemaForTopic($topicName);
         $schemaDefinition = $avroSchema->getDefinition();
 
         return $this->recordSerializer->decodeMessage($body, $schemaDefinition);
@@ -92,18 +84,18 @@ final class AvroDecoder implements AvroDecoderInterface
      */
     private function decodeKey(KafkaConsumerMessageInterface $consumerMessage)
     {
-        $schemaDefinition = null;
         $key = $consumerMessage->getKey();
-
-        if (self::DECODE_BODY === $this->decodeMode) {
-            return $key;
-        }
+        $topicName = $consumerMessage->getTopicName();
 
         if (null === $key) {
             return null;
         }
 
-        $avroSchema = $this->registry->getKeySchemaForTopic($consumerMessage->getTopicName());
+        if (false === $this->registry->hasKeySchemaForTopic($topicName)) {
+            return $key;
+        }
+
+        $avroSchema = $this->registry->getKeySchemaForTopic($topicName);
         $schemaDefinition = $avroSchema->getDefinition();
 
         return $this->recordSerializer->decodeMessage($key, $schemaDefinition);

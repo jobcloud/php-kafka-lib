@@ -26,23 +26,15 @@ final class AvroEncoder implements AvroEncoderInterface
     private $recordSerializer;
 
     /**
-     * @var string
-     */
-    private $encodeMode;
-
-    /**
      * @param AvroSchemaRegistryInterface $registry
      * @param RecordSerializer            $recordSerializer
-     * @param string                      $encodeMode
      */
     public function __construct(
         AvroSchemaRegistryInterface $registry,
-        RecordSerializer $recordSerializer,
-        string $encodeMode = self::ENCODE_ALL
+        RecordSerializer $recordSerializer
     ) {
         $this->recordSerializer = $recordSerializer;
         $this->registry = $registry;
-        $this->encodeMode = $encodeMode;
     }
 
     /**
@@ -53,62 +45,67 @@ final class AvroEncoder implements AvroEncoderInterface
      */
     public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
-        return $producerMessage
-            ->withBody($this->encodeBody($producerMessage))
-            ->withKey($this->encodeKey($producerMessage));
+        $producerMessage = $this->encodeBody($producerMessage);
+
+        return $this->encodeKey($producerMessage);
     }
 
     /**
      * @param KafkaProducerMessageInterface $producerMessage
-     * @return mixed
+     * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
      */
-    private function encodeBody(KafkaProducerMessageInterface $producerMessage)
+    private function encodeBody(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
+        $topicName = $producerMessage->getTopicName();
         $body = $producerMessage->getBody();
 
-        if (self::ENCODE_KEY === $this->encodeMode) {
-            return $body;
-        }
-
         if (null === $body) {
-            return null;
+            return $producerMessage;
         }
 
-        $topicName = $producerMessage->getTopicName();
+        if (false === $this->registry->hasBodySchemaForTopic($topicName)) {
+            return $producerMessage;
+        }
+
         $avroSchema = $this->registry->getBodySchemaForTopic($topicName);
 
-
-        return $this->recordSerializer->encodeRecord(
+        $encodedBody = $this->recordSerializer->encodeRecord(
             $avroSchema->getName(),
             $this->getAvroSchemaDefinition($avroSchema),
             $body
         );
+
+        return $producerMessage->withBody($encodedBody);
     }
 
     /**
      * @param KafkaProducerMessageInterface $producerMessage
-     * @return string|null
+     * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
      */
-    private function encodeKey(KafkaProducerMessageInterface $producerMessage): ?string
+    private function encodeKey(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
-        if (self::ENCODE_BODY === $this->encodeMode) {
-            return $producerMessage->getKey();
-        }
-
-        if (null === $producerMessage->getKey()) {
-            return null;
-        }
-
         $topicName = $producerMessage->getTopicName();
+        $key = $producerMessage->getKey();
+
+        if (null === $key) {
+            return $producerMessage;
+        }
+
+        if (false === $this->registry->hasKeySchemaForTopic($topicName)) {
+            return $producerMessage;
+        }
+
         $avroSchema = $this->registry->getKeySchemaForTopic($topicName);
 
-        return $this->recordSerializer->encodeRecord(
+        $encodedKey = $this->recordSerializer->encodeRecord(
             $avroSchema->getName(),
             $this->getAvroSchemaDefinition($avroSchema),
-            $producerMessage->getKey()
+            $key
         );
+
+        return $producerMessage->withKey($encodedKey);
     }
 
     private function getAvroSchemaDefinition(KafkaAvroSchemaInterface $avroSchema): AvroSchema
