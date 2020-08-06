@@ -28,7 +28,6 @@ final class AvroEncoder implements AvroEncoderInterface
     /**
      * @param AvroSchemaRegistryInterface $registry
      * @param RecordSerializer            $recordSerializer
-     * @param string                      $encodeMode
      */
     public function __construct(
         AvroSchemaRegistryInterface $registry,
@@ -53,7 +52,7 @@ final class AvroEncoder implements AvroEncoderInterface
 
     /**
      * @param KafkaProducerMessageInterface $producerMessage
-     * @return mixed
+     * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
      */
     private function encodeBody(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
@@ -82,7 +81,7 @@ final class AvroEncoder implements AvroEncoderInterface
 
     /**
      * @param KafkaProducerMessageInterface $producerMessage
-     * @return string|null
+     * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
      */
     private function encodeKey(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
