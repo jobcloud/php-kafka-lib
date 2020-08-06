@@ -22,7 +22,7 @@ can help out to understand the internals of this library.
 ```
 composer require jobcloud/php-kafka-lib "~1.0"```
 
-### Enbable Avro support
+### Enable Avro support
 If you need Avro support, run:
 ```
 composer require flix-tech/avro-serde-php "~1.3"
