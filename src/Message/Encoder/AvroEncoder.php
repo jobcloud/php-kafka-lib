@@ -38,7 +38,7 @@ final class AvroEncoder implements AvroEncoderInterface
     public function __construct(
         AvroSchemaRegistryInterface $registry,
         RecordSerializer $recordSerializer,
-        string $encodeMode = self::DECODE_ALL
+        string $encodeMode = self::ENCODE_ALL
     ) {
         $this->recordSerializer = $recordSerializer;
         $this->registry = $registry;
@@ -65,11 +65,13 @@ final class AvroEncoder implements AvroEncoderInterface
      */
     private function encodeBody(KafkaProducerMessageInterface $producerMessage)
     {
-        if (self::DECODE_KEY === $this->encodeMode) {
-            return $producerMessage->getBody();
+        $body = $producerMessage->getBody();
+
+        if (self::ENCODE_KEY === $this->encodeMode) {
+            return $body;
         }
 
-        if (null === $producerMessage->getBody()) {
+        if (null === $body) {
             return null;
         }
 
@@ -80,7 +82,7 @@ final class AvroEncoder implements AvroEncoderInterface
         return $this->recordSerializer->encodeRecord(
             $avroSchema->getName(),
             $this->getAvroSchemaDefinition($avroSchema),
-            $producerMessage->getBody()
+            $body
         );
     }
 
@@ -91,7 +93,7 @@ final class AvroEncoder implements AvroEncoderInterface
      */
     private function encodeKey(KafkaProducerMessageInterface $producerMessage): ?string
     {
-        if (self::DECODE_BODY === $this->encodeMode) {
+        if (self::ENCODE_BODY === $this->encodeMode) {
             return $producerMessage->getKey();
         }
 

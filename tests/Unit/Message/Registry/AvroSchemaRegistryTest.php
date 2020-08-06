@@ -38,6 +38,26 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertSame($schema, $schemaMapping[AvroSchemaRegistryInterface::BODY_IDX]['test']);
     }
 
+    public function testAddKeySchemaMappingForTopic()
+    {
+        $flixRegistry = $this->getMockForAbstractClass(Registry::class);
+
+        $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+
+        $registry = new AvroSchemaRegistry($flixRegistry);
+
+        $registry->addKeySchemaMappingForTopic('test2', $schema);
+
+        $reflectionProperty = new \ReflectionProperty($registry, 'schemaMapping');
+        $reflectionProperty->setAccessible(true);
+
+        $schemaMapping = $reflectionProperty->getValue($registry);
+
+        self::assertArrayHasKey(AvroSchemaRegistryInterface::KEY_IDX, $schemaMapping);
+        self::assertArrayHasKey('test2', $schemaMapping[AvroSchemaRegistryInterface::KEY_IDX]);
+        self::assertSame($schema, $schemaMapping[AvroSchemaRegistryInterface::KEY_IDX]['test2']);
+    }
+
     public function testGetBodySchemaForTopicWithNoMapping()
     {
         self::expectException(AvroSchemaRegistryException::class);
@@ -45,7 +65,7 @@ class AvroSchemaRegistryTest extends TestCase
             sprintf(
                 AvroSchemaRegistryException::SCHEMA_MAPPING_NOT_FOUND,
                 'test',
-                AvroEncoderInterface::DECODE_BODY
+                AvroEncoderInterface::ENCODE_BODY
             )
         );
 
@@ -56,7 +76,7 @@ class AvroSchemaRegistryTest extends TestCase
         $registry->getBodySchemaForTopic('test');
     }
 
-    public function testgetBodySchemaForTopicWithMappingWithDefinition()
+    public function testGetBodySchemaForTopicWithMappingWithDefinition()
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -72,7 +92,23 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertSame($schema, $registry->getBodySchemaForTopic('test'));
     }
 
-    public function testgetBodySchemaForTopicWithMappingWithoutDefinitionLatest()
+    public function testGetKeySchemaForTopicWithMappingWithDefinition()
+    {
+        $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
+
+        $flixRegistry = $this->getMockForAbstractClass(Registry::class);
+
+        $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $schema->expects(self::once())->method('getDefinition')->willReturn($definition);
+
+        $registry = new AvroSchemaRegistry($flixRegistry);
+
+        $registry->addKeySchemaMappingForTopic('test2', $schema);
+
+        self::assertSame($schema, $registry->getKeySchemaForTopic('test2'));
+    }
+
+    public function testGetBodySchemaForTopicWithMappingWithoutDefinitionLatest()
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -92,7 +128,7 @@ class AvroSchemaRegistryTest extends TestCase
         $registry->getBodySchemaForTopic('test');
     }
 
-    public function testgetBodySchemaForTopicWithMappingWithoutDefinitionVersion()
+    public function testGetBodySchemaForTopicWithMappingWithoutDefinitionVersion()
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 

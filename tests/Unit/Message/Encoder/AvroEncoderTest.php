@@ -77,7 +77,7 @@ class AvroEncoderTest extends TestCase
 
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
-        $producerMessage->expects(self::exactly(2))->method('getBody')->willReturn([]);
+        $producerMessage->expects(self::once())->method('getBody')->willReturn([]);
         $producerMessage->expects(self::exactly(2))->method('getKey')->willReturn('test-key');
         $producerMessage->expects(self::once())->method('withBody')->with('encodedValue')->willReturn($producerMessage);
         $producerMessage->expects(self::once())->method('withKey')->with('encodedKey')->willReturn($producerMessage);
@@ -87,6 +87,64 @@ class AvroEncoderTest extends TestCase
         $recordSerializer->expects(self::at(1))->method('encodeRecord')->with($avroSchema->getName(), $avroSchema->getDefinition(), 'test-key')->willReturn('encodedKey');
 
         $encoder = new AvroEncoder($registry, $recordSerializer);
+
+        self::assertSame($producerMessage, $encoder->encode($producerMessage));
+    }
+
+    public function testEncodeKeyMode()
+    {
+        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+
+        $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $avroSchema->expects(self::exactly(2))->method('getName')->willReturn('schemaName');
+        $avroSchema->expects(self::never())->method('getVersion');
+        $avroSchema->expects(self::exactly(2))->method('getDefinition')->willReturn($schemaDefinition);
+
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+        $registry->expects(self::never())->method('getBodySchemaForTopic');
+        $registry->expects(self::once())->method('getKeySchemaForTopic')->willReturn($avroSchema);
+
+
+        $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
+        $producerMessage->expects(self::once())->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::once())->method('getBody')->willReturn([]);
+        $producerMessage->expects(self::exactly(2))->method('getKey')->willReturn('test-key');
+        $producerMessage->expects(self::once())->method('withBody')->with([])->willReturn($producerMessage);
+        $producerMessage->expects(self::once())->method('withKey')->with('encodedKey')->willReturn($producerMessage);
+
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer->expects(self::once())->method('encodeRecord')->with($avroSchema->getName(), $avroSchema->getDefinition(), 'test-key')->willReturn('encodedKey');
+
+        $encoder = new AvroEncoder($registry, $recordSerializer, AvroEncoderInterface::ENCODE_KEY);
+
+        self::assertSame($producerMessage, $encoder->encode($producerMessage));
+    }
+
+    public function testEncodeBodyMode()
+    {
+        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+
+        $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $avroSchema->expects(self::exactly(2))->method('getName')->willReturn('schemaName');
+        $avroSchema->expects(self::never())->method('getVersion');
+        $avroSchema->expects(self::exactly(2))->method('getDefinition')->willReturn($schemaDefinition);
+
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+        $registry->expects(self::once())->method('getBodySchemaForTopic')->willReturn($avroSchema);
+        $registry->expects(self::never())->method('getKeySchemaForTopic');
+
+
+        $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
+        $producerMessage->expects(self::once())->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::once())->method('getBody')->willReturn([]);
+        $producerMessage->expects(self::once())->method('getKey')->willReturn('test-key');
+        $producerMessage->expects(self::once())->method('withBody')->with('encodedBody')->willReturn($producerMessage);
+        $producerMessage->expects(self::once())->method('withKey')->with('test-key')->willReturn($producerMessage);
+
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer->expects(self::once())->method('encodeRecord')->with($avroSchema->getName(), $avroSchema->getDefinition(), [])->willReturn('encodedBody');
+
+        $encoder = new AvroEncoder($registry, $recordSerializer, AvroEncoderInterface::ENCODE_BODY);
 
         self::assertSame($producerMessage, $encoder->encode($producerMessage));
     }

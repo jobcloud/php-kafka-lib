@@ -69,19 +69,20 @@ final class AvroDecoder implements AvroDecoderInterface
     private function decodeBody(KafkaConsumerMessageInterface $consumerMessage)
     {
         $schemaDefinition = null;
+        $body = $consumerMessage->getBody();
 
         if (self::DECODE_KEY === $this->decodeMode) {
-            return $consumerMessage->getBody();
+            return $body;
         }
 
-        if (null === $consumerMessage->getBody()) {
+        if (null === $body) {
             return null;
         }
 
         $avroSchema = $this->registry->getBodySchemaForTopic($consumerMessage->getTopicName());
         $schemaDefinition = $avroSchema->getDefinition();
 
-        return $this->recordSerializer->decodeMessage($consumerMessage->getBody(), $schemaDefinition);
+        return $this->recordSerializer->decodeMessage($body, $schemaDefinition);
     }
 
     /**
