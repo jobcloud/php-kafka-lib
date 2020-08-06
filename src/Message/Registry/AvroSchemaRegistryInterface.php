@@ -9,6 +9,11 @@ use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 
 interface AvroSchemaRegistryInterface
 {
+    /** @var string */
+    public const BODY_IDX = 'body';
+
+    /** @var string */
+    public const KEY_IDX = 'key';
 
     /**
      * @param string                   $topicName

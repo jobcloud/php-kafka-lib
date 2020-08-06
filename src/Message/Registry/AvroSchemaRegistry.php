@@ -11,12 +11,6 @@ use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 
 final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
 {
-    /** @var string */
-    private const BODY_IDX = 'body';
-
-    /** @var string */
-    private const KEY_IDX = 'key';
-
     /**
      * @var Registry
      */
