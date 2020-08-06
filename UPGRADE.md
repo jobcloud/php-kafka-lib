@@ -40,6 +40,22 @@ This affects the following classes:
 - KafkaProducer / KafkaProducerInterface
     - Added `pollTimeoutMs` to `produce()`, default is 10s
     - Added `$timeoutMs` to `getMetadataForTopic()`, default is 10s
+    
+## Possibility to avro encode / decode both key and body of a message
+The previous default behaviour was to only encode the body of a message.  
+Now you are also able to encode / decode message keys.  
+This affects the following classes:  
+- AvroSchemaRegistry
+    - Removed `addSchemaMappingForTopic`
+    - Removed `getSchemaForTopic`
+    - Added `addBodySchemaMappingForTopic`
+    - Added `addKeySchemaMappingForTopic`
+    - Added `getBodySchemaForTopic`
+    - Added `getKeySchemaForTopic`
+    - Behaviour change: Trying to get a schema for which no mapping was registered will throw `AvroSchemaRegistryException`
+    - `getTopicSchemaMapping` will still return an array with mappings but with an additional first key `body` or `key` for the type of the schema  
+- KafkaMessageInterface
+    - type of `key` is now mixed
 
 ## Default error callback
 The default error callback now only throws exceptions for  
