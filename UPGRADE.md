@@ -58,6 +58,5 @@ This affects the following classes:
     - type of `key` is now mixed
 
 ## Default error callback
-The default error callback now only throws exceptions for  
-fatal errors. Other errors will be retried by librdkafka  
-and are only informational.
+The default error callback now only throws exceptions for fatal errors.  
+Other errors will be retried by librdkafka and are only informational.
