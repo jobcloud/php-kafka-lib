@@ -124,6 +124,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         array $partitions = [],
         int $offset = self::OFFSET_STORED
     ): KafkaConsumerBuilderInterface {
+        $this->validateSubscription($partitions, $offset);
+
         $that = clone $this;
 
         $that->topics[] = new TopicSubscription($topicName, $partitions, $offset);
@@ -145,7 +147,10 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         array $partitions = [],
         int $offset = self::OFFSET_STORED
     ): KafkaConsumerBuilderInterface {
+        $this->validateSubscription($partitions, $offset);
+
         $that = clone $this;
+
         $that->topics = [new TopicSubscription($topicName, $partitions, $offset)];
 
         return $that;
@@ -357,6 +362,19 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
         if (null !== $this->offsetCommitCallback) {
             $conf->setOffsetCommitCb($this->rebalanceCallback);
+        }
+    }
+
+    /**
+     * @param array $partitions
+     * @param int $offset
+     */
+    private function validateSubscription(array $partitions, int $offset): void
+    {
+        if (0 <= $offset && [] === $partitions) {
+            throw new KafkaConsumerBuilderException(
+                KafkaConsumerBuilderException::TOPIC_SUBSCRIPTION_OFFSET_WITHOUT_PARTITIONS
+            );
         }
     }
 }
