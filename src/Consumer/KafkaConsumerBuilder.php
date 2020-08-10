@@ -366,7 +366,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * @param array $partitions
+     * @param int[] $partitions
      * @param int $offset
      */
     private function validateSubscription(array $partitions, int $offset): void
