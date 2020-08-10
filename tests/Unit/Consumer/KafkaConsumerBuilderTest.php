@@ -74,17 +74,6 @@ final class KafkaConsumerBuilderTest extends TestCase
 
     /**
      * @return void
-     */
-    public function testSubscribeWithOffsetWithoutPartitions(): void
-    {
-        self::expectException(KafkaConsumerBuilderException::class);
-        self::expectExceptionMessage(KafkaConsumerBuilderException::TOPIC_SUBSCRIPTION_OFFSET_WITHOUT_PARTITIONS);
-
-       $this->kafkaConsumerBuilder->withAdditionalSubscription('test-topic', [], 0);
-    }
-
-    /**
-     * @return void
      * @throws \ReflectionException
      */
     public function testReplaceSubscribedToTopics(): void

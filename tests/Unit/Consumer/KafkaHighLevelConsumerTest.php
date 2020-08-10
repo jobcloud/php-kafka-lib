@@ -44,9 +44,27 @@ final class KafkaHighLevelConsumerTest extends TestCase
     /**
      * @throws KafkaConsumerSubscriptionException
      */
-    public function testSubscribeSuccessWithAssignment(): void
+    public function testSubscribeSuccessWithAssignmentWithPartitions(): void
     {
         $topics = [new TopicSubscription('testTopic', [1,2], RD_KAFKA_OFFSET_BEGINNING)];
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn([]);
+        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn($topics);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $rdKafkaConsumerMock->expects(self::once())->method('assign');
+
+        $kafkaConsumer->subscribe($topics);
+    }
+
+    /**
+     * @throws KafkaConsumerSubscriptionException
+     */
+    public function testSubscribeSuccessWithAssignmentWithOffsetOnly(): void
+    {
+        $topics = [new TopicSubscription('testTopic', [], RD_KAFKA_OFFSET_END)];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn([]);
