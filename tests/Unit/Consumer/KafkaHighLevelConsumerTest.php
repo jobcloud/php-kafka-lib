@@ -107,7 +107,14 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
-        $rdKafkaConsumerMock->expects(self::once())->method('assign');
+        $rdKafkaConsumerMock->expects(self::once())->method('assign')->with(
+            $this->callback(
+                function (array $assignment) {
+                    self::assertCount(2, $assignment);
+                    return true;
+                }
+            )
+        );
         $rdKafkaConsumerMock
             ->expects(self::once())
             ->method('getMetadata')
@@ -367,9 +374,10 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->key = 'test';
         $message->payload = null;
         $message->topic_name = 'test_topic';
-        $message->partition = 9;
-        $message->offset = 501;
-        $message->timestamp = 500;
+        $message->partition = '9';
+        $message->offset = '501';
+        $message->timestamp = '500';
+        $message->headers = 'header';
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
         $topics = [new TopicSubscription('testTopic')];
@@ -395,6 +403,8 @@ final class KafkaHighLevelConsumerTest extends TestCase
                     self::assertEquals(9, $message->getPartition());
                     self::assertEquals(501, $message->getOffset());
                     self::assertEquals(500, $message->getTimestamp());
+                    self::assertEquals(['header'], $message->getHeaders());
+
                     return true;
                 }
             )

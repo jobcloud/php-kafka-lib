@@ -107,6 +107,7 @@ class KafkaConfigurationTest extends TestCase
             return;
         }
 
+        self::assertEquals($config['metadata.broker.list'], 'localhost');
         self::assertEquals($expectedValue, $config['group.id']);
         self::assertEquals('100', $config['auto.commit.interval.ms']);
         self::assertArrayHasKey('default_topic_conf', $config);

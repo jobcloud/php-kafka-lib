@@ -116,6 +116,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             ],
             $reflectionProperty->getValue($clone)
         );
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -132,6 +133,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertInstanceOf(DecoderInterface::class, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -146,6 +148,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame('test-consumer', $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -160,6 +163,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $actualConsumerType->setAccessible(true);
 
         self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL, $actualConsumerType->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -174,6 +178,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $actualConsumerType->setAccessible(true);
 
         self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL, $actualConsumerType->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -192,6 +197,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -210,6 +216,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -228,6 +235,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -246,6 +254,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -264,6 +273,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
