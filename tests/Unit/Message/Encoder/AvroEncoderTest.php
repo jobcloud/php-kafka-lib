@@ -87,8 +87,13 @@ class AvroEncoderTest extends TestCase
         $producerMessage->expects(self::once())->method('withKey')->with('encodedKey')->willReturn($producerMessage);
 
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
-        $recordSerializer->expects(self::at(0))->method('encodeRecord')->with($avroSchema->getName(), $avroSchema->getDefinition(), [])->willReturn('encodedValue');
-        $recordSerializer->expects(self::at(1))->method('encodeRecord')->with($avroSchema->getName(), $avroSchema->getDefinition(), 'test-key')->willReturn('encodedKey');
+        $recordSerializer
+            ->expects(self::exactly(2))
+            ->method('encodeRecord')
+            ->withConsecutive(
+                [$avroSchema->getName(), $avroSchema->getDefinition(), []],
+                [$avroSchema->getName(), $avroSchema->getDefinition(), 'test-key']
+            )->willReturnOnConsecutiveCalls('encodedValue', 'encodedKey');
 
         $encoder = new AvroEncoder($registry, $recordSerializer);
 

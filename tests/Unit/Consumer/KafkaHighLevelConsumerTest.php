@@ -13,8 +13,13 @@ use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use PHPUnit\Framework\TestCase;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
+use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message;
+use RdKafka\Metadata as RdKafkaMetadata;
+use RdKafka\Metadata\Collection as RdKafkaMetadataCollection;
+use RdKafka\Metadata\Partition as RdKafkaMetadataPartition;
+use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 
 /**
  * @covers \Jobcloud\Kafka\Consumer\AbstractKafkaConsumer
@@ -31,8 +36,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $topics = [new TopicSubscription('testTopic')];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls($topics, []);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
@@ -44,17 +48,77 @@ final class KafkaHighLevelConsumerTest extends TestCase
     /**
      * @throws KafkaConsumerSubscriptionException
      */
-    public function testSubscribeSuccessWithAssignment(): void
+    public function testSubscribeSuccessWithAssignmentWithPartitions(): void
     {
         $topics = [new TopicSubscription('testTopic', [1,2], RD_KAFKA_OFFSET_BEGINNING)];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn($topics);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls([], $topics);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
         $rdKafkaConsumerMock->expects(self::once())->method('assign');
+
+        $kafkaConsumer->subscribe($topics);
+    }
+
+    /**
+     * @throws KafkaConsumerSubscriptionException
+     */
+    public function testSubscribeSuccessWithAssignmentWithOffsetOnly(): void
+    {
+        $partitions = [
+            $this->getMetadataPartitionMock(1),
+            $this->getMetadataPartitionMock(2)
+        ];
+
+        /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
+        $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);
+
+        /** @var RdKafkaMetadataTopic|MockObject $rdKafkaMetadataTopicMock */
+        $rdKafkaMetadataTopicMock = $this->createMock(RdKafkaMetadataTopic::class);
+        $rdKafkaMetadataTopicMock
+            ->expects(self::once())
+            ->method('getPartitions')
+            ->willReturn($partitions);
+
+        /** @var RdKafkaMetadata|MockObject $rdKafkaMetadataMock */
+        $rdKafkaMetadataMock = $this->createMock(RdKafkaMetadata::class);
+        $rdKafkaMetadataMock
+            ->expects(self::once())
+            ->method('getTopics')
+            ->willReturnCallback(
+                function () use ($rdKafkaMetadataTopicMock) {
+                    /** @var RdKafkaMetadataCollection|MockObject $collection */
+                    $collection = $this->createMock(RdKafkaMetadataCollection::class);
+                    $collection
+                        ->expects(self::once())
+                        ->method('current')
+                        ->willReturn($rdKafkaMetadataTopicMock);
+
+                    return $collection;
+                }
+            );
+
+        $topics = [new TopicSubscription('testTopic', [], RD_KAFKA_OFFSET_END)];
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls([], $topics);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $rdKafkaConsumerMock->expects(self::once())->method('assign');
+        $rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('getMetadata')
+            ->with(false, $rdKafkaConsumerTopicMock, 10000)
+            ->willReturn($rdKafkaMetadataMock);
+        $rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('newTopic')
+            ->with('testTopic')
+            ->willReturn($rdKafkaConsumerTopicMock);
+
 
         $kafkaConsumer->subscribe($topics);
     }
@@ -320,8 +384,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
             ->with(10000)
             ->willReturn($message);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls($topics, []);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $decoderMock->expects(self::once())->method('decode')->with(
             $this->callback(
@@ -365,8 +428,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
             ->with(10000)
             ->willReturn($message);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls($topics, []);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $decoderMock->expects(self::never())->method('decode');
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
@@ -478,5 +540,24 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock->expects(self::once())->method('close');
 
         $kafkaConsumer->close();
+    }
+
+    /**
+     * @param int $partitionId
+     * @return RdKafkaMetadataPartition|MockObject
+     */
+    private function getMetadataPartitionMock(int $partitionId): RdKafkaMetadataPartition
+    {
+        $partitionMock = $this->getMockBuilder(RdKafkaMetadataPartition::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getId'])
+            ->getMock();
+
+        $partitionMock
+            ->expects(self::once())
+            ->method('getId')
+            ->willReturn($partitionId);
+
+        return $partitionMock;
     }
 }

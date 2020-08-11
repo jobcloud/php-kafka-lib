@@ -146,6 +146,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         int $offset = self::OFFSET_STORED
     ): KafkaConsumerBuilderInterface {
         $that = clone $this;
+
         $that->topics = [new TopicSubscription($topicName, $partitions, $offset)];
 
         return $that;
