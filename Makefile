@@ -1,4 +1,4 @@
-.PHONY: clean code-style coverage help test static-analysis update-dependencies xdebug-enable xdebug-disable
+.PHONY: clean code-style coverage help test static-analysis update-dependencies xdebug-enable xdebug-disable infection-testing
 .DEFAULT_GOAL := test
 
 PHPUNIT =  ./vendor/bin/phpunit -c ./phpunit.xml
@@ -6,6 +6,7 @@ PHPDBG =  phpdbg -qrr ./vendor/bin/phpunit -c ./phpunit.xml
 PHPSTAN  = ./vendor/bin/phpstan
 PHPCS = ./vendor/bin/phpcs --extensions=php
 CONSOLE = ./bin/console
+INFECTION = ./vendor/bin/infection
 
 clean:
 	rm -rf ./build ./vendor
@@ -33,6 +34,11 @@ install-dependencies:
 install-dependencies-lowest:
 	composer install --prefer-lowest
 
+infection-testing:
+	make coverage
+	cp -f build/logs/phpunit/junit.xml build/logs/phpunit/coverage/junit.xml
+	${INFECTION} --coverage=build/logs/phpunit/coverage --min-msi=76 --threads=`nproc`
+
 xdebug-enable:
 	sudo php-ext-enable xdebug
 
@@ -50,6 +56,7 @@ help:
 	#   help                You're looking at it!
 	#   test (default)      Run all the tests with phpunit
 	#   static-analysis     Run static analysis using phpstan
+	#   infection-testing   Run infection/mutation testing
 	#   install-dependencies Run composer install
 	#   update-dependencies Run composer update
 	#   xdebug-enable       Enable xdebug
