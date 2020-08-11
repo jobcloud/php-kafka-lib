@@ -36,8 +36,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $topics = [new TopicSubscription('testTopic')];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls($topics, []);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
@@ -54,8 +53,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $topics = [new TopicSubscription('testTopic', [1,2], RD_KAFKA_OFFSET_BEGINNING)];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn($topics);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls([], $topics);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
@@ -105,8 +103,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $topics = [new TopicSubscription('testTopic', [], RD_KAFKA_OFFSET_END)];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn([]);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn($topics);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls([], $topics);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
@@ -387,8 +384,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
             ->with(10000)
             ->willReturn($message);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls($topics, []);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $decoderMock->expects(self::once())->method('decode')->with(
             $this->callback(
@@ -432,8 +428,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
             ->with(10000)
             ->willReturn($message);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
-        $kafkaConfigurationMock->expects(self::at(0))->method('getTopicSubscriptions')->willReturn($topics);
-        $kafkaConfigurationMock->expects(self::at(1))->method('getTopicSubscriptions')->willReturn([]);
+        $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls($topics, []);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $decoderMock->expects(self::never())->method('decode');
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
