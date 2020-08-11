@@ -25,8 +25,21 @@ class KafkaConsumerConsumeExceptionTest extends TestCase
 
     public function testGetAndConstructOfKafkaConsumerConsumeExceptionWithNullAsMessage()
     {
-        $exception = new KafkaConsumerConsumeException('', 0, null);
+        $exception = new KafkaConsumerConsumeException('test', 100, null);
 
         self::assertNull($exception->getKafkaMessage());
+        self::assertEquals('test', $exception->getMessage());
+        self::assertEquals(100, $exception->getCode());
+    }
+
+    public function testGetDefaults()
+    {
+        $exception = new KafkaConsumerConsumeException();
+
+        self::assertNull($exception->getKafkaMessage());
+        self::assertEquals('', $exception->getMessage());
+        self::assertEquals(0, $exception->getCode());
+        self::assertNull($exception->getPrevious());
+
     }
 }

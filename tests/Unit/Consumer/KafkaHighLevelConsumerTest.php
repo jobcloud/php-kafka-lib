@@ -20,6 +20,7 @@ use RdKafka\Metadata as RdKafkaMetadata;
 use RdKafka\Metadata\Collection as RdKafkaMetadataCollection;
 use RdKafka\Metadata\Partition as RdKafkaMetadataPartition;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
+use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 /**
  * @covers \Jobcloud\Kafka\Consumer\AbstractKafkaConsumer
@@ -226,21 +227,70 @@ final class KafkaHighLevelConsumerTest extends TestCase
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message->expects(self::exactly(1))->method('getOffset')->willReturn(0);
-        $message->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
-        $message->expects(self::exactly(2))->method('getPartition')->willReturn(1);
+        $message->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
+        $message->expects(self::exactly(1))->method('getPartition')->willReturn(1);
         $message2 = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
-        $message2->expects(self::exactly(2))->method('getOffset')->willReturn(1);
-        $message2->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
-        $message2->expects(self::exactly(1))->method('getPartition')->willReturn(1);
+        $message2->expects(self::exactly(1))->method('getOffset')->willReturn(1);
+        $message2->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
+        $message2->expects(self::exactly(2))->method('getPartition')->willReturn(1);
+        $message3 = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $message3->expects(self::exactly(2))->method('getOffset')->willReturn(2);
+        $message3->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
+        $message3->expects(self::exactly(1))->method('getPartition')->willReturn(1);
+        $message4 = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $message4->expects(self::exactly(1))->method('getOffset')->willReturn(0);
+        $message4->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
+        $message4->expects(self::exactly(2))->method('getPartition')->willReturn(2);
 
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
-        $rdKafkaConsumerMock->expects(self::once())->method('commit');
+        $rdKafkaConsumerMock->expects(self::once())->method('commit')->with(
+            $this->callback(
+                function (array $topicPartitions) {
+                    self::assertCount(2, $topicPartitions);
+                    self::assertInstanceOf(RdKafkaTopicPartition::class, $topicPartitions['test-1']);
+                    self::assertInstanceOf(RdKafkaTopicPartition::class, $topicPartitions['test-2']);
+                    self::assertEquals(3, $topicPartitions['test-1']->getOffset());
+                    self::assertEquals(1, $topicPartitions['test-2']->getOffset());
 
-        $kafkaConsumer->commit([$message, $message2]);
+                    return true;
+                }
+            )
+        );
+
+        $kafkaConsumer->commit([$message2, $message, $message3, $message4]);
+    }
+
+    /**
+     * @throws KafkaConsumerCommitException
+     */
+    public function testCommitSingleSuccesss(): void
+    {
+        $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
+        $message->expects(self::exactly(1))->method('getOffset')->willReturn(0);
+        $message->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
+        $message->expects(self::exactly(2))->method('getPartition')->willReturn(1);
+
+
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+        $rdKafkaConsumerMock->expects(self::once())->method('commit')->with(
+            $this->callback(
+                function (array $topicPartitions) {
+                    self::assertCount(1, $topicPartitions);
+                    self::assertInstanceOf(RdKafkaTopicPartition::class, $topicPartitions['test-1']);
+                    self::assertEquals(1, $topicPartitions['test-1']->getOffset());
+                    return true;
+                }
+            )
+        );
+
+        $kafkaConsumer->commit($message);
     }
 
     /**

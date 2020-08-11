@@ -37,4 +37,28 @@ final class KafkaProducerMessageTest extends TestCase
         self::assertEquals($partition, $message->getPartition());
         self::assertEquals($expectedHeader, $message->getHeaders());
     }
+
+    public function testClone()
+    {
+        $key = '1234-1234-1234';
+        $body = 'foo bar baz';
+        $topic = 'test';
+        $partition = 1;
+        $headers = [ 'key' => 'value' ];
+
+
+        $origMessage = KafkaProducerMessage::create($topic, $partition);
+
+        $message = $origMessage->withKey($key);
+        self::assertNotSame($origMessage, $message);
+
+        $message = $origMessage->withBody($body);
+        self::assertNotSame($origMessage, $message);
+
+        $message = $origMessage->withHeaders($headers);
+        self::assertNotSame($origMessage, $message);
+
+        $message = $origMessage->withHeader('anotherKey', 1);
+        self::assertNotSame($origMessage, $message);
+    }
 }

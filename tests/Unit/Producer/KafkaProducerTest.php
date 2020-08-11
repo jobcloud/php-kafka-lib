@@ -172,6 +172,16 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->poll(1000);
     }
 
+    public function testPollDefault()
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('poll')
+            ->with(0);
+
+        $this->kafkaProducer->poll();
+    }
+
     public function testPollUntilQueueSizeReached()
     {
         $message = KafkaProducerMessage::create('test-topic', 1)
@@ -282,5 +292,35 @@ class KafkaProducerTest extends TestCase
             ->with(false, $topicMock, 1000)
             ->willReturn($metadataMock);
         $this->kafkaProducer->getMetadataForTopic('test-topic-name', 1000);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetMetadataForTopicDefault(): void
+    {
+        $topicMock = $this->createMock(RdKafkaProducerTopic::class);
+        $metadataMock = $this->createMock(RdKafkaMetadata::class);
+        $metadataCollectionMock = $this->createMock(RdKafkaMetadataCollection::class);
+        $metadataTopic = $this->createMock(RdKafkaMetadataTopic::class);
+        $metadataMock
+            ->expects(self::once())
+            ->method('getTopics')
+            ->willReturn($metadataCollectionMock);
+        $metadataCollectionMock
+            ->expects(self::once())
+            ->method('current')
+            ->willReturn($metadataTopic);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('newTopic')
+            ->with('test-topic-name')
+            ->willReturn($topicMock);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('getMetadata')
+            ->with(false, $topicMock, 10000)
+            ->willReturn($metadataMock);
+        $this->kafkaProducer->getMetadataForTopic('test-topic-name');
     }
 }
