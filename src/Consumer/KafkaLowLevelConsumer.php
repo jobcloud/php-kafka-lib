@@ -148,22 +148,4 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     {
         return $this->queue->consume($timeoutMs);
     }
-
-    /**
-     * @param string $topic
-     * @return int[]
-     * @throws RdKafkaException
-     */
-    private function getAllTopicPartitions(string $topic): array
-    {
-
-        $partitions = [];
-        $topicMetadata = $this->getMetadataForTopic($topic);
-
-        foreach ($topicMetadata->getPartitions() as $partition) {
-            $partitions[] = $partition->getId();
-        }
-
-        return $partitions;
-    }
 }

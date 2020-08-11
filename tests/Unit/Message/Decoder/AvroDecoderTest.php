@@ -60,8 +60,13 @@ class AvroDecoderTest extends TestCase
         $registry->expects(self::once())->method('hasKeySchemaForTopic')->willReturn(true);
 
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
-        $recordSerializer->expects(self::at(0))->method('decodeMessage')->with($message->getKey(), $schemaDefinition)->willReturn('decoded-key');
-        $recordSerializer->expects(self::at(1))->method('decodeMessage')->with($message->getBody(), $schemaDefinition)->willReturn(['test']);
+        $recordSerializer->expects(self::exactly(2))
+            ->method('decodeMessage')
+            ->withConsecutive(
+                [$message->getKey(), $schemaDefinition],
+                [$message->getBody(), $schemaDefinition],
+            )
+            ->willReturnOnConsecutiveCalls('decoded-key', ['test']);
 
         $decoder = new AvroDecoder($registry, $recordSerializer);
 
