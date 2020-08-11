@@ -274,8 +274,13 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
             }
 
             $offset = $topicSubscription->getOffset();
+            $partitions = $topicSubscription->getPartitions();
 
-            foreach ($topicSubscription->getPartitions() as $partitionId) {
+            if ([] === $partitions) {
+                $partitions = $this->getAllTopicPartitions($topicSubscription->getTopicName());
+            }
+
+            foreach ($partitions as $partitionId) {
                 $assignments[] = new RdKafkaTopicPartition(
                     $topicSubscription->getTopicName(),
                     $partitionId,
