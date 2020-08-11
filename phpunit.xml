@@ -1,45 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-        backupGlobals               = "false"
-        backupStaticAttributes      = "false"
-        colors                      = "true"
-        convertErrorsToExceptions   = "true"
-        convertNoticesToExceptions  = "true"
-        convertWarningsToExceptions = "true"
-        processIsolation            = "false"
-        stopOnFailure               = "false"
-        bootstrap                   = "tests/bootstrap.php" >
-    <php>
-        <ini name="max_execution_time" value="-1"/>
-        <ini name="html_errors" value="false"/>
-        <ini name="memory_limit" value="2G"/>
-
-        <ini name="xdebug.default_enable" value="1" />
-        <ini name="xdebug.enable_coverage" value="1" />
-        <ini name="xdebug.remote_autostart" value="0" />
-        <ini name="xdebug.remote_enable" value="0" />
-        <ini name="xdebug.overload_var_dump" value="0" />
-        <ini name="xdebug.show_mem_delta" value="0" />
-    </php>
-
-    <testsuites>
-        <testsuite name="Unit">
-            <directory>./tests/Unit</directory>
-        </testsuite>
-    </testsuites>
-    <logging>
-        <log type="coverage-text" target="php://stdout" showOnlySummary="true"/>
-        <log type="coverage-html" target="build/logs/phpunit/coverage"/>
-        <log type="coverage-xml" target="build/logs/phpunit/coverage/coverage-xml"/>
-        <log type="coverage-clover" target="clover.xml"/>
-        <log type="junit" target="build/logs/phpunit/junit.xml"/>
-    </logging>
-    <filter>
-        <whitelist>
-            <directory>src</directory>
-        </whitelist>
-    </filter>
-    <listeners>
-        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
-    </listeners>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         bootstrap="tests/bootstrap.php"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage>
+    <include>
+      <directory>src</directory>
+    </include>
+    <report>
+      <clover outputFile="clover.xml"/>
+      <html outputDirectory="build/logs/phpunit/coverage"/>
+      <text outputFile="php://stdout" showOnlySummary="true"/>
+      <xml outputDirectory="build/logs/phpunit/coverage/coverage-xml"/>
+    </report>
+  </coverage>
+  <php>
+    <ini name="max_execution_time" value="-1"/>
+    <ini name="html_errors" value="false"/>
+    <ini name="memory_limit" value="2G"/>
+    <ini name="xdebug.default_enable" value="1"/>
+    <ini name="xdebug.enable_coverage" value="1"/>
+    <ini name="xdebug.remote_autostart" value="0"/>
+    <ini name="xdebug.remote_enable" value="0"/>
+    <ini name="xdebug.overload_var_dump" value="0"/>
+    <ini name="xdebug.show_mem_delta" value="0"/>
+  </php>
+  <testsuites>
+    <testsuite name="Unit">
+      <directory>./tests/Unit</directory>
+    </testsuite>
+  </testsuites>
+  <logging>
+    <junit outputFile="build/logs/phpunit/junit.xml"/>
+  </logging>
+  <listeners>
+    <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener"/>
+  </listeners>
 </phpunit>
