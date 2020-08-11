@@ -15,9 +15,11 @@ We have added the following new functions:
 - `poll` - gives you the ability to poll, especially useful if you disable auto poll for `produce`
 - `pollUntilQueueSizeReached` - polls until the poll queue has reached a certain size
 
+To achieve the previous default behaviour, disable auto poll and call `pollUntilQueueSizeReached`
+
 ## Possibility to decode message later (Consumer)
 Default behaviour is the same.  
-Consume has now an second optional parameter `consume(int $timeoutMs = 10000, bool $autoDecode = true)`.  
+Consume has now a second optional parameter `consume(int $timeoutMs = 10000, bool $autoDecode = true)`.  
 If set to false, you must decode your message later using `$consumer->decodeMessage($message)`.  
 For high throughput, you don't need to decode immediately, some decisions can be made  
 relying on the message headers alone. This helps to leverage that.
@@ -25,7 +27,7 @@ relying on the message headers alone. This helps to leverage that.
 ## Remove timout from builder / configuration, added timeout parameter to functions (Consumer / Producer)
 You were able to set timeout in the builder, but some methods  
 still had timeout as parameter. To avoid confusion, every method  
-needing a timeout will now have it as a parameter with a sane default value.  
+needing a timeout, will now have it as a parameter with a sane default value.  
 This affects the following classes:  
 - KafkaConfiguration
     - Removed timeout parameter from `__construct()`  
