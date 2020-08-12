@@ -8,7 +8,7 @@ composer require flix-tech/avro-serde-php "~1.3"
 ```
 
 ## Producer control improvements
-Producer used to poll all events after `produce`, now per default only one (non-blocking)  
+Producer used to poll all events after `produce`, now per default only one  
 non-blocking poll call will be triggered after `produce`.
 We have added the following new functions:
 - `syncProduce` - waits indefinitely for an event to be polled
