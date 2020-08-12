@@ -18,7 +18,7 @@ This affects the following classes:
     - Added `pollUntilQueueSizeReached` - polls until the poll queue has reached a certain size
     - Changed `produce`, changed behaviour (see above), has new optional parameters `$autoPoll` and `$pollTimeoutMs`
 
-To achieve the previous default behaviour change (e.g. suited for REST API applications which trigger a message on call):
+To achieve the previous default behaviour change (e.g. suited for REST API applications which trigger a message on call and are not using long running processes like Swoole):
 ```
 $producer->produce($message);
 ```
