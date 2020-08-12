@@ -37,7 +37,7 @@ install-dependencies-lowest:
 infection-testing:
 	make coverage
 	cp -f build/logs/phpunit/junit.xml build/logs/phpunit/coverage/junit.xml
-	${INFECTION} --coverage=build/logs/phpunit/coverage --min-msi=76 --threads=`nproc`
+	${INFECTION} --coverage=build/logs/phpunit/coverage --min-msi=91 --threads=`nproc`
 
 xdebug-enable:
 	sudo php-ext-enable xdebug
