@@ -7,18 +7,28 @@ the following in your project:
 composer require flix-tech/avro-serde-php "~1.3"
 ```
 
-## Producer control improvements
+## Producer improvements
 Producer used to poll all events after `produce`, now per default only one  
-non-blocking poll call will be triggered after `produce`.
-We have added the following new functions:
-- `syncProduce` - waits indefinitely for an event to be polled
-- `poll` - gives you the ability to poll, especially useful if you disable auto poll for `produce`
-- `pollUntilQueueSizeReached` - polls until the poll queue has reached a certain size
+non-blocking poll call will be triggered after `produce`.  
+This improvement was made so higher throughput can be achieved if needed.  
+This affects the following classes:
+- KafkaProducer
+    - Added `syncProduce` - waits indefinitely for an event to be polled
+    - Added `poll` - gives you the ability to poll, especially useful if you disable auto poll for `produce`
+    - Added `pollUntilQueueSizeReached` - polls until the poll queue has reached a certain size
+    - Changed `produce`, changed behaviour (see above), has new optional parameters `$autoPoll` and `$pollTimeoutMs`
 
-To achieve the previous default behaviour, disable auto poll and call `pollUntilQueueSizeReached`
+To achieve the previous default behaviour change (e.g. suited for REST API applications which trigger a message on call):
+```
+$producer->produce($message);
+```
+to
+```
+$producer->produce($message, false);
+$producer->pollUntilQueueSizeReached(); // defaults should work fine
+```
 
 ## Possibility to decode message later (Consumer)
-Default behaviour is the same.  
 Consume has now a second optional parameter `consume(int $timeoutMs = 10000, bool $autoDecode = true)`.  
 If set to false, you must decode your message later using `$consumer->decodeMessage($message)`.  
 For high throughput, you don't need to decode immediately, some decisions can be made  
@@ -26,7 +36,7 @@ relying on the message headers alone. This helps to leverage that.
 
 ## Remove timout from builder / configuration, added timeout parameter to functions (Consumer / Producer)
 You were able to set timeout in the builder, but some methods  
-still had timeout as parameter. To avoid confusion, every method  
+still had `timeout` as parameter. To avoid confusion, every method  
 needing a timeout, will now have it as a parameter with a sane default value.  
 This affects the following classes:  
 - KafkaConfiguration
