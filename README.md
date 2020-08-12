@@ -20,7 +20,8 @@ can help out to understand the internals of this library.
 
 ## Installation
 ```
-composer require jobcloud/php-kafka-lib "~1.0"```
+composer require jobcloud/php-kafka-lib "~1.0"
+```
 
 ### Enable Avro support
 If you need Avro support, run:
@@ -137,7 +138,6 @@ $consumer = KafkaConsumerBuilder::create()
     )
     ->withAdditionalBroker('kafka:9092')
     ->withConsumerGroup('testGroup')
-    ->withTimeout(120 * 10000)
     ->withAdditionalSubscription('test-topic')
     ->build();
 
@@ -177,7 +177,6 @@ $consumer = KafkaConsumerBuilder::create()
     )
     ->withAdditionalBroker('kafka:9092')
     ->withConsumerGroup('testGroup')
-    ->withTimeout(120 * 10000)
     ->withAdditionalSubscription('test-topic')
     ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
     ->build();
@@ -256,7 +255,6 @@ $consumer = KafkaConsumerBuilder::create()
     ->withDecoder($decoder)
     ->withAdditionalBroker('kafka:9092')
     ->withConsumerGroup('testGroup')
-    ->withTimeout(120 * 10000)
     ->withAdditionalSubscription('test-topic')
     ->build();
 
