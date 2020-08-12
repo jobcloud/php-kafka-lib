@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Conf;
 
+use Jobcloud\Kafka\Consumer\KafkaConsumerBuilder;
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use RdKafka\Conf as RdKafkaConf;
 use RdKafka\TopicConf as RdKafkaTopicConf;
@@ -22,6 +23,11 @@ class KafkaConfiguration extends RdKafkaConf
     protected $topicSubscriptions;
 
     /**
+     * @var string
+     */
+    private $type;
+
+    /**
      * @var array<string,int>
      */
     private $lowLevelTopicSettings = [
@@ -33,14 +39,15 @@ class KafkaConfiguration extends RdKafkaConf
      * @param string[] $brokers
      * @param array|TopicSubscription[] $topicSubscriptions
      * @param mixed[] $config
+     * @param string $type
      */
-    public function __construct(array $brokers, array $topicSubscriptions, array $config = [])
+    public function __construct(array $brokers, array $topicSubscriptions, array $config = [], string $type = '')
     {
         parent::__construct();
 
         $this->brokers = $brokers;
         $this->topicSubscriptions = $topicSubscriptions;
-
+        $this->type = $type;
         $this->initializeConfig($config);
     }
 
@@ -81,7 +88,10 @@ class KafkaConfiguration extends RdKafkaConf
                 continue;
             }
 
-            if (true === $this->isLowLevelTopicConfSetting($name)) {
+            if (
+                KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL === $this->type
+                && true === $this->isLowLevelTopicConfSetting($name)
+            ) {
                 $topicConf->set($name, (string) $value);
                 $this->setDefaultTopicConf($topicConf);
             }

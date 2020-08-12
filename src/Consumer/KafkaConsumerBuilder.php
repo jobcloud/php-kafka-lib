@@ -303,7 +303,8 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $kafkaConfig = new KafkaConfiguration(
             $this->brokers,
             $this->topics,
-            $this->config
+            $this->config,
+            $this->consumerType
         );
 
         //set consumer callbacks
