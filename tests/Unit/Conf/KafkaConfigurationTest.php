@@ -2,6 +2,7 @@
 
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Conf;
 
+use Jobcloud\Kafka\Consumer\KafkaConsumerBuilder;
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\TestCase;
@@ -97,7 +98,8 @@ class KafkaConfigurationTest extends TestCase
             [
                 'group.id' => $inputValue,
                 'auto.commit.interval.ms' => 100
-            ]
+            ],
+            KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL
         );
 
         $config = $kafkaConfiguration->getConfiguration();
