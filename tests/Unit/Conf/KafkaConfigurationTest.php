@@ -2,6 +2,7 @@
 
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Conf;
 
+use Jobcloud\Kafka\Consumer\KafkaConsumerBuilder;
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\TestCase;
@@ -94,7 +95,11 @@ class KafkaConfigurationTest extends TestCase
         $kafkaConfiguration = new KafkaConfiguration(
             ['localhost'],
             [new TopicSubscription('test-topic')],
-            ['group.id' => $inputValue]
+            [
+                'group.id' => $inputValue,
+                'auto.commit.interval.ms' => 100
+            ],
+            KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL
         );
 
         $config = $kafkaConfiguration->getConfiguration();
@@ -104,6 +109,10 @@ class KafkaConfigurationTest extends TestCase
             return;
         }
 
+        self::assertEquals($config['metadata.broker.list'], 'localhost');
         self::assertEquals($expectedValue, $config['group.id']);
+        self::assertEquals('100', $config['auto.commit.interval.ms']);
+        self::assertArrayHasKey('default_topic_conf', $config);
+        self::assertIsString($config['default_topic_conf']);
     }
 }

@@ -116,6 +116,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             ],
             $reflectionProperty->getValue($clone)
         );
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -132,6 +133,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertInstanceOf(DecoderInterface::class, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -146,6 +148,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame('test-consumer', $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -160,6 +163,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $actualConsumerType->setAccessible(true);
 
         self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL, $actualConsumerType->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -174,6 +178,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $actualConsumerType->setAccessible(true);
 
         self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL, $actualConsumerType->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -192,6 +197,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -210,6 +216,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -228,6 +235,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -246,6 +254,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -264,6 +273,7 @@ final class KafkaConsumerBuilderTest extends TestCase
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
+        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
     }
 
     /**
@@ -273,6 +283,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     public function testBuildFailMissingBrokers(): void
     {
         self::expectException(KafkaConsumerBuilderException::class);
+        self::expectExceptionMessage(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
 
         $this->kafkaConsumerBuilder->build();
     }
@@ -284,6 +295,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     public function testBuildFailMissingTopics(): void
     {
         self::expectException(KafkaConsumerBuilderException::class);
+        self::expectExceptionMessage(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
 
         $this->kafkaConsumerBuilder->withAdditionalBroker('localhost')->build();
     }

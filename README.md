@@ -14,13 +14,20 @@ Avro support relies on [flix-tech/avro-serde-php](https://github.com/flix-tech/a
 The [documentation](https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.html) of the php extension,  
 can help out to understand the internals of this library.
 
-
 ## Requirements
 - php: ^7.3
 - ext-rdkafka: ^4.0.0
 
 ## Installation
-```composer require jobcloud/php-kafka-lib "~0.1"```
+```
+composer require jobcloud/php-kafka-lib "~1.0"
+```
+
+### Enable Avro support
+If you need Avro support, run:
+```
+composer require flix-tech/avro-serde-php "~1.3"
+```
 
 ## Usage
 
@@ -78,12 +85,18 @@ $recordSerializer = new RecordSerializer($cachedRegistry);
 
 //if no version is defined, latest version will be used
 //if no schema definition is defined, the appropriate version will be fetched form the registry
-$registry->addSchemaMappingForTopic(
+$registry->addBodySchemaMappingForTopic(
     'test-topic',
-    new KafkaAvroSchema('schemaName' /*, int $version, AvroSchema $definition */)
+    new KafkaAvroSchema('bodySchemaName' /*, int $version, AvroSchema $definition */)
+);
+$registry->addKeySchemaMappingForTopic(
+    'test-topic',
+    new KafkaAvroSchema('keySchemaName' /*, int $version, AvroSchema $definition */)
 );
 
-$encoder = new AvroEncoder($registry, $recordSerializer);
+// if you are only encoding key or value, you can pass that mode as additional third argument
+// per default both key and body will get encoded
+$encoder = new AvroEncoder($registry, $recordSerializer /*, AvroEncoderInterface::ENCODE_BODY */);
 
 $producer = KafkaProducerBuilder::create()
     ->withAdditionalBroker('kafka:9092')
@@ -125,7 +138,6 @@ $consumer = KafkaConsumerBuilder::create()
     )
     ->withAdditionalBroker('kafka:9092')
     ->withConsumerGroup('testGroup')
-    ->withTimeout(120 * 10000)
     ->withAdditionalSubscription('test-topic')
     ->build();
 
@@ -165,7 +177,6 @@ $consumer = KafkaConsumerBuilder::create()
     )
     ->withAdditionalBroker('kafka:9092')
     ->withConsumerGroup('testGroup')
-    ->withTimeout(120 * 10000)
     ->withAdditionalSubscription('test-topic')
     ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
     ->build();
@@ -221,12 +232,18 @@ $recordSerializer = new RecordSerializer($cachedRegistry);
 
 //if no version is defined, latest version will be used
 //if no schema definition is defined, the appropriate version will be fetched form the registry
-$registry->addSchemaMappingForTopic(
+$registry->addBodySchemaMappingForTopic(
     'test-topic',
-    new KafkaAvroSchema('someSchema' , 9 /* , AvroSchema $definition */)
+    new KafkaAvroSchema('bodySchema' , 9 /* , AvroSchema $definition */)
+);
+$registry->addKeySchemaMappingForTopic(
+    'test-topic',
+    new KafkaAvroSchema('keySchema' , 9 /* , AvroSchema $definition */)
 );
 
-$decoder = new AvroDecoder($registry, $recordSerializer);
+// if you are only decoding key or value, you can pass that mode as additional third argument
+// per default both key and body will get decoded
+$decoder = new AvroDecoder($registry, $recordSerializer /*, AvroDecoderInterface::DECODE_BODY */);
 
 $consumer = KafkaConsumerBuilder::create()
      ->withAdditionalConfig(
@@ -238,7 +255,6 @@ $consumer = KafkaConsumerBuilder::create()
     ->withDecoder($decoder)
     ->withAdditionalBroker('kafka:9092')
     ->withConsumerGroup('testGroup')
-    ->withTimeout(120 * 10000)
     ->withAdditionalSubscription('test-topic')
     ->build();
 
