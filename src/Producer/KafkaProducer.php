@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Producer;
 
-use Jobcloud\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Kafka\Exception\KafkaProducerTransactionAbortException;
 use Jobcloud\Kafka\Exception\KafkaProducerTransactionFatalException;
 use Jobcloud\Kafka\Exception\KafkaProducerTransactionRetryException;
@@ -15,7 +14,7 @@ use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Exception as RdKafkaException;
-use RdKafka\KafkaError as RdKafkaError;
+use RdKafka\KafkaErrorException as RdKafkaErrorException;
 
 
 final class KafkaProducer implements KafkaProducerInterface
@@ -178,10 +177,10 @@ final class KafkaProducer implements KafkaProducerInterface
      */
     public function initTransactions(int $timeoutMs): void
     {
-        $result = $this->producer->initTransactions($timeoutMs);
-
-        if ($result instanceof RdKafkaError) {
-            $this->handleTransactionError($result);
+        try {
+            $this->producer->initTransactions($timeoutMs);
+        } catch (RdKafkaErrorException $e) {
+            $this->handleTransactionError($e);
         }
     }
 
@@ -196,10 +195,10 @@ final class KafkaProducer implements KafkaProducerInterface
      */
     public function beginTransaction(): void
     {
-        $result = $this->producer->beginTransaction();
-
-        if ($result instanceof RdKafkaError) {
-            $this->handleTransactionError($result);
+        try {
+            $this->producer->beginTransaction();
+        } catch (RdKafkaErrorException $e) {
+            $this->handleTransactionError($e);
         }
     }
 
@@ -215,10 +214,10 @@ final class KafkaProducer implements KafkaProducerInterface
      */
     public function commitTransaction(int $timeoutMs): void
     {
-        $result = $this->producer->commitTransaction($timeoutMs);
-
-        if ($result instanceof RdKafkaError) {
-            $this->handleTransactionError($result);
+        try {
+            $this->producer->commitTransaction($timeoutMs);
+        } catch (RdKafkaErrorException $e) {
+            $this->handleTransactionError($e);
         }
     }
 
@@ -234,10 +233,10 @@ final class KafkaProducer implements KafkaProducerInterface
      */
     public function abortTransaction(int $timeoutMs): void
     {
-        $result = $this->producer->abortTransaction($timeoutMs);
-
-        if ($result instanceof RdKafkaError) {
-            $this->handleTransactionError($result);
+        try {
+            $this->producer->abortTransaction($timeoutMs);
+        } catch (RdKafkaErrorException $e) {
+            $this->handleTransactionError($e);
         }
     }
 
@@ -254,20 +253,20 @@ final class KafkaProducer implements KafkaProducerInterface
         return $this->producerTopics[$topic];
     }
 
-    private function handleTransactionError(RdKafkaError $kafkaError)
+    private function handleTransactionError(RdKafkaErrorException $e)
     {
-        if (true === $kafkaError->isRetriable()) {
+        if (true === $e->isRetriable()) {
             throw new KafkaProducerTransactionRetryException(
-                KafkaProducerTransactionRetryException::RETRIABLE_TRANSCATION_EXCEPTION_MESSAGE
+                KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE
             );
-        } else if (true === $kafkaError->transactionRequiresAbort()) {
+        } else if (true === $e->transactionRequiresAbort()) {
             throw new KafkaProducerTransactionAbortException(
-                KafkaProducerTransactionAbortException::TRANSCATION_REQUIRES_ABORT_EXCEPTION_MESSAGE
+                KafkaProducerTransactionAbortException::TRANSACTION_REQUIRES_ABORT_EXCEPTION_MESSAGE
             );
         } else {
             // according to librdkafka documentation, everything that is not retriable, abortable or fatal is fatal
             throw new KafkaProducerTransactionFatalException(
-                KafkaProducerTransactionFatalException::FATAL_TRANSCATION_EXCEPTION_MESSAGE
+                KafkaProducerTransactionFatalException::FATAL_TRANSACTION_EXCEPTION_MESSAGE
             );
         }
     }
