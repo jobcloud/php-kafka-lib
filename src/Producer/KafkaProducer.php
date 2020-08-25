@@ -16,7 +16,6 @@ use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaErrorException as RdKafkaErrorException;
 
-
 final class KafkaProducer implements KafkaProducerInterface
 {
 
@@ -39,6 +38,11 @@ final class KafkaProducer implements KafkaProducerInterface
      * @var EncoderInterface
      */
     protected $encoder;
+
+    /**
+     * @var bool
+     */
+    private $transactionInitialized = false;
 
     /**
      * KafkaProducer constructor.
@@ -166,7 +170,7 @@ final class KafkaProducer implements KafkaProducerInterface
     }
 
     /**
-     * Initialize producer transactions
+     * Start a producer transaction
      *
      * @param int $timeoutMs
      * @return void
@@ -175,27 +179,14 @@ final class KafkaProducer implements KafkaProducerInterface
      * @throws KafkaProducerTransactionFatalException
      * @throws KafkaProducerTransactionRetryException
      */
-    public function initTransactions(int $timeoutMs): void
+    public function beginTransaction(int $timeoutMs): void
     {
         try {
-            $this->producer->initTransactions($timeoutMs);
-        } catch (RdKafkaErrorException $e) {
-            $this->handleTransactionError($e);
-        }
-    }
+            if (false === $this->transactionInitialized) {
+                $this->producer->initTransactions($timeoutMs);
+                $this->transactionInitialized = true;
+            }
 
-    /**
-     * Start a producer transaction
-     *
-     * @return void
-     *
-     * @throws KafkaProducerTransactionAbortException
-     * @throws KafkaProducerTransactionFatalException
-     * @throws KafkaProducerTransactionRetryException
-     */
-    public function beginTransaction(): void
-    {
-        try {
             $this->producer->beginTransaction();
         } catch (RdKafkaErrorException $e) {
             $this->handleTransactionError($e);
@@ -253,18 +244,27 @@ final class KafkaProducer implements KafkaProducerInterface
         return $this->producerTopics[$topic];
     }
 
-    private function handleTransactionError(RdKafkaErrorException $e)
+    /**
+     * @param RdKafkaErrorException $e
+     *
+     * @throws KafkaProducerTransactionAbortException
+     * @throws KafkaProducerTransactionFatalException
+     * @throws KafkaProducerTransactionRetryException
+     */
+    private function handleTransactionError(RdKafkaErrorException $e): void
     {
         if (true === $e->isRetriable()) {
             throw new KafkaProducerTransactionRetryException(
                 KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE
             );
-        } else if (true === $e->transactionRequiresAbort()) {
+        } elseif (true === $e->transactionRequiresAbort()) {
             throw new KafkaProducerTransactionAbortException(
                 KafkaProducerTransactionAbortException::TRANSACTION_REQUIRES_ABORT_EXCEPTION_MESSAGE
             );
         } else {
+            $this->transactionInitialized = false;
             // according to librdkafka documentation, everything that is not retriable, abortable or fatal is fatal
+            // fatal errors (so stated), need the producer to be destroyed
             throw new KafkaProducerTransactionFatalException(
                 KafkaProducerTransactionFatalException::FATAL_TRANSACTION_EXCEPTION_MESSAGE
             );

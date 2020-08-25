@@ -76,7 +76,7 @@ interface KafkaProducerInterface
     public function getMetadataForTopic(string $topicName, int $timeoutMs = 10000): RdKafkaMetadataTopic;
 
     /**
-     * Initialize producer transactions
+     * Start a producer transaction
      *
      * @param int $timeoutMs
      * @return void
@@ -85,18 +85,7 @@ interface KafkaProducerInterface
      * @throws KafkaProducerTransactionFatalException
      * @throws KafkaProducerTransactionRetryException
      */
-    public function initTransactions(int $timeoutMs): void;
-
-    /**
-     * Start a producer transaction
-     *
-     * @return void
-     *
-     * @throws KafkaProducerTransactionAbortException
-     * @throws KafkaProducerTransactionFatalException
-     * @throws KafkaProducerTransactionRetryException
-     */
-    public function beginTransaction(): void;
+    public function beginTransaction(int $timeoutMs): void;
 
     /**
      * Commit the current producer transaction
