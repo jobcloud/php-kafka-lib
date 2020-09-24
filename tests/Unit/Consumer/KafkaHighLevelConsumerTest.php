@@ -620,4 +620,89 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
         return $partitionMock;
     }
+
+    /**
+     * @return void
+     */
+    public function testOffsetsForTimes(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('offsetsForTimes')
+            ->with([], 1000)
+            ->willReturn([]);
+
+        $kafkaConsumer->offsetsForTimes([], 1000);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetConfiguration(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConfigurationMock->expects(self::any())->method('dump')->willReturn([]);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        self::assertIsArray($kafkaConsumer->getConfiguration());
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetFirstOffsetForTopicPartition(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+
+        $rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('queryWatermarkOffsets')
+            ->with('test-topic', 1, 0, 0, 1000)
+            ->willReturnCallback(
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeoutMs) {
+                    $lowOffset++;
+                }
+            );
+
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $lowOffset = $kafkaConsumer->getFirstOffsetForTopicPartition('test-topic', 1, 1000);
+
+        self::assertEquals(1, $lowOffset);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetLastOffsetForTopicPartition(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+
+        $rdKafkaConsumerMock
+            ->expects(self::once())
+            ->method('queryWatermarkOffsets')
+            ->with('test-topic', 1, 0, 0, 1000)
+            ->willReturnCallback(
+                function (string $topic, int $partition, int &$lowOffset, int &$highOffset, int $timeoutMs) {
+                    $highOffset += 5;
+                }
+            );
+
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $lowOffset = $kafkaConsumer->getLastOffsetForTopicPartition('test-topic', 1, 1000);
+
+        $this->assertEquals(5, $lowOffset);
+    }
 }

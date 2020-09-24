@@ -9,15 +9,10 @@ use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Kafka\Message\Decoder\NullDecoder;
-use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
-
-    public const CONSUMER_TYPE_LOW_LEVEL = 'low';
-    public const CONSUMER_TYPE_HIGH_LEVEL = 'high';
-
     /**
      * @var string[]
      */
@@ -41,11 +36,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * @var string
      */
     private $consumerGroup = 'default';
-
-    /**
-     * @var string
-     */
-    private $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
 
     /**
      * @var callable
@@ -181,20 +171,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     }
 
     /**
-     * Set the consumer type, can be either CONSUMER_TYPE_LOW_LEVEL or CONSUMER_TYPE_HIGH_LEVEL
-     *
-     * @param string $consumerType
-     * @return KafkaConsumerBuilderInterface
-     */
-    public function withConsumerType(string $consumerType): KafkaConsumerBuilderInterface
-    {
-        $that = clone $this;
-        $that->consumerType = $consumerType;
-
-        return $that;
-    }
-
-    /**
      * Set a callback to be called on errors.
      * The default callback will throw an exception for every error
      *
@@ -303,35 +279,13 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $kafkaConfig = new KafkaConfiguration(
             $this->brokers,
             $this->topics,
-            $this->config,
-            $this->consumerType
+            $this->config
         );
 
         //set consumer callbacks
         $this->registerCallbacks($kafkaConfig);
 
         //create RdConsumer
-
-        if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
-            if (null !== $this->consumeCallback) {
-                throw new KafkaConsumerBuilderException(
-                    sprintf(
-                        KafkaConsumerBuilderException::UNSUPPORTED_CALLBACK_EXCEPTION_MESSAGE,
-                        'consumerCallback',
-                        KafkaLowLevelConsumer::class
-                    )
-                );
-            }
-
-            $rdKafkaConsumer = new RdKafkaLowLevelConsumer($kafkaConfig);
-
-            return new KafkaLowLevelConsumer(
-                $rdKafkaConsumer,
-                $kafkaConfig,
-                $this->decoder
-            );
-        }
-
         $rdKafkaConsumer = new RdKafkaHighLevelConsumer($kafkaConfig);
 
         return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->decoder);

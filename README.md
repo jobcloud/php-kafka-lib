@@ -158,46 +158,6 @@ while (true) {
 }
 ```
 
-#### Kafka Low Level
-
-```php
-<?php
-
-use Jobcloud\Kafka\Consumer\KafkaConsumerBuilder;
-use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
-use Jobcloud\Kafka\Exception\KafkaConsumerEndOfPartitionException;
-use Jobcloud\Kafka\Exception\KafkaConsumerTimeoutException;
-
-$consumer = KafkaConsumerBuilder::create()
-     ->withAdditionalConfig(
-        [
-            'compression.codec' => 'lz4',
-            'auto.commit.interval.ms' => 500
-        ]
-    )
-    ->withAdditionalBroker('kafka:9092')
-    ->withConsumerGroup('testGroup')
-    ->withAdditionalSubscription('test-topic')
-    ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
-    ->build();
-
-$consumer->subscribe();
-
-while (true) {
-    try {
-        $message = $consumer->consume();
-        // your business logic
-        $consumer->commit($message);
-    } catch (KafkaConsumerTimeoutException $e) {
-        //no messages were read in a given time
-    } catch (KafkaConsumerEndOfPartitionException $e) {
-        //only occurs if enable.partition.eof is true (default: false)
-    } catch (KafkaConsumerConsumeException $e) {
-        // Failed
-    } 
-}
-```
-
 #### Avro Consumer
 To create an avro consumer add the avro decoder.  
 

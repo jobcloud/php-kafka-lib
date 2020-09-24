@@ -98,13 +98,12 @@ class KafkaConfigurationTest extends TestCase
             [
                 'group.id' => $inputValue,
                 'auto.commit.interval.ms' => 100
-            ],
-            KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL
+            ]
         );
 
         $config = $kafkaConfiguration->getConfiguration();
 
-        if(null === $expectedValue) {
+        if (null === $expectedValue) {
             self::assertArrayNotHasKey('group.id', $config);
             return;
         }
@@ -112,7 +111,5 @@ class KafkaConfigurationTest extends TestCase
         self::assertEquals($config['metadata.broker.list'], 'localhost');
         self::assertEquals($expectedValue, $config['group.id']);
         self::assertEquals('100', $config['auto.commit.interval.ms']);
-        self::assertArrayHasKey('default_topic_conf', $config);
-        self::assertIsString($config['default_topic_conf']);
     }
 }

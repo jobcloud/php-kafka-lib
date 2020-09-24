@@ -4,13 +4,11 @@ namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumerInterface;
-use Jobcloud\Kafka\Consumer\KafkaLowLevelConsumer;
 use Jobcloud\Kafka\Consumer\KafkaConsumerBuilder;
 use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Kafka\Consumer\KafkaConsumerInterface;
-use Jobcloud\Kafka\Consumer\KafkaLowLevelConsumerInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -155,36 +153,6 @@ final class KafkaConsumerBuilderTest extends TestCase
      * @return void
      * @throws \ReflectionException
      */
-    public function testSetConsumerTypeLow(): void
-    {
-        $clone = $this->kafkaConsumerBuilder->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL);
-
-        $actualConsumerType = new \ReflectionProperty($clone, 'consumerType');
-        $actualConsumerType->setAccessible(true);
-
-        self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL, $actualConsumerType->getValue($clone));
-        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
-    }
-
-    /**
-     * @return void
-     * @throws \ReflectionException
-     */
-    public function testSetConsumerTypeHigh(): void
-    {
-        $clone = $this->kafkaConsumerBuilder->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL);
-
-        $actualConsumerType = new \ReflectionProperty($clone, 'consumerType');
-        $actualConsumerType->setAccessible(true);
-
-        self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL, $actualConsumerType->getValue($clone));
-        self::assertNotSame($clone, $this->kafkaConsumerBuilder);
-    }
-
-    /**
-     * @return void
-     * @throws \ReflectionException
-     */
     public function testSetErrorCallback(): void
     {
         $callback = function () {
@@ -309,7 +277,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             // Anonymous test method, no logic required
         };
 
-        /** @var $consumer KafkaLowLevelConsumer */
+        /** @var $consumer KafkaHighLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
             ->withAdditionalBroker('localhost')
             ->withAdditionalSubscription('test-topic')
@@ -322,58 +290,6 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
         self::assertInstanceOf(KafkaHighLevelConsumer::class, $consumer);
-    }
-
-    /**
-     * @return void
-     */
-    public function testBuildLowLevelSuccess(): void
-    {
-        $callback = function ($kafka, $errId, $msg) {
-            // Anonymous test method, no logic required
-        };
-
-        /** @var $consumer KafkaLowLevelConsumer */
-        $consumer = $this->kafkaConsumerBuilder
-            ->withAdditionalBroker('localhost')
-            ->withAdditionalSubscription('test-topic')
-            ->withRebalanceCallback($callback)
-            ->withErrorCallback($callback)
-            ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
-            ->build();
-
-        $conf = $consumer->getConfiguration();
-
-        self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
-        self::assertInstanceOf(KafkaLowLevelConsumerInterface::class, $consumer);
-        self::assertArrayHasKey('enable.auto.offset.store', $conf);
-        self::assertEquals($conf['enable.auto.offset.store'], 'false');
-    }
-
-    /**
-     * @return void
-     */
-    public function testBuildLowLevelFailureOnUnsupportedCallback(): void
-    {
-        $callback = function ($kafka, $errId, $msg) {
-            // Anonymous test method, no logic required
-        };
-
-        self::expectException(KafkaConsumerBuilderException::class);
-        self::expectExceptionMessage(
-            sprintf(
-                KafkaConsumerBuilderException::UNSUPPORTED_CALLBACK_EXCEPTION_MESSAGE,
-                'consumerCallback',
-                KafkaLowLevelConsumer::class
-            )
-        );
-
-        $this->kafkaConsumerBuilder
-            ->withAdditionalBroker('localhost')
-            ->withAdditionalSubscription('test-topic')
-            ->withConsumeCallback($callback)
-            ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
-            ->build();
     }
 
     /**

@@ -11,7 +11,6 @@ use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Kafka\Message\KafkaConsumerMessage;
-use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
@@ -32,7 +31,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     protected $subscribed = false;
 
     /**
-     * @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer
+     * @var RdKafkaHighLevelConsumer
      */
     protected $consumer;
 
