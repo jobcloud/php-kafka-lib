@@ -24,7 +24,6 @@ class KafkaConfiguration extends RdKafkaConf
      * @param string[] $brokers
      * @param array|TopicSubscription[] $topicSubscriptions
      * @param mixed[] $config
-     * @param string $type
      */
     public function __construct(array $brokers, array $topicSubscriptions, array $config = [])
     {
@@ -63,7 +62,7 @@ class KafkaConfiguration extends RdKafkaConf
      * @param mixed[] $config
      * @return void
      */
-    protected function initializeConfig(array $config = []): void
+    private function initializeConfig(array $config = []): void
     {
         foreach ($config as $name => $value) {
             if (false === is_scalar($value)) {

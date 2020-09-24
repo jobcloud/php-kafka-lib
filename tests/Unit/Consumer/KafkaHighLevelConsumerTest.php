@@ -203,6 +203,26 @@ final class KafkaHighLevelConsumerTest extends TestCase
     /**
      * @throws KafkaConsumerSubscriptionException
      */
+    public function testUnsubscribeSuccesssFlagSet(): void
+    {
+        self::expectException(KafkaConsumerConsumeException::class);
+        self::expectExceptionMessage('This consumer is currently not subscribed');
+
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $rdKafkaConsumerMock->expects(self::once())->method('unsubscribe');
+
+        $kafkaConsumer->unsubscribe();
+
+        $kafkaConsumer->consume();
+    }
+
+    /**
+     * @throws KafkaConsumerSubscriptionException
+     */
     public function testUnsubscribeFailure(): void
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
