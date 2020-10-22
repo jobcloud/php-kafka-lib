@@ -23,7 +23,7 @@ test: xdebug-disable
 
 static-analysis: xdebug-disable
 	mkdir -p build/logs/phpstan
-	${PHPSTAN} analyse --no-progress
+	${PHPSTAN} analyse --no-progress --memory-limit=64
 
 update-dependencies:
 	composer update
