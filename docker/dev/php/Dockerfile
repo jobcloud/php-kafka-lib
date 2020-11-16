@@ -1,7 +1,5 @@
-FROM php:7.3-cli-alpine3.11
+FROM php:7.3-cli-alpine3.12
 
-# https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
-ENV COMPOSER_ALLOW_SUPERUSER 1
 ARG HOST_USER_ID
 ARG HOST_USER
 
@@ -28,8 +26,7 @@ RUN echo "$HOST_USER:x:$HOST_USER_ID:82:Linux User,,,:/home/$HOST_USER:" >> /etc
     addgroup $HOST_USER www-data
 
 # COMPOSER: install binary and prestissimo
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
-    composer global require hirak/prestissimo
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
