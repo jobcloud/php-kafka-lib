@@ -45,7 +45,20 @@ final class AvroEncoder implements AvroEncoderInterface
      */
     public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
-        $producerMessage = $this->encodeBody($producerMessage);
+        try {
+            $producerMessage = $this->encodeBody($producerMessage);
+        } catch (\Exception $exception) {
+            if (class_exists(\Jobcloud\Avro\Validator\Validator::class)) {
+                $topicName = $producerMessage->getTopicName();
+                $body = $producerMessage->getBody();
+
+                $avroSchema = $this->registry->getBodySchemaForTopic($topicName);
+
+                $validationErrors = $this->validateSchema(json_encode($avroSchema->getDefinition()->to_avro()), $body, $topicName);
+
+                var_dump($validationErrors);
+            }
+        }
 
         return $this->encodeKey($producerMessage);
     }
@@ -130,5 +143,21 @@ final class AvroEncoder implements AvroEncoderInterface
     public function getRegistry(): AvroSchemaRegistryInterface
     {
         return $this->registry;
+    }
+
+    /**
+     * @param string $avroSchema
+     * @param mixed $data
+     * @param string $topicName
+     * @return array<mixed>
+     * @throws \Jobcloud\Avro\Validator\Exception\RecordRegistryException
+     * @throws \Jobcloud\Avro\Validator\Exception\ValidatorException
+     */
+    private function validateSchema(string $avroSchema, $data, string $topicName): array
+    {
+        $recordRegistry = \Jobcloud\Avro\Validator\RecordRegistry::fromSchema((string) $avroSchema);
+        $validator = new \Jobcloud\Avro\Validator\Validator($recordRegistry);
+
+        return $validator->validate(json_encode($data), $topicName);
     }
 }
