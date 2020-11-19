@@ -39,7 +39,7 @@
   },
   "suggest": {
     "flix-tech/avro-serde-php": "Is needed for Avro support",
-    "jobcloud/avro-validator": "Useful for debug purposes"
+    "jobcloud/avro-validator": "Useful for debug purposes in development, not recommended for production use"
   },
   "extra": {
     "branch-alias": {
