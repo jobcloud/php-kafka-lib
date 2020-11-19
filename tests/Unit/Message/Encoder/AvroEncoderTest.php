@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Encoder;
 
+use FlixTech\AvroSerializer\Objects\Exceptions\AvroEncodingException;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use Jobcloud\Kafka\Exception\AvroEncoderException;
-use Jobcloud\Kafka\Message\Encoder\AvroEncoderInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Encoder\AvroEncoder;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 use PHPStan\Testing\TestCase;
-use \AvroSchema;
 
 /**
  * @covers \Jobcloud\Kafka\Message\Encoder\AvroEncoder
@@ -168,5 +167,112 @@ class AvroEncoderTest extends TestCase
         $encoder = new AvroEncoder($registry, $recordSerializer);
 
         self::assertSame($registry, $encoder->getRegistry());
+    }
+
+    public function testAvroValidatorBodyException()
+    {
+        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+
+        $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $avroSchema->expects(self::exactly(2))->method('getName')->willReturn('schemaName');
+        $avroSchema->expects(self::never())->method('getVersion');
+        $avroSchema->expects(self::exactly(3))->method('getDefinition')->willReturn($schemaDefinition);
+        $schemaDefinition->method('to_avro')->willReturn([]);
+
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+        $registry->expects(self::once())->method('getBodySchemaForTopic')->willReturn($avroSchema);
+        $registry->expects(self::once())->method('hasBodySchemaForTopic')->willReturn(true);
+
+        $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
+        $producerMessage->expects(self::once())->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::once())->method('getBody')->willReturn([]);
+
+        $avroEncodingException = $this->getMockBuilder(AvroEncodingException::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer
+            ->expects(self::once())
+            ->method('encodeRecord')
+            ->with($avroSchema->getName(), $avroSchema->getDefinition(), [])
+            ->willReturnOnConsecutiveCalls('encodedValue')
+        ->willThrowException($avroEncodingException);
+
+        $encoder = new AvroEncoder($registry, $recordSerializer);
+
+        $validator = $this->getMockBuilder('Jobcloud\Avro\Validator\Validator')
+            ->setMockClassName('Validator')
+            ->getMock();
+
+        $recordRegistry = $this->getMockBuilder('Jobcloud\Avro\Validator\RecordRegistry')
+            ->setMockClassName('RecordRegistry')
+            ->getMock();
+
+        $recordRegistry->expects($this->once())
+            ->method('fromSchema')
+            ->with(json_encode([]))
+            ->willReturn($recordRegistry);
+
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with(json_encode([]), '')
+            ->willReturn([]);
+
+        self::assertNotSame($producerMessage, $encoder->encode($producerMessage));
+    }
+
+    public function testAvroValidatorKeyException()
+    {
+        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+
+        $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
+        $avroSchema->expects(self::exactly(4))->method('getName')->willReturn('schemaName');
+        $avroSchema->expects(self::never())->method('getVersion');
+        $avroSchema->expects(self::exactly(5))->method('getDefinition')->willReturn($schemaDefinition);
+        $schemaDefinition->method('to_avro')->willReturn([]);
+
+        $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
+        $registry->expects(self::once())->method('getBodySchemaForTopic')->willReturn($avroSchema);
+        $registry->expects(self::once())->method('getKeySchemaForTopic')->willReturn($avroSchema);
+        $registry->expects(self::once())->method('hasBodySchemaForTopic')->willReturn(true);
+        $registry->expects(self::once())->method('hasKeySchemaForTopic')->willReturn(true);
+
+        $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
+        $producerMessage->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
+        $producerMessage->expects(self::once())->method('getBody')->willReturn([]);
+        $producerMessage->expects(self::once())->method('getKey')->willReturn('test-key');
+        $producerMessage->expects(self::once())->method('withBody')->with('encodedValue')->willReturn($producerMessage);
+
+        $avroEncodingException = $this->getMockBuilder(AvroEncodingException::class)->disableOriginalConstructor()->getMock();
+
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $recordSerializer
+            ->expects(self::exactly(2))
+            ->method('encodeRecord')
+            ->withConsecutive(
+                [$avroSchema->getName(), $avroSchema->getDefinition(), []],
+                [$avroSchema->getName(), $avroSchema->getDefinition(), 'test-key']
+            )
+            ->willReturnOnConsecutiveCalls('encodedValue', $this->throwException($avroEncodingException));
+
+        $encoder = new AvroEncoder($registry, $recordSerializer);
+
+        $validator = $this->getMockBuilder('Jobcloud\Avro\Validator\Validator')
+            ->setMockClassName('Validator')
+            ->getMock();
+
+        $recordRegistry = $this->getMockBuilder('Jobcloud\Avro\Validator\RecordRegistry')
+            ->setMockClassName('RecordRegistry')
+            ->getMock();
+
+        $recordRegistry->expects($this->once())
+            ->method('fromSchema')
+            ->with(json_encode([]))
+            ->willReturn($recordRegistry);
+
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with(json_encode([]), '')
+            ->willReturn([]);
+
+        self::assertNotSame($producerMessage, $encoder->encode($producerMessage));
     }
 }
