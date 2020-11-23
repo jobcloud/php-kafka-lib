@@ -7,6 +7,7 @@ namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Encoder;
 use FlixTech\AvroSerializer\Objects\Exceptions\AvroEncodingException;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use Jobcloud\Kafka\Exception\AvroEncoderException;
+use Jobcloud\Kafka\Exception\AvroValidatorException;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Encoder\AvroEncoder;
@@ -18,6 +19,36 @@ use PHPStan\Testing\TestCase;
  */
 class AvroEncoderTest extends TestCase
 {
+    private $avroValidatorClass = "./src/Message/Encoder/AvroEncoder.php";
+
+    private $originalNamespaces = [
+        "Jobcloud\Avro\Validator\RecordRegistry",
+        "Jobcloud\Avro\Validator\Validator"
+    ];
+
+    private $replacedNamespaces = [
+        "Jobcloud\Kafka\Tests\Unit\Kafka\Message\Encoder\RecordRegistry",
+        "Jobcloud\Kafka\Tests\Unit\Kafka\Message\Encoder\Validator"
+    ];
+
+    protected function setUp(): void
+    {
+        $avroEncoderContent = file_get_contents($this->avroValidatorClass);
+
+        $avroEncoderContent = str_replace($this->originalNamespaces, $this->replacedNamespaces, $avroEncoderContent);
+
+        file_put_contents($this->avroValidatorClass, $avroEncoderContent);
+    }
+
+    protected function tearDown(): void
+    {
+        $avroEncoderContent = file_get_contents($this->avroValidatorClass);
+
+        $avroEncoderContent = str_replace($this->replacedNamespaces, $this->originalNamespaces, $avroEncoderContent);
+
+        file_put_contents($this->avroValidatorClass, $avroEncoderContent);
+    }
+
     public function testEncodeTombstone()
     {
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
@@ -174,10 +205,9 @@ class AvroEncoderTest extends TestCase
         $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
-        $avroSchema->expects(self::exactly(2))->method('getName')->willReturn('schemaName');
-        $avroSchema->expects(self::never())->method('getVersion');
-        $avroSchema->expects(self::exactly(3))->method('getDefinition')->willReturn($schemaDefinition);
-        $schemaDefinition->method('to_avro')->willReturn([]);
+        $avroSchema->expects(self::once())->method('getName')->willReturn('schemaName');
+        $avroSchema->expects(self::exactly(2))->method('getDefinition')->willReturn($schemaDefinition);
+        $schemaDefinition->method('to_avro')->willReturn(['type' => 'record']);
 
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
         $registry->expects(self::once())->method('getBodySchemaForTopic')->willReturn($avroSchema);
@@ -185,37 +215,24 @@ class AvroEncoderTest extends TestCase
 
         $producerMessage = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $producerMessage->expects(self::once())->method('getTopicName')->willReturn('test');
-        $producerMessage->expects(self::once())->method('getBody')->willReturn([]);
+        $producerMessage->expects(self::once())->method('getBody')->willReturn(['id' => 123]);
 
-        $avroEncodingException = $this->getMockBuilder(AvroEncodingException::class)->disableOriginalConstructor()->getMock();
-        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
+        $avroEncodingException = $this->getMockBuilder(AvroEncodingException::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $recordSerializer = $this->getMockBuilder(RecordSerializer::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $recordSerializer
             ->expects(self::once())
             ->method('encodeRecord')
-            ->with($avroSchema->getName(), $avroSchema->getDefinition(), [])
             ->willReturnOnConsecutiveCalls('encodedValue')
-        ->willThrowException($avroEncodingException);
+            ->willThrowException($avroEncodingException);
 
         $encoder = new AvroEncoder($registry, $recordSerializer);
 
-        $validator = $this->getMockBuilder('Jobcloud\Avro\Validator\Validator')
-            ->setMockClassName('Validator')
-            ->getMock();
-
-        $recordRegistry = $this->getMockBuilder('Jobcloud\Avro\Validator\RecordRegistry')
-            ->setMockClassName('RecordRegistry')
-            ->getMock();
-
-        $recordRegistry->expects($this->once())
-            ->method('fromSchema')
-            ->with(json_encode([]))
-            ->willReturn($recordRegistry);
-
-        $validator->expects($this->once())
-            ->method('validate')
-            ->with(json_encode([]), '')
-            ->willReturn([]);
-
+        self::expectException(AvroValidatorException::class);
+        self::expectExceptionMessage(json_encode(['test' => 'test']));
         self::assertNotSame($producerMessage, $encoder->encode($producerMessage));
     }
 
@@ -255,24 +272,28 @@ class AvroEncoderTest extends TestCase
 
         $encoder = new AvroEncoder($registry, $recordSerializer);
 
-        $validator = $this->getMockBuilder('Jobcloud\Avro\Validator\Validator')
-            ->setMockClassName('Validator')
-            ->getMock();
-
-        $recordRegistry = $this->getMockBuilder('Jobcloud\Avro\Validator\RecordRegistry')
-            ->setMockClassName('RecordRegistry')
-            ->getMock();
-
-        $recordRegistry->expects($this->once())
-            ->method('fromSchema')
-            ->with(json_encode([]))
-            ->willReturn($recordRegistry);
-
-        $validator->expects($this->once())
-            ->method('validate')
-            ->with(json_encode([]), '')
-            ->willReturn([]);
-
+        self::expectException(AvroValidatorException::class);
+        self::expectExceptionMessage(json_encode(['test' => 'test']));
         self::assertNotSame($producerMessage, $encoder->encode($producerMessage));
     }
+}
+
+class RecordRegistry {
+    public function fromSchema(string $schema): string
+    {
+        return $schema;
+    }
+}
+
+class Validator {
+    public function validate(): array
+    {
+        return [
+            'test' => 'test',
+        ];
+    }
+}
+
+class AvroValidationException {
+
 }
