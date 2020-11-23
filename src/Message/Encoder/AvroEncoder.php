@@ -46,8 +46,10 @@ final class AvroEncoder implements AvroEncoderInterface
     /**
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
-     * @throws SchemaRegistryException
      * @throws AvroValidatorException
+     * @throws RecordRegistryException
+     * @throws SchemaRegistryException
+     * @throws ValidatorException
      */
     public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
@@ -79,6 +81,7 @@ final class AvroEncoder implements AvroEncoderInterface
 
         $avroSchema = $this->registry->getBodySchemaForTopic($topicName);
 
+        $encodedBody = null;
         try {
             $encodedBody = $this->recordSerializer->encodeRecord(
                 $avroSchema->getName(),
@@ -123,6 +126,7 @@ final class AvroEncoder implements AvroEncoderInterface
 
         $avroSchema = $this->registry->getKeySchemaForTopic($topicName);
 
+        $encodedKey = null;
         try {
             $encodedKey = $this->recordSerializer->encodeRecord(
                 $avroSchema->getName(),
@@ -169,7 +173,7 @@ final class AvroEncoder implements AvroEncoderInterface
     }
 
     /**
-     * @param array $avroSchema
+     * @param array<mixed> $avroSchema
      * @param mixed $data
      * @param string $topicName
      * @return array<mixed>
