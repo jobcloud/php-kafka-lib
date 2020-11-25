@@ -3,10 +3,8 @@ parameters:
     paths: [ src ]
     ignoreErrors:
         - '#Comparison operation ">" between int and RdKafka\\TopicPartition results in an error.#'
-        - '#Call to method validate\(\) on an unknown class Jobcloud\\Avro\\Validator\\Validator#'
         - '#Call to static method fromSchema\(\) on an unknown class Jobcloud\\Avro\\Validator\\RecordRegistry#'
         - '#PHPDoc tag @throws with type [a-zA-Z0-9\\_]+#'
         - '#Parameter \#[0-9] [a-z\$]+ of method [a-zA-Z0-9\\_]+::setOffset\(\) expects string, int given.#'
         - '#Parameter \#[0-9] [a-z\$]+ of class Jobcloud\\Kafka\\Exception\\AvroValidatorException constructor expects string, string\|false given.#'
         - '#Cannot call method to_avro\(\) on AvroSchema\|null.#'
-        - '#Instantiated class Jobcloud\\Avro\\Validator\\Validator not found.#'
