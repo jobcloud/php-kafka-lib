@@ -47,9 +47,7 @@ final class AvroEncoder implements AvroEncoderInterface
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
      * @throws AvroValidatorException
-     * @throws RecordRegistryException
      * @throws SchemaRegistryException
-     * @throws ValidatorException
      */
     public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
@@ -62,9 +60,7 @@ final class AvroEncoder implements AvroEncoderInterface
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
      * @throws AvroValidatorException
-     * @throws RecordRegistryException
      * @throws SchemaRegistryException
-     * @throws ValidatorException
      */
     private function encodeBody(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
@@ -90,9 +86,7 @@ final class AvroEncoder implements AvroEncoderInterface
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
      * @throws AvroValidatorException
-     * @throws RecordRegistryException
      * @throws SchemaRegistryException
-     * @throws ValidatorException
      */
     private function encodeKey(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
@@ -143,9 +137,7 @@ final class AvroEncoder implements AvroEncoderInterface
      * @param mixed $data
      * @param string $topicName
      * @return string
-     * @throws RecordRegistryException
      * @throws SchemaRegistryException
-     * @throws ValidatorException
      * @throws AvroValidatorException
      */
     private function encodeRecord(KafkaAvroSchemaInterface $avroSchema, $data, string $topicName): string
@@ -158,12 +150,14 @@ final class AvroEncoder implements AvroEncoderInterface
             );
         } catch (AvroEncodingException $exception) {
             if (class_exists(Validator::class)) {
-                $recordRegistry = RecordRegistry::fromSchema(json_encode($avroSchema->getDefinition()->to_avro()));
+                /** @var AvroSchema $schemaDefinition */
+                $schemaDefinition = $avroSchema->getDefinition();
+                $recordRegistry = RecordRegistry::fromSchema(json_encode($schemaDefinition->to_avro()));
                 $validator = new Validator($recordRegistry);
 
                 $validationErrors = $validator->validate(json_encode($data), $topicName);
 
-                throw new AvroValidatorException(json_encode($validationErrors));
+                throw new AvroValidatorException((string) json_encode($validationErrors));
             }
 
             throw $exception;
