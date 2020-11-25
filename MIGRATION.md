@@ -6,7 +6,7 @@ messaging systems than Kafka.
 
 In most cases you can just:
 1. `composer remove jobcloud/messaging-lib`
-2. `composer require jobcloud/php-kafka-lib ~0.1`
+2. `composer require jobcloud/php-kafka-lib ~0.1` (after migration, consider switching to the most current release)
 3. Replace namespace `Jobcloud\Messaging\Kafka` with `Jobcloud\Kafka`
 4. Replace the following:
  - `ConsumerException` with `KafkaConsumerConsumeException`
