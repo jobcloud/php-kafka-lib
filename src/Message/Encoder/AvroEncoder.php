@@ -81,24 +81,7 @@ final class AvroEncoder implements AvroEncoderInterface
 
         $avroSchema = $this->registry->getBodySchemaForTopic($topicName);
 
-        $encodedBody = null;
-        try {
-            $encodedBody = $this->recordSerializer->encodeRecord(
-                $avroSchema->getName(),
-                $this->getAvroSchemaDefinition($avroSchema),
-                $body
-            );
-        } catch (AvroEncodingException $exception) {
-            if (class_exists(Validator::class)) {
-                $validationErrors = $this->validateSchema(
-                    $avroSchema->getDefinition()->to_avro(),
-                    $body,
-                    $topicName
-                );
-
-                throw new AvroValidatorException(json_encode($validationErrors));
-            }
-        }
+        $encodedBody = $this->encodeRecord($avroSchema, $body, $topicName);
 
         return $producerMessage->withBody($encodedBody);
     }
@@ -126,24 +109,7 @@ final class AvroEncoder implements AvroEncoderInterface
 
         $avroSchema = $this->registry->getKeySchemaForTopic($topicName);
 
-        $encodedKey = null;
-        try {
-            $encodedKey = $this->recordSerializer->encodeRecord(
-                $avroSchema->getName(),
-                $this->getAvroSchemaDefinition($avroSchema),
-                $key
-            );
-        } catch (AvroEncodingException $exception) {
-            if (class_exists(Validator::class)) {
-                $validationErrors = $this->validateSchema(
-                    $avroSchema->getDefinition()->to_avro(),
-                    $key,
-                    $topicName
-                );
-
-                throw new AvroValidatorException(json_encode($validationErrors));
-            }
-        }
+        $encodedKey = $this->encodeRecord($avroSchema, $key, $topicName);
 
         return $producerMessage->withKey($encodedKey);
     }
@@ -173,18 +139,36 @@ final class AvroEncoder implements AvroEncoderInterface
     }
 
     /**
-     * @param array<mixed> $avroSchema
+     * @param KafkaAvroSchemaInterface $avroSchema
      * @param mixed $data
      * @param string $topicName
-     * @return array<mixed>
+     * @return string
      * @throws RecordRegistryException
+     * @throws SchemaRegistryException
      * @throws ValidatorException
+     * @throws AvroValidatorException
      */
-    private function validateSchema(array $avroSchema, $data, string $topicName): array
+    private function encodeRecord(KafkaAvroSchemaInterface $avroSchema, $data, string $topicName): string
     {
-        $recordRegistry = RecordRegistry::fromSchema(json_encode($avroSchema));
-        $validator = new Validator($recordRegistry);
+        try {
+            $encodedData = $this->recordSerializer->encodeRecord(
+                $avroSchema->getName(),
+                $this->getAvroSchemaDefinition($avroSchema),
+                $data
+            );
+        } catch (AvroEncodingException $exception) {
+            if (class_exists(Validator::class)) {
+                $recordRegistry = RecordRegistry::fromSchema(json_encode($avroSchema->getDefinition()->to_avro()));
+                $validator = new Validator($recordRegistry);
 
-        return $validator->validate(json_encode($data), $topicName);
+                $validationErrors = $validator->validate(json_encode($data), $topicName);
+
+                throw new AvroValidatorException(json_encode($validationErrors));
+            }
+
+            throw $exception;
+        }
+
+        return $encodedData;
     }
 }
