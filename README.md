@@ -26,7 +26,7 @@ composer require jobcloud/php-kafka-lib "~1.0"
 ### Enable Avro support
 If you need Avro support, run:
 ```
-composer require flix-tech/avro-serde-php "~1.3"
+composer require flix-tech/avro-serde-php "~1.4"
 ```
 
 ## Usage

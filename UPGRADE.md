@@ -4,7 +4,7 @@
 Has been removed as a fixed dependency. If you rely on it you need to run  
 the following in your project:
 ```
-composer require flix-tech/avro-serde-php "~1.3"
+composer require flix-tech/avro-serde-php "~1.4"
 ```
 
 ## Producer improvements
