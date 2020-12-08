@@ -12,6 +12,11 @@ use RdKafka\TopicConf as RdKafkaTopicConf;
 class KafkaConfiguration extends RdKafkaConf
 {
 
+    public const SSL_CA_CONF_KEY = 'ssl.ca';
+    public const SSL_CERTIFICATE_CONF_KEY = 'ssl.certificate';
+    public const SSL_KEY_CONF_KEY = 'ssl.key';
+    public const SSL_FOLDER_CONF_KEY = 'ssl.folder';
+
     /**
      * @var string[]
      */
@@ -82,6 +87,11 @@ class KafkaConfiguration extends RdKafkaConf
     protected function initializeConfig(array $config = []): void
     {
         $topicConf = new RdKafkaTopicConf();
+
+        $sslCertsOptionalConf = new KafkaSslCertsOptionalConfiguration($config);
+        if (true === $sslCertsOptionalConf->isProvided()) {
+            $config = $sslCertsOptionalConf->createSslCertsAndUpdateConfig();
+        }
 
         foreach ($config as $name => $value) {
             if (false === is_scalar($value)) {
