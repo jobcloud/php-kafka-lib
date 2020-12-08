@@ -56,9 +56,9 @@ class KafkaSslCertsOptionalConfiguration
 
         foreach (
             [
-                $config['ssl.ca.location'] => $config[KafkaConfiguration::SSL_CA_CONF_KEY],
-                $config['ssl.certificate.location'] => $config[KafkaConfiguration::SSL_CERTIFICATE_CONF_KEY],
-                $config['ssl.key.location'] => $config[KafkaConfiguration::SSL_KEY_CONF_KEY],
+                (string) $config['ssl.ca.location'] => $config[KafkaConfiguration::SSL_CA_CONF_KEY],
+                (string) $config['ssl.certificate.location'] => $config[KafkaConfiguration::SSL_CERTIFICATE_CONF_KEY],
+                (string) $config['ssl.key.location'] => $config[KafkaConfiguration::SSL_KEY_CONF_KEY],
             ] as $filename => $secret
         ) {
             if (true === file_exists($filename) && $secret === file_get_contents($filename)) {
