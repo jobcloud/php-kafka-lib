@@ -5,7 +5,8 @@ ARG HOST_USER
 
 # PHP: Copy configuration files & remove dist files
 RUN mkdir /phpIni
-COPY dev/php/files/bin/ /usr/local/bin/
+COPY files/bin/ /usr/local/bin/
+COPY files/php/ /phpIni
 
 # SYS: Install required packages
 RUN apk --no-cache upgrade && \

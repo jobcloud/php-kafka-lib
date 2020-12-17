@@ -35,6 +35,11 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     private $errorCallback;
 
     /**
+     * @var callable
+     */
+    private $logCallback;
+
+    /**
      * @var EncoderInterface
      */
     private $encoder;
@@ -114,6 +119,19 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     }
 
     /**
+     * Callback for log related events
+     *
+     * @param callable $logCallback
+     * @return KafkaProducerBuilderInterface
+     */
+    public function withLogCallback(callable $logCallback): KafkaProducerBuilderInterface
+    {
+        $this->logCallback = $logCallback;
+
+        return $this;
+    }
+
+    /**
      * Lets you set a custom encoder for produce message
      *
      * @param EncoderInterface $encoder
@@ -166,5 +184,9 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     {
         $conf->setDrMsgCb($this->deliverReportCallback);
         $conf->setErrorCb($this->errorCallback);
+
+        if (null !== $this->logCallback) {
+            $conf->setLogCb($this->logCallback);
+        }
     }
 }
