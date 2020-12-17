@@ -10,11 +10,11 @@ INFECTION = ./vendor/bin/infection
 clean:
 	rm -rf ./build ./vendor
 
-code-style:
+code-style: pcov-disable
 	mkdir -p build/logs/phpcs
 	${PHPCS} --report-full --report-gitblame --standard=PSR12 ./src --exclude=Generic.Commenting.Todo --report-junit=build/logs/phpcs/junit.xml
 
-coverage:
+coverage: pcov-enable
 	${PHPUNIT} && ./vendor/bin/coverage-check clover.xml 100
 
 test: pcov-disable
@@ -36,6 +36,7 @@ install-dependencies-lowest:
 infection-testing:
 	make coverage
 	cp -f build/logs/phpunit/junit.xml build/logs/phpunit/coverage/junit.xml
+	sudo php-ext-disable pcov
 	${INFECTION} --coverage=build/logs/phpunit/coverage --min-msi=91 --threads=`nproc`
 
 pcov-enable:
