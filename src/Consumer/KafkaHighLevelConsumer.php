@@ -99,7 +99,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Assigns a consumer to the given TopicPartition(s)
      *
-     * @param string[]|RdKafkaTopicPartition[] $topicPartitions
+     * @param RdKafkaTopicPartition[] $topicPartitions
      * @throws KafkaConsumerAssignmentException
      * @return void
      */
@@ -222,7 +222,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
             $topicPartition = sprintf('%s-%s', $message->getTopicName(), $message->getPartition());
 
             if (true === isset($offsetsToCommit[$topicPartition])) {
-                if ($message->getOffset() + 1 > $offsetsToCommit[$topicPartition]) {
+                if ($message->getOffset() + 1 > $offsetsToCommit[$topicPartition]->getOffset()) {
                     $offsetsToCommit[$topicPartition]->setOffset($message->getOffset() + 1);
                 }
                 continue;

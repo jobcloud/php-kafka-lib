@@ -1,13 +1,12 @@
-FROM php:7.3-cli-alpine3.11
+FROM php:7.3-cli-alpine3.12
 
-# https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
-ENV COMPOSER_ALLOW_SUPERUSER 1
 ARG HOST_USER_ID
 ARG HOST_USER
 
 # PHP: Copy configuration files & remove dist files
 RUN mkdir /phpIni
-COPY dev/php/files/bin/ /usr/local/bin/
+COPY files/bin/ /usr/local/bin/
+COPY files/php/ /phpIni
 
 # SYS: Install required packages
 RUN apk --no-cache upgrade && \
@@ -28,14 +27,13 @@ RUN echo "$HOST_USER:x:$HOST_USER_ID:82:Linux User,,,:/home/$HOST_USER:" >> /etc
     addgroup $HOST_USER www-data
 
 # COMPOSER: install binary and prestissimo
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
-    composer global require hirak/prestissimo
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka && \
+    pecl install rdkafka pcov && \
     docker-php-ext-install pcntl && \
-    php-ext-enable rdkafka pcntl
+    php-ext-enable rdkafka pcntl pcov
 
 USER $HOST_USER
 

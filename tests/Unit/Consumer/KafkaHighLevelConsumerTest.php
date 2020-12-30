@@ -37,16 +37,16 @@ final class KafkaHighLevelConsumerTest extends TestCase
      */
     public function testSubscribeSuccess(): void
     {
-        $topics = [new TopicSubscription('testTopic')];
+        $topics = [new TopicSubscription('testTopic'), new TopicSubscription('testTopic2')];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls($topics, []);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
-        $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic']);
+        $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic', 'testTopic2']);
 
-        $kafkaConsumer->subscribe($topics);
+        $kafkaConsumer->subscribe();
     }
 
     /**
@@ -63,7 +63,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
         $rdKafkaConsumerMock->expects(self::once())->method('assign');
 
-        $kafkaConsumer->subscribe($topics);
+        $kafkaConsumer->subscribe();
     }
 
     /**
@@ -131,7 +131,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
             ->willReturn($rdKafkaConsumerTopicMock);
 
 
-        $kafkaConsumer->subscribe($topics);
+        $kafkaConsumer->subscribe();
     }
 
 
@@ -182,7 +182,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $this->expectExceptionCode(100);
         $this->expectExceptionMessage('Error');
 
-        $kafkaConsumer->subscribe($topics);
+        $kafkaConsumer->subscribe();
     }
 
     /**
@@ -203,10 +203,10 @@ final class KafkaHighLevelConsumerTest extends TestCase
     /**
      * @throws KafkaConsumerSubscriptionException
      */
-    public function testUnsubscribeSuccesssFlagSet(): void
+    public function testUnsubscribeSuccesssConsumeFails(): void
     {
         self::expectException(KafkaConsumerConsumeException::class);
-        self::expectExceptionMessage('This consumer is currently not subscribed');
+        self::expectExceptionMessage(KafkaConsumerConsumeException::NOT_SUBSCRIBED_EXCEPTION_MESSAGE);
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
