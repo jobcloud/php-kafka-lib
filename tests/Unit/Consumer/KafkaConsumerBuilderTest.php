@@ -166,6 +166,13 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
         self::assertNotSame($clone, $this->kafkaConsumerBuilder);
+
+        $consumer = $clone
+            ->withAdditionalBroker('localhost')
+            ->withSubscription('test')
+            ->build();
+        $conf = $consumer->getConfiguration();
+        self::assertArrayHasKey('error_cb', $conf);
     }
 
     /**
@@ -185,6 +192,13 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
         self::assertNotSame($clone, $this->kafkaConsumerBuilder);
+
+        $consumer = $clone
+            ->withAdditionalBroker('localhost')
+            ->withSubscription('test')
+            ->build();
+        $conf = $consumer->getConfiguration();
+        self::assertArrayHasKey('rebalance_cb', $conf);
     }
 
     /**
@@ -204,6 +218,13 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
         self::assertNotSame($clone, $this->kafkaConsumerBuilder);
+
+        $consumer = $clone
+            ->withAdditionalBroker('localhost')
+            ->withSubscription('test')
+            ->build();
+        $conf = $consumer->getConfiguration();
+        self::assertArrayHasKey('consume_cb', $conf);
     }
 
     /**
@@ -223,6 +244,13 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
         self::assertNotSame($clone, $this->kafkaConsumerBuilder);
+
+        $consumer = $clone
+            ->withAdditionalBroker('localhost')
+            ->withSubscription('test')
+            ->build();
+        $conf = $consumer->getConfiguration();
+        self::assertArrayHasKey('offset_commit_cb', $conf);
     }
 
     /**

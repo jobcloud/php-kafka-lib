@@ -37,7 +37,7 @@ infection-testing:
 	make coverage
 	cp -f build/logs/phpunit/junit.xml build/logs/phpunit/coverage/junit.xml
 	sudo php-ext-disable pcov
-	${INFECTION} --coverage=build/logs/phpunit/coverage --min-msi=91 --threads=`nproc`
+	${INFECTION} --coverage=build/logs/phpunit/coverage --min-msi=93 --threads=`nproc`
 
 pcov-enable:
 	sudo php-ext-enable pcov

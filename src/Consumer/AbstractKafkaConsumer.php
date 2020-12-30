@@ -13,6 +13,7 @@ use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Kafka\Message\KafkaConsumerMessage;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
+use RdKafka\KafkaConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Message as RdKafkaMessage;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
@@ -140,6 +141,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      */
     public function getMetadataForTopic(string $topicName, int $timeoutMs = 10000): RdKafkaMetadataTopic
     {
+        /** @var RdKafkaConsumerTopic $topic */
         $topic = $this->consumer->newTopic($topicName);
         return $this->consumer
             ->getMetadata(
