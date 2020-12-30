@@ -67,14 +67,6 @@ interface KafkaConsumerBuilderInterface
     public function withConsumerGroup(string $consumerGroup): self;
 
     /**
-     * Set the consumer type, can be either CONSUMER_TYPE_LOW_LEVEL or CONSUMER_TYPE_HIGH_LEVEL
-     *
-     * @param string $consumerType
-     * @return KafkaConsumerBuilderInterface
-     */
-    public function withConsumerType(string $consumerType): self;
-
-    /**
      * Set a callback to be called on errors.
      * The default callback will throw an exception for every error
      *

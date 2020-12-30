@@ -11,9 +11,9 @@ use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Kafka\Message\KafkaConsumerMessage;
-use RdKafka\Consumer as RdKafkaLowLevelConsumer;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
+use RdKafka\KafkaConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\Message as RdKafkaMessage;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
@@ -32,7 +32,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     protected $subscribed = false;
 
     /**
-     * @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer
+     * @var RdKafkaHighLevelConsumer
      */
     protected $consumer;
 
@@ -141,6 +141,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      */
     public function getMetadataForTopic(string $topicName, int $timeoutMs = 10000): RdKafkaMetadataTopic
     {
+        /** @var RdKafkaConsumerTopic $topic */
         $topic = $this->consumer->newTopic($topicName);
         return $this->consumer
             ->getMetadata(
@@ -222,7 +223,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * @param RdKafkaMessage $message
      * @return KafkaConsumerMessageInterface
      */
-    protected function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
+    private function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
     {
         return new KafkaConsumerMessage(
             (string) $message->topic_name,
