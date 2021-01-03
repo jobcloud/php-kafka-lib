@@ -52,6 +52,9 @@ $message = KafkaProducerMessage::create('test-topic', 0)
             ->withHeaders([ 'key' => 'value' ]);
 
 $producer->produce($message);
+
+// Shutdown producer, flush messages that are in queue. Give up after 20s
+$result = $producer->flush(20000);
 ```
 ##### Avro Producer
 To create an avro prodcuer add the avro encoder.  
