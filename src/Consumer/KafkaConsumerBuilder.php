@@ -358,7 +358,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         }
 
         if (null !== $this->offsetCommitCallback) {
-            $conf->setOffsetCommitCb($this->rebalanceCallback);
+            $conf->setOffsetCommitCb($this->offsetCommitCallback);
         }
     }
 }

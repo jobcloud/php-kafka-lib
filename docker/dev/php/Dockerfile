@@ -5,7 +5,8 @@ ARG HOST_USER
 
 # PHP: Copy configuration files & remove dist files
 RUN mkdir /phpIni
-COPY dev/php/files/bin/ /usr/local/bin/
+COPY files/bin/ /usr/local/bin/
+COPY files/php/ /phpIni
 
 # SYS: Install required packages
 RUN apk --no-cache upgrade && \
@@ -30,9 +31,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka && \
+    pecl install rdkafka pcov && \
     docker-php-ext-install pcntl && \
-    php-ext-enable rdkafka pcntl
+    php-ext-enable rdkafka pcntl pcov
 
 USER $HOST_USER
 

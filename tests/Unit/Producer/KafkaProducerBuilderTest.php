@@ -131,6 +131,7 @@ class KafkaProducerBuilderTest extends TestCase
             ->withAdditionalBroker('localhost')
             ->withDeliveryReportCallback($callback)
             ->withErrorCallback($callback)
+            ->withLogCallback($callback)
             ->build();
 
         self::assertInstanceOf(KafkaProducerInterface::class, $producer);
@@ -146,10 +147,11 @@ class KafkaProducerBuilderTest extends TestCase
             // Anonymous test method, no logic required
         };
 
-        $this->kafkaProducerBuilder
+        $producer = $this->kafkaProducerBuilder
             ->withAdditionalBroker('localhost')
             ->withDeliveryReportCallback($callback)
             ->withErrorCallback($callback)
+            ->withLogCallback($callback)
             ->build();
 
         $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'config');
@@ -162,5 +164,7 @@ class KafkaProducerBuilderTest extends TestCase
             ],
             $reflectionProperty->getValue($this->kafkaProducerBuilder)
         );
+
+        self::assertInstanceOf(KafkaProducerInterface::class, $producer);
     }
 }

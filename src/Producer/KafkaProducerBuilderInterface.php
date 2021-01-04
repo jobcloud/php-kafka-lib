@@ -43,6 +43,14 @@ interface KafkaProducerBuilderInterface
     public function withErrorCallback(callable $errorCallback): self;
 
     /**
+     * Callback for log related events
+     *
+     * @param callable $logCallback
+     * @return KafkaProducerBuilderInterface
+     */
+    public function withLogCallback(callable $logCallback): self;
+
+    /**
      * Lets you set a custom encoder for produce message
      *
      * @param EncoderInterface $encoder
