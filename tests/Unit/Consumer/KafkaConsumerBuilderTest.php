@@ -332,13 +332,13 @@ final class KafkaConsumerBuilderTest extends TestCase
         $callback = function ($kafka, $errId, $msg) {
             // Anonymous test method, no logic required
         };
-
         /** @var $consumer KafkaLowLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
             ->withAdditionalBroker('localhost')
             ->withAdditionalSubscription('test-topic')
             ->withRebalanceCallback($callback)
             ->withErrorCallback($callback)
+            ->withLogCallback($callback)
             ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
             ->build();
 
@@ -391,6 +391,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->withAdditionalSubscription('test-topic')
             ->withRebalanceCallback($callback)
             ->withErrorCallback($callback)
+            ->withLogCallback($callback)
             ->build();
 
         $conf = $consumer->getConfiguration();
