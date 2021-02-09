@@ -85,7 +85,7 @@ try {
 } catch (KafkaProducerTransactionAbortException $e) {
     // you need to call $producer->abortTransaction(10000); and try again
 } catch (KafkaProducerTransactionFatalException $e) {
-    // something went very wrong, you need to retry from beginTransaction
+    // something went very wrong, re-create your producer, otherwise you could jeopardize the idempotency guarantees
 }
 
 // Shutdown producer, flush messages that are in queue. Give up after 20s
