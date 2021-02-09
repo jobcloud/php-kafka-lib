@@ -391,6 +391,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->withAdditionalSubscription('test-topic')
             ->withRebalanceCallback($callback)
             ->withErrorCallback($callback)
+            ->withLogCallback($callback)
             ->build();
 
         $conf = $consumer->getConfiguration();

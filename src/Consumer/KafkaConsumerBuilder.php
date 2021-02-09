@@ -306,11 +306,11 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             $this->config,
             $this->consumerType
         );
+
         //set consumer callbacks
         $this->registerCallbacks($kafkaConfig);
 
         //create RdConsumer
-
         if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
             if (null !== $this->consumeCallback) {
                 throw new KafkaConsumerBuilderException(
