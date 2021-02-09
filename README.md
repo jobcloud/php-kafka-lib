@@ -19,7 +19,7 @@ can help out to understand the internals of this library.
 - ext-rdkafka: >=4.0.0
 - librdkafka: >=0.11.6 (if you use `<librdkafka:1.x` please define your own error callback)
 
-:danger: Note: To use the transactional producer you'll need:
+:warning: Note: To use the transactional producer you'll need:
 - ext-rdkafka: >=4.1.0
 - librdkafka: >=1.4
 
