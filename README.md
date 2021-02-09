@@ -17,7 +17,7 @@ can help out to understand the internals of this library.
 ## Requirements
 - php: ^7.3
 - ext-rdkafka: >=4.0.0
-- librdkafka: >=1.0.0 (might work with `0.11.6` if you overload the default error callback
+- librdkafka: >=0.11.6 (if you use `<librdkafka:1.x` please define your own error callback)
 
 ## Installation
 ```
