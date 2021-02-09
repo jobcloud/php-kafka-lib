@@ -2,6 +2,9 @@
 
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Producer;
 
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionAbortException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionFatalException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionRetryException;
 use Jobcloud\Kafka\Message\KafkaProducerMessage;
 use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Kafka\Exception\KafkaProducerException;
@@ -14,6 +17,7 @@ use RdKafka\ProducerTopic as RdKafkaProducerTopic;
 use RdKafka\Metadata as RdKafkaMetadata;
 use RdKafka\Metadata\Collection as RdKafkaMetadataCollection;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
+use RdKafka\KafkaErrorException as RdKafkaErrorException;
 
 /**
  * @covers \Jobcloud\Kafka\Producer\KafkaProducer
@@ -322,5 +326,203 @@ class KafkaProducerTest extends TestCase
             ->with(false, $topicMock, 10000)
             ->willReturn($metadataMock);
         $this->kafkaProducer->getMetadataForTopic('test-topic-name');
+    }
+
+    /**
+     * @return void
+     */
+    public function testBeginTransactionSuccess(): void
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('beginTransaction')
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+
+        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testBeginTransactionConsecutiveSuccess(): void
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+        $this->rdKafkaProducerMock
+            ->expects(self::exactly(2))
+            ->method('beginTransaction')
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+
+        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+
+    }
+
+    /**
+     * @return void
+     */
+    public function testBeginTransactionWithRetriableError(): void
+    {
+        self::expectException(KafkaProducerTransactionRetryException::class);
+
+        $errorMock = $this->createMock(RdKafkaErrorException::class);
+        $errorMock->expects(self::once())->method('isRetriable')->willReturn(true);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willThrowException($errorMock);
+
+        $this->rdKafkaProducerMock->expects(self::never())->method('beginTransaction');
+
+        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testBeginTransactionWithAbortError(): void
+    {
+        self::expectException(KafkaProducerTransactionAbortException::class);
+
+        $errorMock = $this->createMock(RdKafkaErrorException::class);
+        $errorMock->expects(self::once())->method('isRetriable')->willReturn(false);
+        $errorMock->expects(self::once())->method('transactionRequiresAbort')->willReturn(true);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willThrowException($errorMock);
+
+        $this->rdKafkaProducerMock->expects(self::never())->method('beginTransaction');
+
+        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testBeginTransactionWithFatalError(): void
+    {
+        self::expectException(KafkaProducerTransactionFatalException::class);
+
+        $errorMock = $this->createMock(RdKafkaErrorException::class);
+        $errorMock->expects(self::once())->method('isRetriable')->willReturn(false);
+        $errorMock->expects(self::once())->method('transactionRequiresAbort')->willReturn(false);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('initTransactions')
+            ->with(10000)
+            ->willThrowException($errorMock);
+
+        $this->rdKafkaProducerMock->expects(self::never())->method('beginTransaction');
+
+        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testBeginTransactionWithFatalErrorWillTriggerInit(): void
+    {
+        $firstExceptionCaught = false;
+
+        self::expectException(KafkaProducerTransactionFatalException::class);
+
+        $errorMock = $this->createMock(RdKafkaErrorException::class);
+        $errorMock->expects(self::exactly(2))->method('isRetriable')->willReturn(false);
+        $errorMock->expects(self::exactly(2))->method('transactionRequiresAbort')->willReturn(false);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::exactly(2))
+            ->method('initTransactions')
+            ->with(10000)
+            ->willThrowException($errorMock);
+
+        $this->rdKafkaProducerMock->expects(self::never())->method('beginTransaction');
+
+        try {
+            self::assertNull($this->kafkaProducer->beginTransaction(10000));
+        } catch (KafkaProducerTransactionFatalException $e) {
+            $firstExceptionCaught = true;
+        }
+
+        self::assertTrue($firstExceptionCaught);
+        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testAbortTransactionSuccess(): void
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('abortTransaction')
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+
+        self::assertNull($this->kafkaProducer->abortTransaction(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testAbortTransactionFailure(): void
+    {
+        self::expectException(KafkaProducerTransactionRetryException::class);
+        self::expectExceptionMessage(KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE);
+
+        $exception = new RdKafkaErrorException('test', 1, 'some failure', false, true, false);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('abortTransaction')
+            ->willThrowException($exception);
+
+        $this->kafkaProducer->abortTransaction(10000);
+    }
+
+    /**
+     * @return void
+     */
+    public function testCommitTransactionSuccess(): void
+    {
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('commitTransaction')
+            ->with(10000)
+            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+
+        self::assertNull($this->kafkaProducer->commitTransaction(10000));
+    }
+
+    /**
+     * @return void
+     */
+    public function testCommitTransactionFailure(): void
+    {
+        self::expectException(KafkaProducerTransactionRetryException::class);
+        self::expectExceptionMessage(KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE);
+
+        $exception = new RdKafkaErrorException('test', 1, 'some failure', false, true, false);
+
+        $this->rdKafkaProducerMock
+            ->expects(self::once())
+            ->method('commitTransaction')
+            ->with(10000)
+            ->willThrowException($exception);
+
+        $this->kafkaProducer->commitTransaction(10000);
     }
 }
