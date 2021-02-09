@@ -58,7 +58,7 @@ $producer->produce($message);
 $result = $producer->flush(20000);
 ```
 
-##### Transactional producer (needs >=librdkafka:1.4)
+##### Transactional producer (needs >=php-rdkafka:4.1 and >=librdkafka:1.4)
 ```php
 <?php
 
