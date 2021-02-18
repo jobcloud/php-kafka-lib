@@ -8,8 +8,9 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
+         forceCoversAnnotation="true"
          bootstrap="tests/bootstrap.php"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.4/phpunit.xsd">
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd">
   <coverage>
     <include>
       <directory>src</directory>
@@ -25,12 +26,6 @@
     <ini name="max_execution_time" value="-1"/>
     <ini name="html_errors" value="false"/>
     <ini name="memory_limit" value="2G"/>
-    <ini name="xdebug.default_enable" value="1"/>
-    <ini name="xdebug.enable_coverage" value="1"/>
-    <ini name="xdebug.remote_autostart" value="0"/>
-    <ini name="xdebug.remote_enable" value="0"/>
-    <ini name="xdebug.overload_var_dump" value="0"/>
-    <ini name="xdebug.show_mem_delta" value="0"/>
   </php>
   <testsuites>
     <testsuite name="Unit">

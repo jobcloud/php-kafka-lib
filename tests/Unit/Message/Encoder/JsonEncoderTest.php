@@ -8,9 +8,11 @@ use Jobcloud\Kafka\Message\Encoder\JsonEncoder;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \Jobcloud\Kafka\Message\Encoder\JsonEncoder
+ */
 class JsonEncoderTest extends TestCase
 {
-
     /**
      * @return void
      */
