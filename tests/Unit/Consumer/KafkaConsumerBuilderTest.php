@@ -290,18 +290,6 @@ final class KafkaConsumerBuilderTest extends TestCase
 
     /**
      * @return void
-     * @throws KafkaConsumerBuilderException
-     */
-    public function testBuildFailMissingTopics(): void
-    {
-        self::expectException(KafkaConsumerBuilderException::class);
-        self::expectExceptionMessage(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
-
-        $this->kafkaConsumerBuilder->withAdditionalBroker('localhost')->build();
-    }
-
-    /**
-     * @return void
      */
     public function testBuildSuccess(): void
     {
