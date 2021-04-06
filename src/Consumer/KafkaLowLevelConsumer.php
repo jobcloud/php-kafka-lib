@@ -53,17 +53,21 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
      * Subcribes to all defined topics, if no partitions were set, subscribes to all partitions.
      * If partition(s) (and optionally offset(s)) were set, subscribes accordingly
      *
+     * @param array<TopicSubscription> $topicSubscriptions
      * @return void
      * @throws KafkaConsumerSubscriptionException
      */
-    public function subscribe(): void
+    public function subscribe(array $topicSubscriptions = []): void
     {
         if (true === $this->isSubscribed()) {
             return;
         }
 
         try {
-            $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
+            if ([] === $topicSubscriptions) {
+                $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
+            }
+
             foreach ($topicSubscriptions as $topicSubscription) {
                 $topicName = $topicSubscription->getTopicName();
                 $offset = $topicSubscription->getOffset();

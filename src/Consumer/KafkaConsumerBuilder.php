@@ -292,10 +292,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
-        if ([] === $this->topics) {
-            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
-        }
-
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
 

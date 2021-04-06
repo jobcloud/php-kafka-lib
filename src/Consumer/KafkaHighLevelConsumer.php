@@ -13,6 +13,7 @@ use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
+use RdKafka\TopicPartition;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
@@ -41,13 +42,14 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      * Subscribes to all defined topics, if no partitions were set, subscribes to all partitions.
      * If partition(s) (and optionally offset(s)) were set, subscribes accordingly
      *
+     * @param array<TopicSubscription> $topicSubscriptions
      * @throws KafkaConsumerSubscriptionException
      * @return void
      */
-    public function subscribe(): void
+    public function subscribe(array $topicSubscriptions = []): void
     {
-        $subscriptions = $this->getTopicSubscriptions();
-        $assignments = $this->getTopicAssignments();
+        $subscriptions = $this->getTopicSubscriptions($topicSubscriptions);
+        $assignments = $this->getTopicAssignments($topicSubscriptions);
 
         if ([] !== $subscriptions && [] !== $assignments) {
             throw new KafkaConsumerSubscriptionException(
@@ -239,13 +241,18 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * @param array<TopicSubscription> $topicSubscriptions
      * @return array|string[]
      */
-    private function getTopicSubscriptions(): array
+    private function getTopicSubscriptions(array $topicSubscriptions = []): array
     {
         $subscriptions = [];
 
-        foreach ($this->kafkaConfiguration->getTopicSubscriptions() as $topicSubscription) {
+        if ([] === $topicSubscriptions) {
+            $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();;
+        }
+
+        foreach ($topicSubscriptions as $topicSubscription) {
             if (
                 [] !== $topicSubscription->getPartitions()
                 || KafkaConsumerBuilderInterface::OFFSET_STORED !== $topicSubscription->getOffset()
@@ -259,13 +266,18 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
+     * @param array<TopicSubscription> $topicSubscriptions
      * @return array|RdKafkaTopicPartition[]
      */
-    private function getTopicAssignments(): array
+    private function getTopicAssignments(array $topicSubscriptions = []): array
     {
         $assignments = [];
 
-        foreach ($this->kafkaConfiguration->getTopicSubscriptions() as $topicSubscription) {
+        if ([] === $topicSubscriptions) {
+            $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();;
+        }
+
+        foreach ($topicSubscriptions as $topicSubscription) {
             if (
                 [] === $topicSubscription->getPartitions()
                 && KafkaConsumerBuilderInterface::OFFSET_STORED === $topicSubscription->getOffset()
