@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  ci-caching: jobcloud/ci-caching@0.12
-  ci-php: jobcloud/ci-php@0.29
+  ci-caching: jobcloud/ci-caching@1.0.2
+  ci-php: jobcloud/ci-php@0.32
 
 workflows:
   test-php-kafka-lib:

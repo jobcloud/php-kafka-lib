@@ -1,4 +1,4 @@
-.PHONY: clean code-style coverage help test static-analysis update-dependencies pcov-enable pcov-disable infection-testing
+.PHONY: clean code-style coverage help test static-analysis install-dependencies install-dependencies-lowest update-dependencies pcov-enable pcov-disable infection-testing
 .DEFAULT_GOAL := test
 
 PHPUNIT =  ./vendor/bin/phpunit -c ./phpunit.xml
@@ -38,6 +38,7 @@ infection-testing:
 	cp -f build/logs/phpunit/junit.xml build/logs/phpunit/coverage/junit.xml
 	sudo php-ext-disable pcov
 	${INFECTION} --coverage=build/logs/phpunit/coverage --min-msi=93 --threads=`nproc`
+	sudo php-ext-enable pcov
 
 pcov-enable:
 	sudo php-ext-enable pcov
@@ -50,14 +51,15 @@ help:
 	#   make <target> [OPTION=value]
 	#
 	# Targets:
-	#   clean               Cleans the coverage and the vendor directory
-	#   code-style          Check codestyle using phpcs
-	#   coverage            Generate code coverage (html, clover)
-	#   help                You're looking at it!
-	#   test (default)      Run all the tests with phpunit
-	#   static-analysis     Run static analysis using phpstan
-	#   infection-testing   Run infection/mutation testing
-	#   install-dependencies Run composer install
-	#   update-dependencies Run composer update
-	#   pcov-enable         Enable pcov
-	#   pcov-disable        Disable pcov
+	#   clean               		Cleans the coverage and the vendor directory
+	#   code-style          		Check codestyle using phpcs
+	#   coverage            		Generate code coverage (html, clover)
+	#   help                		You're looking at it!
+	#   test (default)      		Run all the tests with phpunit
+	#   static-analysis     		Run static analysis using phpstan
+	#   infection-testing   		Run infection/mutation testing
+	#   install-dependencies		Run composer install
+	#   install-dependencies-lowest	Run composer install with --prefer-lowest
+	#   update-dependencies 		Run composer update
+	#   pcov-enable         		Enable pcov
+	#   pcov-disable        		Disable pcov

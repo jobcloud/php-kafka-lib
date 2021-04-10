@@ -25,7 +25,7 @@ class KafkaConfiguration extends RdKafkaConf
      * @param array|TopicSubscription[] $topicSubscriptions
      * @param mixed[] $config
      */
-    public function __construct(array $brokers, array $topicSubscriptions, array $config = [])
+    public function __construct(array $brokers, array $topicSubscriptions = [], array $config = [])
     {
         parent::__construct();
 

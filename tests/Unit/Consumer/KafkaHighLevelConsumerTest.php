@@ -52,6 +52,22 @@ final class KafkaHighLevelConsumerTest extends TestCase
     /**
      * @throws KafkaConsumerSubscriptionException
      */
+    public function testSubscribeSuccessWithParam(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConfigurationMock->expects(self::never())->method('getTopicSubscriptions');
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic3']);
+
+        $kafkaConsumer->subscribe([new TopicSubscription('testTopic3')]);
+    }
+
+    /**
+     * @throws KafkaConsumerSubscriptionException
+     */
     public function testSubscribeSuccessWithAssignmentWithPartitions(): void
     {
         $topics = [new TopicSubscription('testTopic', [1,2], RD_KAFKA_OFFSET_BEGINNING)];
