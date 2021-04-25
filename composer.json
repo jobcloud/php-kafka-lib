@@ -30,7 +30,7 @@
     "rregeer/phpunit-coverage-check": "^0.3.1",
     "johnkary/phpunit-speedtrap": "^3.1",
     "flix-tech/avro-serde-php": "^1.4",
-    "infection/infection": "^0.21"
+    "infection/infection": "^0.22"
   },
   "autoload": {
     "psr-4": {
