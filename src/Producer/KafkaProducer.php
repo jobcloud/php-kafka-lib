@@ -255,18 +255,33 @@ final class KafkaProducer implements KafkaProducerInterface
     {
         if (true === $e->isRetriable()) {
             throw new KafkaProducerTransactionRetryException(
-                KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE
+                sprintf(
+                    KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE,
+                    $e->getMessage()
+                ),
+                $e->getCode(),
+                $e
             );
         } elseif (true === $e->transactionRequiresAbort()) {
             throw new KafkaProducerTransactionAbortException(
-                KafkaProducerTransactionAbortException::TRANSACTION_REQUIRES_ABORT_EXCEPTION_MESSAGE
+                sprintf(
+                    KafkaProducerTransactionAbortException::TRANSACTION_REQUIRES_ABORT_EXCEPTION_MESSAGE,
+                    $e->getMessage()
+                ),
+                $e->getCode(),
+                $e
             );
         } else {
             $this->transactionInitialized = false;
             // according to librdkafka documentation, everything that is not retriable, abortable or fatal is fatal
             // fatal errors (so stated), need the producer to be destroyed
             throw new KafkaProducerTransactionFatalException(
-                KafkaProducerTransactionFatalException::FATAL_TRANSACTION_EXCEPTION_MESSAGE
+                sprintf(
+                    KafkaProducerTransactionFatalException::FATAL_TRANSACTION_EXCEPTION_MESSAGE,
+                    $e->getMessage()
+                ),
+                $e->getCode(),
+                $e
             );
         }
     }
