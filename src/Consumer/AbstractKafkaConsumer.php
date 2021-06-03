@@ -236,6 +236,14 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
+     * @return array<int, TopicSubscription>
+     */
+    public function getTopicSubscriptions(): array
+    {
+        return $this->kafkaConfiguration->getTopicSubscriptions();
+    }
+
+    /**
      * @param integer $timeoutMs
      * @return null|RdKafkaMessage
      */

@@ -48,7 +48,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      */
     public function subscribe(array $topicSubscriptions = []): void
     {
-        $subscriptions = $this->getTopicSubscriptions($topicSubscriptions);
+        $subscriptions = $this->getTopicSubscriptionNames($topicSubscriptions);
         $assignments = $this->getTopicAssignments($topicSubscriptions);
 
         if ([] !== $subscriptions && [] !== $assignments) {
@@ -244,7 +244,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      * @param array<TopicSubscription> $topicSubscriptions
      * @return array|string[]
      */
-    private function getTopicSubscriptions(array $topicSubscriptions = []): array
+    private function getTopicSubscriptionNames(array $topicSubscriptions = []): array
     {
         $subscriptions = [];
 
