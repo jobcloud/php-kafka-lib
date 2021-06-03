@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Consumer;
 
-use Jobcloud\Kafka\Consumer\ConsumerInterface;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
-use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
+
+/**
+ * @todo v5: subscribe(array $topicSubscriptions = [])
+ * @method getTopicSubscriptions(): array
+ */
 
 interface KafkaConsumerInterface
 {
@@ -105,4 +108,11 @@ interface KafkaConsumerInterface
      * @return integer
      */
     public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeoutMs): int;
+
+    /**
+     * @todo v5
+     *
+     * @return array<int, TopicSubscription>
+     */
+    //public function getTopicSubscriptions(): array;
 }

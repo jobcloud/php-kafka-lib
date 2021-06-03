@@ -3,6 +3,7 @@
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Kafka\Consumer\KafkaLowLevelConsumer;
+use Jobcloud\Kafka\Consumer\TopicSubscriptionInterface;
 use Jobcloud\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
@@ -553,6 +554,29 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $lowOffset = $this->kafkaConsumer->getLastOffsetForTopicPartition('test-topic', 1, 1000);
 
         $this->assertEquals(5, $lowOffset);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetTopicSubscriptionsReturnsTopicSubscriptions(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaLowLevelConsumer::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+
+        $topicSubscriptionsMock = [
+            $this->createMock(TopicSubscriptionInterface::class),
+            $this->createMock(TopicSubscriptionInterface::class)
+        ];
+
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConfigurationMock->expects(self::once())
+            ->method('getTopicSubscriptions')
+            ->willReturn($topicSubscriptionsMock);
+
+        $kafkaConsumer = new KafkaLowLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        self::assertSame($topicSubscriptionsMock, $kafkaConsumer->getTopicSubscriptions());
     }
 
     /**
