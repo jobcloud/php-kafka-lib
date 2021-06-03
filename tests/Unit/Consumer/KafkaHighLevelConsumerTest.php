@@ -3,6 +3,7 @@
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumer;
+use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Kafka\Exception\KafkaConsumerAssignmentException;
@@ -34,16 +35,32 @@ final class KafkaHighLevelConsumerTest extends TestCase
      */
     public function testSubscribeSuccess(): void
     {
-        $topics = [new TopicSubscription('testTopic')];
+        $topics = [new TopicSubscription('testTopic'), new TopicSubscription('testTopic2')];
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $kafkaConfigurationMock->expects(self::exactly(2))->method('getTopicSubscriptions')->willReturnOnConsecutiveCalls($topics, []);
         $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
-        $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic']);
+        $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic', 'testTopic2']);
 
-        $kafkaConsumer->subscribe($topics);
+        $kafkaConsumer->subscribe();
+    }
+
+    /**
+     * @throws KafkaConsumerSubscriptionException
+     */
+    public function testSubscribeSuccessWithParam(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConfigurationMock->expects(self::never())->method('getTopicSubscriptions');
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic3']);
+
+        $kafkaConsumer->subscribe([new TopicSubscription('testTopic3')]);
     }
 
     /**
@@ -60,7 +77,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
         $rdKafkaConsumerMock->expects(self::once())->method('assign');
 
-        $kafkaConsumer->subscribe($topics);
+        $kafkaConsumer->subscribe();
     }
 
     /**
@@ -128,7 +145,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
             ->willReturn($rdKafkaConsumerTopicMock);
 
 
-        $kafkaConsumer->subscribe($topics);
+        $kafkaConsumer->subscribe();
     }
 
 
@@ -179,7 +196,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $this->expectExceptionCode(100);
         $this->expectExceptionMessage('Error');
 
-        $kafkaConsumer->subscribe($topics);
+        $kafkaConsumer->subscribe();
     }
 
     /**
@@ -195,6 +212,26 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock->expects(self::once())->method('unsubscribe');
 
         $kafkaConsumer->unsubscribe();
+    }
+
+    /**
+     * @throws KafkaConsumerSubscriptionException
+     */
+    public function testUnsubscribeSuccesssConsumeFails(): void
+    {
+        self::expectException(KafkaConsumerConsumeException::class);
+        self::expectExceptionMessage(KafkaConsumerConsumeException::NOT_SUBSCRIBED_EXCEPTION_MESSAGE);
+
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $rdKafkaConsumerMock->expects(self::once())->method('unsubscribe');
+
+        $kafkaConsumer->unsubscribe();
+
+        $kafkaConsumer->consume();
     }
 
     /**

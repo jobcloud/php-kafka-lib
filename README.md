@@ -15,8 +15,13 @@ The [documentation](https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.
 can help out to understand the internals of this library.
 
 ## Requirements
-- php: ^7.3
-- ext-rdkafka: ^4.0.0
+- php: ^7.3|^8.0
+- ext-rdkafka: >=4.0.0
+- librdkafka: >=0.11.6 (if you use `<librdkafka:1.x` please define your own error callback)
+
+:warning: To use the transactional producer you'll need:
+- ext-rdkafka: >=4.1.0
+- librdkafka: >=1.4
 
 ## Installation
 ```
@@ -52,7 +57,45 @@ $message = KafkaProducerMessage::create('test-topic', 0)
             ->withHeaders([ 'key' => 'value' ]);
 
 $producer->produce($message);
+
+// Shutdown producer, flush messages that are in queue. Give up after 20s
+$result = $producer->flush(20000);
 ```
+
+##### Transactional producer (needs >=php-rdkafka:4.1 and >=librdkafka:1.4)
+```php
+<?php
+
+use Jobcloud\Kafka\Message\KafkaProducerMessage;
+use Jobcloud\Kafka\Producer\KafkaProducerBuilder;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionRetryException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionAbortException;
+use Jobcloud\Kafka\Exception\KafkaProducerTransactionFatalException;
+
+$producer = KafkaProducerBuilder::create()
+    ->withAdditionalBroker('localhost:9092')
+    ->build();
+
+$message = KafkaProducerMessage::create('test-topic', 0)
+            ->withKey('asdf-asdf-asfd-asdf')
+            ->withBody('some test message payload')
+            ->withHeaders([ 'key' => 'value' ]);
+try {
+    $producer->beginTransaction(10000);
+    $producer->produce($message);
+    $producer->commitTransaction(10000);
+} catch (KafkaProducerTransactionRetryException $e) {
+    // something went wrong but you can retry the failed call (either beginTransaction or commitTransaction)
+} catch (KafkaProducerTransactionAbortException $e) {
+    // you need to call $producer->abortTransaction(10000); and try again
+} catch (KafkaProducerTransactionFatalException $e) {
+    // something went very wrong, re-create your producer, otherwise you could jeopardize the idempotency guarantees
+}
+
+// Shutdown producer, flush messages that are in queue. Give up after 20s
+$result = $producer->flush(20000);
+```
+
 ##### Avro Producer
 To create an avro prodcuer add the avro encoder.  
 
@@ -111,6 +154,9 @@ $message = KafkaProducerMessage::create('test-topic', 0)
             ->withHeaders([ 'key' => 'value' ]);
 
 $producer->produce($message);
+
+// Shutdown producer, flush messages that are in queue. Give up after 20s
+$result = $producer->flush(20000);
 ```
 
 **NOTE:** To improve producer latency you can install the `pcntl` extension.  

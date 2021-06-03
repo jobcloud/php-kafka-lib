@@ -290,18 +290,6 @@ final class KafkaConsumerBuilderTest extends TestCase
 
     /**
      * @return void
-     * @throws KafkaConsumerBuilderException
-     */
-    public function testBuildFailMissingTopics(): void
-    {
-        self::expectException(KafkaConsumerBuilderException::class);
-        self::expectExceptionMessage(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
-
-        $this->kafkaConsumerBuilder->withAdditionalBroker('localhost')->build();
-    }
-
-    /**
-     * @return void
      */
     public function testBuildSuccess(): void
     {
@@ -332,13 +320,13 @@ final class KafkaConsumerBuilderTest extends TestCase
         $callback = function ($kafka, $errId, $msg) {
             // Anonymous test method, no logic required
         };
-
         /** @var $consumer KafkaLowLevelConsumer */
         $consumer = $this->kafkaConsumerBuilder
             ->withAdditionalBroker('localhost')
             ->withAdditionalSubscription('test-topic')
             ->withRebalanceCallback($callback)
             ->withErrorCallback($callback)
+            ->withLogCallback($callback)
             ->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL)
             ->build();
 
@@ -391,6 +379,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->withAdditionalSubscription('test-topic')
             ->withRebalanceCallback($callback)
             ->withErrorCallback($callback)
+            ->withLogCallback($callback)
             ->build();
 
         $conf = $consumer->getConfiguration();

@@ -292,10 +292,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
             throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
         }
 
-        if ([] === $this->topics) {
-            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
-        }
-
         //set additional config
         $this->config['group.id'] = $this->consumerGroup;
 
@@ -311,7 +307,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         $this->registerCallbacks($kafkaConfig);
 
         //create RdConsumer
-
         if (self::CONSUMER_TYPE_LOW_LEVEL === $this->consumerType) {
             if (null !== $this->consumeCallback) {
                 throw new KafkaConsumerBuilderException(
@@ -358,7 +353,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         }
 
         if (null !== $this->offsetCommitCallback) {
-            $conf->setOffsetCommitCb($this->rebalanceCallback);
+            $conf->setOffsetCommitCb($this->offsetCommitCallback);
         }
     }
 }
