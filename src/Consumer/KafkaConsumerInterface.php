@@ -9,7 +9,7 @@ use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 /**
- * @todo v5: subscribe(array $topicSubscriptions = [])
+ * @todo v2: subscribe(array $topicSubscriptions = [])
  * @method getTopicSubscriptions(): array
  */
 
@@ -110,7 +110,7 @@ interface KafkaConsumerInterface
     public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeoutMs): int;
 
     /**
-     * @todo v5
+     * @todo v2
      *
      * @return array<int, TopicSubscription>
      */
