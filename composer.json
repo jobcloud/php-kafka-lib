@@ -44,5 +44,10 @@
     "branch-alias": {
       "dev-master": "2.0-dev"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "infection/extension-installer": false
+    }
   }
 }
