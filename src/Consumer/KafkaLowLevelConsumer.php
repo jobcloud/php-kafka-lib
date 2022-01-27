@@ -19,7 +19,6 @@ use RdKafka\Queue as RdKafkaQueue;
 
 final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements KafkaLowLevelConsumerInterface
 {
-
     /**
      * @var RdKafkaLowLevelConsumer
      */

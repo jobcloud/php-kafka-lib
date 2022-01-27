@@ -8,7 +8,6 @@ use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 
 final class NullDecoder implements DecoderInterface
 {
-
     /**
      * @param KafkaConsumerMessageInterface $consumerMessage
      * @return KafkaConsumerMessageInterface

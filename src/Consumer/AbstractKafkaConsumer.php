@@ -20,7 +20,6 @@ use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 {
-
     /**
      * @var KafkaConfiguration
      */

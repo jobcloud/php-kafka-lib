@@ -14,7 +14,6 @@ use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
-
     public const CONSUMER_TYPE_LOW_LEVEL = 'low';
     public const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 

@@ -19,7 +19,6 @@ use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
 final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements KafkaHighLevelConsumerInterface
 {
-
     /**
      * @var RdKafkaHighLevelConsumer
      */

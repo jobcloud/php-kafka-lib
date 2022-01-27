@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Message;
 
 interface KafkaConsumerMessageInterface extends KafkaMessageInterface
 {
-
     /**
      * @return integer
      */

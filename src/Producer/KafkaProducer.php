@@ -18,7 +18,6 @@ use RdKafka\KafkaErrorException as RdKafkaErrorException;
 
 final class KafkaProducer implements KafkaProducerInterface
 {
-
     /**
      * @var RdKafkaProducer
      */

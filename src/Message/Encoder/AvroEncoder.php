@@ -14,7 +14,6 @@ use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
 final class AvroEncoder implements AvroEncoderInterface
 {
-
     /**
      * @var AvroSchemaRegistryInterface
      */

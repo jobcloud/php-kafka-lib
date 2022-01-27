@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Message;
 
 interface KafkaMessageInterface
 {
-
     /**
      * Returns the message key or null if the message doesn't have a body
      * @return mixed

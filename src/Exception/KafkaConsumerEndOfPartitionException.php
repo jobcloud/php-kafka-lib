@@ -6,5 +6,4 @@ namespace Jobcloud\Kafka\Exception;
 
 class KafkaConsumerEndOfPartitionException extends \Exception
 {
-
 }

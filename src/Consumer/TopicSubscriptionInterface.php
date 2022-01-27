@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Consumer;
 
 interface TopicSubscriptionInterface
 {
-
     /**
      * @return string
      */
