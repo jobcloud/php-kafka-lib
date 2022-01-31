@@ -31,7 +31,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka pcov && \
+    pecl install rdkafka-6.0.0 pcov && \
     docker-php-ext-install pcntl && \
     php-ext-enable rdkafka pcntl pcov
 
