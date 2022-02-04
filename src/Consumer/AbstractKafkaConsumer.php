@@ -230,7 +230,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             (int) $message->timestamp,
             $message->key,
             $message->payload,
-            (array) $message->headers
+            (array) ($message->headers ?? null)
         );
     }
 
