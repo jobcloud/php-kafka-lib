@@ -10,7 +10,6 @@ use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 
 interface KafkaProducerInterface
 {
-
     /**
      * @param KafkaProducerMessageInterface $message
      * @param boolean $autoPoll

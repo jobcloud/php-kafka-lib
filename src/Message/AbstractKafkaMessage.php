@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Message;
 
 abstract class AbstractKafkaMessage implements KafkaMessageInterface
 {
-
     /**
      * @var string|null
      */

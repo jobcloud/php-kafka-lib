@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Consumer;
 
 final class TopicSubscription implements TopicSubscriptionInterface
 {
-
     /**
      * @var string
      */

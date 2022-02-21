@@ -6,5 +6,4 @@ namespace Jobcloud\Kafka\Consumer;
 
 interface KafkaLowLevelConsumerInterface extends KafkaConsumerInterface
 {
-
 }

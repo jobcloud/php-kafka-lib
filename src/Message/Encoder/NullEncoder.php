@@ -8,7 +8,6 @@ use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 
 final class NullEncoder implements EncoderInterface
 {
-
     /**
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface

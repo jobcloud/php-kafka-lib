@@ -22,7 +22,7 @@ test: pcov-disable
 
 static-analysis: pcov-disable
 	mkdir -p build/logs/phpstan
-	${PHPSTAN} analyse --no-progress --memory-limit=64
+	${PHPSTAN} analyse --no-progress
 
 update-dependencies:
 	composer update

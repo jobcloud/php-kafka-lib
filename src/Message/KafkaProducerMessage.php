@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Message;
 
 final class KafkaProducerMessage extends AbstractKafkaMessage implements KafkaProducerMessageInterface
 {
-
     /**
      * @param string  $topicName
      * @param integer $partition

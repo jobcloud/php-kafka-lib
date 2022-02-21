@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Message;
 
 final class KafkaAvroSchema implements KafkaAvroSchemaInterface
 {
-
     /**
      * @var string
      */

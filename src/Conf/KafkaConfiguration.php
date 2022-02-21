@@ -11,7 +11,6 @@ use RdKafka\TopicConf as RdKafkaTopicConf;
 
 class KafkaConfiguration extends RdKafkaConf
 {
-
     /**
      * @var string[]
      */

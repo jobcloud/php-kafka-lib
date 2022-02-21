@@ -8,7 +8,6 @@ use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 
 class JsonEncoder implements EncoderInterface
 {
-
     /**
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface

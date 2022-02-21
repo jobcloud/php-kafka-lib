@@ -15,7 +15,6 @@ require_once __DIR__ . '/../Exception/KafkaRebalanceException.php'; // @codeCove
 
 final class KafkaConsumerRebalanceCallback
 {
-
     /**
      * @param RdKafkaConsumer $consumer
      * @param integer         $errorCode
