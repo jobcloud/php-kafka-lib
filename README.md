@@ -287,8 +287,8 @@ $registry->addKeySchemaMappingForTopic(
     new KafkaAvroSchema('keySchema' , 9 /* , AvroSchema $definition */)
 );
 
-// if you are only decoding key or value, you can just only register that schema and the
-// encoder / decoder will leave it untouched. It is advised against doing that, some tools might not play
+// If you are only encoding / decoding key or value, only register the schema(s) you need.
+// It is advised against doing that though, some tools might not play
 // nice if you don't fully encode your message
 $decoder = new AvroDecoder($registry, $recordSerializer);
 
