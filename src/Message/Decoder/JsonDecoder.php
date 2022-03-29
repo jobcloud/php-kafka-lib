@@ -9,7 +9,6 @@ use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 
 class JsonDecoder implements DecoderInterface
 {
-
     /**
      * @param KafkaConsumerMessageInterface $consumerMessage
      * @return KafkaConsumerMessageInterface

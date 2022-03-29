@@ -8,7 +8,6 @@ use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 
 class KafkaConsumerConsumeException extends \Exception
 {
-
     public const NOT_SUBSCRIBED_EXCEPTION_MESSAGE = 'This consumer is currently not subscribed';
 
     /**

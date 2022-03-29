@@ -12,7 +12,6 @@ require_once __DIR__ . '/../Exception/KafkaBrokerException.php';  // @codeCovera
 
 final class KafkaErrorCallback
 {
-
     /**
      * @param mixed   $kafka
      * @param integer $errorCode

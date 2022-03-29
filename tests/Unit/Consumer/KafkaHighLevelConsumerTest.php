@@ -3,6 +3,7 @@
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
 
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumer;
+use Jobcloud\Kafka\Consumer\TopicSubscriptionInterface;
 use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Kafka\Consumer\TopicSubscription;
@@ -45,6 +46,22 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic', 'testTopic2']);
 
         $kafkaConsumer->subscribe();
+    }
+
+    /**
+     * @throws KafkaConsumerSubscriptionException
+     */
+    public function testSubscribeSuccessWithParam(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConfigurationMock->expects(self::never())->method('getTopicSubscriptions');
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        $rdKafkaConsumerMock->expects(self::once())->method('subscribe')->with(['testTopic3']);
+
+        $kafkaConsumer->subscribe([new TopicSubscription('testTopic3')]);
     }
 
     /**
@@ -621,6 +638,29 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock->expects(self::once())->method('close');
 
         $kafkaConsumer->close();
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetTopicSubscriptionsReturnsTopicSubscriptions(): void
+    {
+        $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
+        $decoderMock = $this->getMockForAbstractClass(DecoderInterface::class);
+
+        $topicSubscriptionsMock = [
+            $this->createMock(TopicSubscriptionInterface::class),
+            $this->createMock(TopicSubscriptionInterface::class)
+        ];
+
+        $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
+        $kafkaConfigurationMock->expects(self::once())
+            ->method('getTopicSubscriptions')
+            ->willReturn($topicSubscriptionsMock);
+
+        $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
+
+        self::assertSame($topicSubscriptionsMock, $kafkaConsumer->getTopicSubscriptions());
     }
 
     /**

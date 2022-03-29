@@ -20,7 +20,6 @@ use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 {
-
     /**
      * @var KafkaConfiguration
      */
@@ -233,6 +232,14 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
             $message->payload,
             (array) $message->headers
         );
+    }
+
+    /**
+     * @return array<int, TopicSubscription>
+     */
+    public function getTopicSubscriptions(): array
+    {
+        return $this->kafkaConfiguration->getTopicSubscriptions();
     }
 
     /**

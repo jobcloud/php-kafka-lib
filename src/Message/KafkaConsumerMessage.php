@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Message;
 
 final class KafkaConsumerMessage extends AbstractKafkaMessage implements KafkaConsumerMessageInterface
 {
-
     /**
      * @var int
      */

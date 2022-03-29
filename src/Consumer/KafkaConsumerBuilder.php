@@ -14,7 +14,6 @@ use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
 final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 {
-
     public const CONSUMER_TYPE_LOW_LEVEL = 'low';
     public const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 
@@ -290,10 +289,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     {
         if ([] === $this->brokers) {
             throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
-        }
-
-        if ([] === $this->topics) {
-            throw new KafkaConsumerBuilderException(KafkaConsumerBuilderException::NO_TOPICS_EXCEPTION_MESSAGE);
         }
 
         //set additional config
