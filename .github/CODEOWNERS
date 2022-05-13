@@ -1,0 +1,6 @@
+/templates                              @jobcloud/backend-lead-dev
+/templates/jobcloud/ats-adapter         @jobcloud/mercury
+/templates/jobcloud/marketplace/adapter @jobcloud/mercury
+/templates/jobcloud/marketplace/core    @jobcloud/marketplace-core
+/templates/jobcloud/marketplace/ecom    @jobcloud/marketplace-kubera
+/templates/jobcloud/mercuryx            @jobcloud/mercury
