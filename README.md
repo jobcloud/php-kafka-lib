@@ -287,9 +287,10 @@ $registry->addKeySchemaMappingForTopic(
     new KafkaAvroSchema('keySchema' , 9 /* , AvroSchema $definition */)
 );
 
-// if you are only decoding key or value, you can pass that mode as additional third argument
-// per default both key and body will get decoded
-$decoder = new AvroDecoder($registry, $recordSerializer /*, AvroDecoderInterface::DECODE_BODY */);
+// If you are only encoding / decoding key or value, only register the schema(s) you need.
+// It is advised against doing that though, some tools might not play
+// nice if you don't fully encode your message
+$decoder = new AvroDecoder($registry, $recordSerializer);
 
 $consumer = KafkaConsumerBuilder::create()
      ->withAdditionalConfig(
