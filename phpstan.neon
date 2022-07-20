@@ -1,3 +1,7 @@
 parameters:
     level: 8
     paths: [ src ]
+    ignoreErrors:
+        - '#Comparison operation ">" between int and RdKafka\\TopicPartition results in an error.#'
+        - '#Call to static method fromSchema\(\) on an unknown class Jobcloud\\Avro\\Validator\\RecordRegistry#'
+        - '#Parameter \#[0-9] [a-z\$]+ of method [a-zA-Z0-9\\_]+::setOffset\(\) expects string, int given.#'

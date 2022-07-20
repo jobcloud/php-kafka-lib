@@ -5,9 +5,15 @@ declare(strict_types=1);
 namespace Jobcloud\Kafka\Message\Encoder;
 
 use AvroSchema;
+use FlixTech\AvroSerializer\Objects\Exceptions\AvroEncodingException;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
+use Jobcloud\Avro\Validator\Exception\RecordRegistryException;
+use Jobcloud\Avro\Validator\Exception\ValidatorException;
+use Jobcloud\Avro\Validator\RecordRegistry;
+use Jobcloud\Avro\Validator\Validator;
 use Jobcloud\Kafka\Exception\AvroEncoderException;
+use Jobcloud\Kafka\Exception\AvroValidatorException;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
@@ -39,8 +45,8 @@ final class AvroEncoder implements AvroEncoderInterface
     /**
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
+     * @throws AvroValidatorException
      * @throws SchemaRegistryException
-     * @throws AvroEncoderException
      */
     public function encode(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
     {
@@ -52,6 +58,7 @@ final class AvroEncoder implements AvroEncoderInterface
     /**
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
+     * @throws AvroValidatorException
      * @throws SchemaRegistryException
      */
     private function encodeBody(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
@@ -69,11 +76,7 @@ final class AvroEncoder implements AvroEncoderInterface
 
         $avroSchema = $this->registry->getBodySchemaForTopic($topicName);
 
-        $encodedBody = $this->recordSerializer->encodeRecord(
-            $avroSchema->getName(),
-            $this->getAvroSchemaDefinition($avroSchema),
-            $body
-        );
+        $encodedBody = $this->encodeRecord($avroSchema, $body, $topicName);
 
         return $producerMessage->withBody($encodedBody);
     }
@@ -81,6 +84,7 @@ final class AvroEncoder implements AvroEncoderInterface
     /**
      * @param KafkaProducerMessageInterface $producerMessage
      * @return KafkaProducerMessageInterface
+     * @throws AvroValidatorException
      * @throws SchemaRegistryException
      */
     private function encodeKey(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
@@ -98,11 +102,7 @@ final class AvroEncoder implements AvroEncoderInterface
 
         $avroSchema = $this->registry->getKeySchemaForTopic($topicName);
 
-        $encodedKey = $this->recordSerializer->encodeRecord(
-            $avroSchema->getName(),
-            $this->getAvroSchemaDefinition($avroSchema),
-            $key
-        );
+        $encodedKey = $this->encodeRecord($avroSchema, $key, $topicName);
 
         return $producerMessage->withKey($encodedKey);
     }
@@ -129,5 +129,39 @@ final class AvroEncoder implements AvroEncoderInterface
     public function getRegistry(): AvroSchemaRegistryInterface
     {
         return $this->registry;
+    }
+
+    /**
+     * @param KafkaAvroSchemaInterface $avroSchema
+     * @param mixed $data
+     * @param string $topicName
+     * @return string
+     * @throws SchemaRegistryException
+     * @throws AvroValidatorException
+     */
+    private function encodeRecord(KafkaAvroSchemaInterface $avroSchema, $data, string $topicName): string
+    {
+        try {
+            $encodedData = $this->recordSerializer->encodeRecord(
+                $avroSchema->getName(),
+                $this->getAvroSchemaDefinition($avroSchema),
+                $data
+            );
+        } catch (AvroEncodingException $exception) {
+            if (class_exists(Validator::class)) {
+                /** @var AvroSchema $schemaDefinition */
+                $schemaDefinition = $avroSchema->getDefinition();
+                $recordRegistry = RecordRegistry::fromSchema(json_encode($schemaDefinition->to_avro()));
+                $validator = new Validator($recordRegistry);
+
+                $validationErrors = $validator->validate(json_encode($data), $topicName);
+
+                throw new AvroValidatorException((string) json_encode($validationErrors));
+            }
+
+            throw $exception;
+        }
+
+        return $encodedData;
     }
 }
