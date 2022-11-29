@@ -10,10 +10,7 @@ COPY files/php/ /phpIni
 
 # SYS: Install required packages
 RUN apk --no-cache upgrade && \
-    apk --no-cache add bash git sudo openssh autoconf gcc g++ make
-
-RUN apk add librdkafka librdkafka-dev \
-        --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community
+    apk --no-cache add bash git sudo openssh autoconf gcc g++ make librdkafka librdkafka-dev
 
 # we need support for users with ID higher than 65k, so instead of using this:
 #RUN adduser -u $HOST_USER_ID -D -H $HOST_USER
