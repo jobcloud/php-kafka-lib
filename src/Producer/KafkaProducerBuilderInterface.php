@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Producer;
 
+use Jobcloud\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 
 interface KafkaProducerBuilderInterface
 {
     /**
      * @return KafkaProducerInterface
+     * @throws KafkaProducerException
      */
     public function build(): KafkaProducerInterface;
 
