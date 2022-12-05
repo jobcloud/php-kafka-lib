@@ -1,4 +1,4 @@
-FROM php:7.4-cli-alpine3.13
+FROM php:7.4-cli-alpine3.16
 
 ARG HOST_USER_ID
 ARG HOST_USER
