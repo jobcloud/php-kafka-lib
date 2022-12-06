@@ -8,7 +8,6 @@ use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Kafka\Exception\KafkaConsumerEndOfPartitionException;
 use Jobcloud\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
-use RdKafka\Exception as RdKafkaException;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
@@ -84,7 +83,6 @@ interface KafkaConsumerInterface
      * @param string $topicName
      * @param integer $timeoutMs
      * @return RdKafkaMetadataTopic
-     * @throws RdKafkaException
      */
     public function getMetadataForTopic(string $topicName, int $timeoutMs = 10000): RdKafkaMetadataTopic;
 

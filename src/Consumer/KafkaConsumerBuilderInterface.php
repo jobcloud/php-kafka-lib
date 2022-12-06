@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Consumer;
 
-use Jobcloud\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 
 interface KafkaConsumerBuilderInterface
@@ -128,7 +127,6 @@ interface KafkaConsumerBuilderInterface
      * Returns your consumer instance
      *
      * @return KafkaConsumerInterface
-     * @throws KafkaConsumerBuilderException
      */
     public function build(): KafkaConsumerInterface;
 }
