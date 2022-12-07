@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Consumer;
 
+use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
+use Jobcloud\Kafka\Exception\KafkaConsumerEndOfPartitionException;
+use Jobcloud\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
@@ -45,6 +48,9 @@ interface KafkaConsumerInterface
      * @param integer $timeoutMs
      * @param boolean $autoDecode
      * @return KafkaConsumerMessageInterface
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
+     * @throws KafkaConsumerTimeoutException
      */
     public function consume(int $timeoutMs = 10000, bool $autoDecode = true): KafkaConsumerMessageInterface;
 
