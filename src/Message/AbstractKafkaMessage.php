@@ -27,7 +27,7 @@ abstract class AbstractKafkaMessage implements KafkaMessageInterface
     protected $partition;
 
     /**
-     * @var string[]|null
+     * @var array<string, int|string>|null
      */
     protected $headers;
 
@@ -64,7 +64,7 @@ abstract class AbstractKafkaMessage implements KafkaMessageInterface
     }
 
     /**
-     * @return string[]|null
+     * @return array<string, int|string>|null
      */
     public function getHeaders(): ?array
     {

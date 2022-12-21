@@ -86,7 +86,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $rdKafkaMessageMock->partition = 0;
         $rdKafkaMessageMock->offset = 1;
         $rdKafkaMessageMock->timestamp = 1;
-        $rdKafkaMessageMock->headers = null;
+        $rdKafkaMessageMock->headers = ['headers'];
         $rdKafkaMessageMock
             ->expects(self::never())
             ->method('errstr');
@@ -250,6 +250,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $rdKafkaMessageMock->partition = 1;
         $rdKafkaMessageMock->offset = 103;
         $rdKafkaMessageMock->topic_name = null;
+        $rdKafkaMessageMock->headers = [];
         $rdKafkaMessageMock
             ->expects(self::once())
             ->method('errstr')

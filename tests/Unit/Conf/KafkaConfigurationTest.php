@@ -77,8 +77,6 @@ class KafkaConfigurationTest extends TestCase
             [ -0.99999, '-0.99999' ],
             [ true, 'true' ],
             [ false, 'false' ],
-            [ null, '' ],
-            [ '', '' ],
             [ '  ', '  ' ],
             [ [], null ],
             [ new stdClass(), null ],
@@ -104,7 +102,7 @@ class KafkaConfigurationTest extends TestCase
 
         $config = $kafkaConfiguration->getConfiguration();
 
-        if(null === $expectedValue) {
+        if (null === $expectedValue) {
             self::assertArrayNotHasKey('group.id', $config);
             return;
         }

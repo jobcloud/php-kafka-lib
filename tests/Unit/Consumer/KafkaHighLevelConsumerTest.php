@@ -465,7 +465,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->partition = '9';
         $message->offset = '501';
         $message->timestamp = '500';
-        $message->headers = 'header';
+        $message->headers = ['header'];
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
         $topics = [new TopicSubscription('testTopic')];
@@ -512,6 +512,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->partition = 9;
         $message->offset = 501;
         $message->timestamp = 500;
+        $message->headers = ['headers'];
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
         $topics = [new TopicSubscription('testTopic')];

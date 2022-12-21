@@ -221,7 +221,7 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * @param RdKafkaMessage $message
      * @return KafkaConsumerMessageInterface
      */
-    protected function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
+    private function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
     {
         return new KafkaConsumerMessage(
             (string) $message->topic_name,

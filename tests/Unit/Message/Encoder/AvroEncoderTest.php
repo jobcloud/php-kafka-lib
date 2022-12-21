@@ -6,13 +6,11 @@ namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Encoder;
 
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use Jobcloud\Kafka\Exception\AvroEncoderException;
-use Jobcloud\Kafka\Message\Encoder\AvroEncoderInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Encoder\AvroEncoder;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
-use PHPStan\Testing\TestCase;
-use \AvroSchema;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Jobcloud\Kafka\Message\Encoder\AvroEncoder

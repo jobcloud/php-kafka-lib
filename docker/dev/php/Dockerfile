@@ -1,4 +1,4 @@
-FROM php:7.4-cli-alpine3.16
+FROM php:8.0-cli-alpine3.16
 
 ARG HOST_USER_ID
 ARG HOST_USER
@@ -28,7 +28,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka-6.0.1 pcov && \
+    pecl install rdkafka-6.0.3 pcov && \
     docker-php-ext-install pcntl && \
     php-ext-enable rdkafka pcntl pcov
 

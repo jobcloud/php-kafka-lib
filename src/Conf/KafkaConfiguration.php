@@ -78,7 +78,7 @@ class KafkaConfiguration extends RdKafkaConf
      * @param mixed[] $config
      * @return void
      */
-    protected function initializeConfig(array $config = []): void
+    private function initializeConfig(array $config = []): void
     {
         $topicConf = new RdKafkaTopicConf();
 
