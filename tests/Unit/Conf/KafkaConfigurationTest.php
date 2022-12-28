@@ -113,4 +113,14 @@ class KafkaConfigurationTest extends TestCase
         self::assertArrayHasKey('default_topic_conf', $config);
         self::assertIsString($config['default_topic_conf']);
     }
+
+    public function testMethodVisibility(): void
+    {
+        $reflectionClass = new \ReflectionClass(KafkaConfiguration::class);
+
+        $methodInitializedConfig = $reflectionClass->getMethod('initializeConfig');
+        $methodInitializedConfig->setAccessible(true);
+
+        $this->assertTrue($methodInitializedConfig->isProtected());
+    }
 }

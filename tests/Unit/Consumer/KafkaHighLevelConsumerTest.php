@@ -2,6 +2,7 @@
 
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
 
+use Jobcloud\Kafka\Consumer\AbstractKafkaConsumer;
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Kafka\Consumer\TopicSubscriptionInterface;
 use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
@@ -662,6 +663,16 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
         self::assertSame($topicSubscriptionsMock, $kafkaConsumer->getTopicSubscriptions());
+    }
+
+    public function testMethodVisibility(): void
+    {
+        $reflectionClass = new \ReflectionClass(AbstractKafkaConsumer::class);
+
+        $methodGetConsumerMessage = $reflectionClass->getMethod('getConsumerMessage');
+        $methodGetConsumerMessage->setAccessible(true);
+
+        $this->assertTrue($methodGetConsumerMessage->isProtected());
     }
 
     /**
