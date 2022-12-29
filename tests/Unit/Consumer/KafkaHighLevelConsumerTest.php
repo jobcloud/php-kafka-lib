@@ -466,7 +466,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->partition = '9';
         $message->offset = '501';
         $message->timestamp = '500';
-        $message->headers = ['header'];
+        $message->headers = ['key' => 'value'];
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
         $topics = [new TopicSubscription('testTopic')];
@@ -492,7 +492,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
                     self::assertEquals(9, $message->getPartition());
                     self::assertEquals(501, $message->getOffset());
                     self::assertEquals(500, $message->getTimestamp());
-                    self::assertEquals(['header'], $message->getHeaders());
+                    self::assertEquals(['key' => 'value'], $message->getHeaders());
 
                     return true;
                 }
@@ -513,7 +513,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->partition = 9;
         $message->offset = 501;
         $message->timestamp = 500;
-        $message->headers = ['headers'];
+        $message->headers = ['key' => 'value'];
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
         $topics = [new TopicSubscription('testTopic')];
