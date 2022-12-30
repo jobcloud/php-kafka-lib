@@ -2,6 +2,7 @@
 
 namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
 
+use Jobcloud\Kafka\Consumer\AbstractKafkaConsumer;
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Kafka\Consumer\TopicSubscriptionInterface;
 use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
@@ -465,7 +466,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->partition = '9';
         $message->offset = '501';
         $message->timestamp = '500';
-        $message->headers = 'header';
+        $message->headers = ['key' => 'value'];
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
         $topics = [new TopicSubscription('testTopic')];
@@ -491,7 +492,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
                     self::assertEquals(9, $message->getPartition());
                     self::assertEquals(501, $message->getOffset());
                     self::assertEquals(500, $message->getTimestamp());
-                    self::assertEquals(['header'], $message->getHeaders());
+                    self::assertEquals(['key' => 'value'], $message->getHeaders());
 
                     return true;
                 }
@@ -512,6 +513,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $message->partition = 9;
         $message->offset = 501;
         $message->timestamp = 500;
+        $message->headers = ['key' => 'value'];
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;
 
         $topics = [new TopicSubscription('testTopic')];
@@ -661,6 +663,16 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConsumer = new KafkaHighLevelConsumer($rdKafkaConsumerMock, $kafkaConfigurationMock, $decoderMock);
 
         self::assertSame($topicSubscriptionsMock, $kafkaConsumer->getTopicSubscriptions());
+    }
+
+    public function testMethodVisibility(): void
+    {
+        $reflectionClass = new \ReflectionClass(AbstractKafkaConsumer::class);
+
+        $methodGetConsumerMessage = $reflectionClass->getMethod('getConsumerMessage');
+        $methodGetConsumerMessage->setAccessible(true);
+
+        $this->assertTrue($methodGetConsumerMessage->isProtected());
     }
 
     /**

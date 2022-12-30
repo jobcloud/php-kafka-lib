@@ -15,7 +15,7 @@ The [documentation](https://arnaud.le-blanc.net/php-rdkafka/phpdoc/book.rdkafka.
 can help out to understand the internals of this library.
 
 ## Requirements
-- php: ^7.3|^8.0
+- php: ^8.0
 - ext-rdkafka: >=4.0.0
 - librdkafka: >=0.11.6 (if you use `<librdkafka:1.x` please define your own error callback)
 

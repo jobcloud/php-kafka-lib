@@ -77,8 +77,6 @@ class KafkaConfigurationTest extends TestCase
             [ -0.99999, '-0.99999' ],
             [ true, 'true' ],
             [ false, 'false' ],
-            [ null, '' ],
-            [ '', '' ],
             [ '  ', '  ' ],
             [ [], null ],
             [ new stdClass(), null ],
@@ -104,7 +102,7 @@ class KafkaConfigurationTest extends TestCase
 
         $config = $kafkaConfiguration->getConfiguration();
 
-        if(null === $expectedValue) {
+        if (null === $expectedValue) {
             self::assertArrayNotHasKey('group.id', $config);
             return;
         }
@@ -114,5 +112,15 @@ class KafkaConfigurationTest extends TestCase
         self::assertEquals('100', $config['auto.commit.interval.ms']);
         self::assertArrayHasKey('default_topic_conf', $config);
         self::assertIsString($config['default_topic_conf']);
+    }
+
+    public function testMethodVisibility(): void
+    {
+        $reflectionClass = new \ReflectionClass(KafkaConfiguration::class);
+
+        $methodInitializedConfig = $reflectionClass->getMethod('initializeConfig');
+        $methodInitializedConfig->setAccessible(true);
+
+        $this->assertTrue($methodInitializedConfig->isProtected());
     }
 }
