@@ -8,8 +8,10 @@ workflows:
   test-php-kafka-lib:
     jobs:
       - ci-caching/build-docker-images:
+          context: dockerhub-credentials
           dockerComposeFile: "./docker/docker-compose.yml"
       - ci-php/install-dependencies:
+          context: dockerhub-credentials
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
@@ -18,16 +20,19 @@ workflows:
           requires:
             - ci-php/install-dependencies
       - ci-php/code-style:
+          context: dockerhub-credentials
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-php/install-dependencies
       - ci-php/static-analysis:
+          context: dockerhub-credentials
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-php/install-dependencies
       - ci-php/infection-testing:
+          context: dockerhub-credentials
           dockerComposeFile: "./docker/docker-compose.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
