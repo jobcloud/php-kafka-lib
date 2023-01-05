@@ -17,6 +17,7 @@ workflows:
           requires:
             - ci-caching/build-docker-images
       - coverage:
+          context: dockerhub-credentials
           requires:
             - ci-php/install-dependencies
       - ci-php/code-style:
