@@ -41,7 +41,7 @@ workflows:
   daily:
     triggers:
       - schedule:
-          cron: "45 7 * * *"
+          cron: "47 7 * * *"
           filters:
             branches:
               only:
@@ -57,7 +57,6 @@ workflows:
           name: build-composer-dependencies
       - ci-php/install-dependencies-with-docker:
           context: dockerhub-credentials
-          dockerComposeFile: "./docker/docker-compose.yml"
           name: install-dependencies
           requires:
             - build-composer-dependencies
