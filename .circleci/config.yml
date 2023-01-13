@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   ci-caching: jobcloud/ci-caching@3.1
-  ci-php: jobcloud/ci-php@dev:ebfcfc0
+  ci-php: jobcloud/ci-php@2.7
 
 workflows:
   test-php-kafka-lib:
@@ -41,11 +41,12 @@ workflows:
   daily:
     triggers:
       - schedule:
-          cron: "0 7 * * *"
+          cron: "41 7 * * *"
           filters:
             branches:
               only:
                 - main
+                - feat/MPM-658/composer-update-audit
     jobs:
       - ci-caching/build-docker-images:
           context: dockerhub-credentials
