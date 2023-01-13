@@ -54,10 +54,10 @@ workflows:
           name: build-docker-images
       - ci-caching/build-docker-image:
           context: dockerhub-credentials
-          dockerComposeFile: "./docker/docker-compose.yml"
           name: build-composer-dependencies
       - ci-php/install-dependencies-with-docker:
           context: dockerhub-credentials
+          dockerComposeFile: "./docker/docker-compose.yml"
           name: install-dependencies
           requires:
             - build-composer-dependencies
