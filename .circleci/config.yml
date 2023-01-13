@@ -41,7 +41,7 @@ workflows:
   daily:
     triggers:
       - schedule:
-          cron: "52 10 * * *"
+          cron: "58 10 * * *"
           filters:
             branches:
               only:
@@ -55,6 +55,7 @@ workflows:
       - ci-php/install-dependencies-with-docker:
           context: dockerhub-credentials
           name: install-dependencies
+          dependencyCheckSumFile: "./composer.json"
           requires:
             - build-docker-images
       - ci-php/composer-audit:
