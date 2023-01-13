@@ -41,7 +41,7 @@ workflows:
   daily:
     triggers:
       - schedule:
-          cron: "47 7 * * *"
+          cron: "50 7 * * *"
           filters:
             branches:
               only:
@@ -54,6 +54,7 @@ workflows:
           name: build-docker-images
       - ci-caching/build-docker-image:
           context: dockerhub-credentials
+          dockerComposeFile: "./docker/docker-compose.yml"
           name: build-composer-dependencies
       - ci-php/install-dependencies-with-docker:
           context: dockerhub-credentials
