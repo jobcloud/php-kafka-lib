@@ -49,7 +49,6 @@ workflows:
     jobs:
       - ci-caching/build-docker-images:
           context: dockerhub-credentials
-          dockerComposeFile: "./docker/docker-compose.yml"
           name: build-docker-images
       - ci-php/install-dependencies:
           context: dockerhub-credentials
