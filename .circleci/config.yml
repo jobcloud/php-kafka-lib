@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   ci-caching: jobcloud/ci-caching@3.1
-  ci-php: jobcloud/ci-php@2.5
+  ci-php: jobcloud/ci-php@2.7
 
 workflows:
   test-php-kafka-lib:
@@ -38,6 +38,30 @@ workflows:
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-php/install-dependencies
+  daily:
+    triggers:
+      - schedule:
+          cron: "0 7 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - ci-caching/build-docker-images:
+          context: dockerhub-credentials
+          name: build-docker-images
+      - ci-php/install-dependencies:
+          context: dockerhub-credentials
+          name: install-dependencies
+          dependencyCheckSumFile: "./composer.json"
+          requires:
+            - build-docker-images
+      - ci-php/composer-audit:
+          context: dockerhub-credentials
+          dependencyCheckSumFile: "./composer.json"
+          requires:
+            - build-docker-images
+            - install-dependencies
 
 jobs:
   coverage:

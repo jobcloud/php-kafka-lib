@@ -1,0 +1,13 @@
+version: '3.2'
+services:
+  php:
+    build:
+      context: ./dev/php
+      args:
+        HOST_USER: ${USER}
+        HOST_USER_ID: ${USER_ID}
+    container_name: php-kafka-lib-php
+    tty: true
+    volumes:
+      - ../:/var/www/html
+      - ../../php-rdkafka:/var/www/rdkafka
