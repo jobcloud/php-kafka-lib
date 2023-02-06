@@ -38,6 +38,10 @@ workflows:
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-php/install-dependencies
+      - ci-php/todo-checker:
+          name: todo-check
+          context:
+            - todochecker
   daily:
     triggers:
       - schedule:
