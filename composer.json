@@ -29,7 +29,7 @@
     "kwn/php-rdkafka-stubs": "^2.0.0",
     "rregeer/phpunit-coverage-check": "^0.3.1",
     "johnkary/phpunit-speedtrap": "^3.1",
-    "flix-tech/avro-serde-php": "^1.4",
+    "flix-tech/avro-serde-php": "^1.4|2.0",
     "infection/infection": "^0.26"
   },
   "autoload": {
