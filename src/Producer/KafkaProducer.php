@@ -82,6 +82,7 @@ final class KafkaProducer implements KafkaProducerInterface
             $message->getHeaders()
         );
 
+        // This is a test comment
         if (true === $autoPoll) {
             $this->producer->poll($pollTimeoutMs);
         }
