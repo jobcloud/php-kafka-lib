@@ -74,9 +74,7 @@ final class KafkaProducer implements KafkaProducerInterface
 
         $topicProducer = $this->getProducerTopicForTopic($message->getTopicName());
 
-        $topicProducer->producev(
-            $message->getPartition(),
-            RD_KAFKA_MSG_F_BLOCK,
+        $topicProducer->producev($message->getPartition(), RD_KAFKA_MSG_F_BLOCK,
             $message->getBody(),
             $message->getKey(),
             $message->getHeaders()
