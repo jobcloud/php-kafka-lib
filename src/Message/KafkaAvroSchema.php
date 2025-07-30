@@ -24,7 +24,7 @@ final class KafkaAvroSchema implements KafkaAvroSchemaInterface
     /**
      * KafkaAvroSchema constructor.
      * @param string           $schemaName
-     * @param integer     $version
+     * @param integer          $version
      * @param \AvroSchema|null $definition
      */
     public function __construct(

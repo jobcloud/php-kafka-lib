@@ -171,7 +171,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Close the consumer connection
      *
-     * @return void;
+     * @return void
      */
     public function close(): void
     {
@@ -180,10 +180,10 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
 
     /**
      * @param integer $timeoutMs
-     * @return RdKafkaMessage|null
+     * @return RdKafkaMessage
      * @throws RdKafkaException
      */
-    protected function kafkaConsume(int $timeoutMs): ?RdKafkaMessage
+    protected function kafkaConsume(int $timeoutMs): RdKafkaMessage
     {
         return $this->consumer->consume($timeoutMs);
     }

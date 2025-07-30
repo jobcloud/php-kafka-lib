@@ -261,8 +261,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $rdKafkaConsumerTopicMock
             ->expects(self::once())
             ->method('consumeQueueStart')
-            ->with(1, 103, $this->rdKafkaQueueMock)
-            ->willReturn(null);
+            ->with(1, 103, $this->rdKafkaQueueMock);
 
         $topicSubscription = new TopicSubscription('test-topic', [1], 103);
 
@@ -315,8 +314,7 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $rdKafkaConsumerTopicMock
             ->expects(self::once())
             ->method('consumeQueueStart')
-            ->with(1, 103, $this->rdKafkaQueueMock)
-            ->willReturn(null);
+            ->with(1, 103, $this->rdKafkaQueueMock);
 
         $topicSubscription = new TopicSubscription('test-topic', [1], 103);
 
@@ -404,13 +402,11 @@ final class KafkaLowLevelConsumerTest extends TestCase
         $rdKafkaConsumerTopicMock
             ->expects(self::exactly(2))
             ->method('consumeQueueStart')
-            ->with(1, 103, $this->rdKafkaQueueMock)
-            ->willReturn(null);
+            ->with(1, 103, $this->rdKafkaQueueMock);
         $rdKafkaConsumerTopicMock
             ->expects(self::once())
             ->method('consumeStop')
-            ->with(1)
-            ->willReturn(null);
+            ->with(1);
 
         $this->kafkaConfigurationMock
             ->expects(self::exactly(3))

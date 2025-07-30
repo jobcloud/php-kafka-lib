@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Kafka\Exception;
 
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
+use Throwable;
 
 class KafkaConsumerConsumeException extends \Exception
 {
@@ -16,16 +17,16 @@ class KafkaConsumerConsumeException extends \Exception
     private $kafkaMessage;
 
     /**
-     * @param string                     $message
-     * @param integer                    $code
+     * @param string                             $message
+     * @param integer                            $code
      * @param KafkaConsumerMessageInterface|null $kafkaMessage
-     * @param \Throwable|null            $previous
+     * @param Throwable|null                     $previous
      */
     public function __construct(
         string $message = '',
         int $code = 0,
-        KafkaConsumerMessageInterface $kafkaMessage = null,
-        \Throwable $previous = null
+        ?KafkaConsumerMessageInterface $kafkaMessage = null,
+        ?Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
 

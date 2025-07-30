@@ -76,7 +76,6 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
     /**
      * @param string $topicName
      * @return boolean
-     * @throws SchemaRegistryException
      */
     public function hasBodySchemaForTopic(string $topicName): bool
     {
@@ -86,7 +85,6 @@ final class AvroSchemaRegistry implements AvroSchemaRegistryInterface
     /**
      * @param string $topicName
      * @return boolean
-     * @throws SchemaRegistryException
      */
     public function hasKeySchemaForTopic(string $topicName): bool
     {

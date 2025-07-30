@@ -336,12 +336,10 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('initTransactions')
-            ->with(10000)
-            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+            ->with(10000);
         $this->rdKafkaProducerMock
             ->expects(self::once())
-            ->method('beginTransaction')
-            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+            ->method('beginTransaction');
 
         self::assertNull($this->kafkaProducer->beginTransaction(10000));
     }
@@ -354,12 +352,10 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('initTransactions')
-            ->with(10000)
-            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+            ->with(10000);
         $this->rdKafkaProducerMock
             ->expects(self::exactly(2))
-            ->method('beginTransaction')
-            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+            ->method('beginTransaction');
 
         self::assertNull($this->kafkaProducer->beginTransaction(10000));
         self::assertNull($this->kafkaProducer->beginTransaction(10000));
@@ -481,8 +477,7 @@ class KafkaProducerTest extends TestCase
     {
         $this->rdKafkaProducerMock
             ->expects(self::once())
-            ->method('abortTransaction')
-            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+            ->method('abortTransaction');
 
         self::assertNull($this->kafkaProducer->abortTransaction(10000));
     }
@@ -515,8 +510,7 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock
             ->expects(self::once())
             ->method('commitTransaction')
-            ->with(10000)
-            ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
+            ->with(10000);
 
         self::assertNull($this->kafkaProducer->commitTransaction(10000));
     }

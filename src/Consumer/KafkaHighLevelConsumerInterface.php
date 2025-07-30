@@ -52,7 +52,7 @@ interface KafkaHighLevelConsumerInterface extends KafkaConsumerInterface
     /**
      * Close the consumer connection
      *
-     * @return void;
+     * @return void
      */
     public function close(): void;
 }

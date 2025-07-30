@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         backupGlobals="false"
-         backupStaticAttributes="false"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
          forceCoversAnnotation="true"
          bootstrap="tests/bootstrap.php"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd">
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd">
   <coverage>
     <include>
       <directory>src</directory>
@@ -25,7 +18,7 @@
   <php>
     <ini name="max_execution_time" value="-1"/>
     <ini name="html_errors" value="false"/>
-    <ini name="memory_limit" value="2G"/>
+    <ini name="memory_limit" value="1G"/>
   </php>
   <testsuites>
     <testsuite name="Unit">

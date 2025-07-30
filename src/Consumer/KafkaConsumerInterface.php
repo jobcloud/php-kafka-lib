@@ -13,7 +13,7 @@ use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 /**
  * @todo v2: subscribe(array $topicSubscriptions = [])
- * @method array getTopicSubscriptions()
+ * @method array<TopicSubscription> getTopicSubscriptions()
  */
 
 interface KafkaConsumerInterface
