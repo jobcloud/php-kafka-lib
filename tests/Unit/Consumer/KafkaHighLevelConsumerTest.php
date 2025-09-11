@@ -1,11 +1,13 @@
 <?php
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
+namespace Jobcloud\Kafka\Tests\Unit\Consumer;
 
 use Jobcloud\Kafka\Consumer\AbstractKafkaConsumer;
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Kafka\Consumer\TopicSubscriptionInterface;
 use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
+use Jobcloud\Kafka\Exception\KafkaConsumerEndOfPartitionException;
+use Jobcloud\Kafka\Exception\KafkaConsumerTimeoutException;
 use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Kafka\Exception\KafkaConsumerAssignmentException;
@@ -14,16 +16,18 @@ use Jobcloud\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
-use RdKafka\ConsumerTopic as RdKafkaConsumerTopic;
 use RdKafka\Exception as RdKafkaException;
+use RdKafka\KafkaConsumerTopic;
 use RdKafka\Message;
 use RdKafka\Metadata as RdKafkaMetadata;
 use RdKafka\Metadata\Collection as RdKafkaMetadataCollection;
 use RdKafka\Metadata\Partition as RdKafkaMetadataPartition;
 use RdKafka\Metadata\Topic as RdKafkaMetadataTopic;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
+use ReflectionClass;
 
 /**
  * @covers \Jobcloud\Kafka\Consumer\AbstractKafkaConsumer
@@ -34,6 +38,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerSubscriptionException
+     * @throws RdKafkaException
      */
     public function testSubscribeSuccess(): void
     {
@@ -51,6 +56,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerSubscriptionException
+     * @throws RdKafkaException
      */
     public function testSubscribeSuccessWithParam(): void
     {
@@ -67,6 +73,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerSubscriptionException
+     * @throws RdKafkaException
      */
     public function testSubscribeSuccessWithAssignmentWithPartitions(): void
     {
@@ -82,27 +89,70 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConsumer->subscribe();
     }
 
+    private function createPartitionCollection(array $partitionMocks): RdKafkaMetadataCollection
+    {
+        return new class($partitionMocks) extends RdKafkaMetadataCollection {
+            public function __construct(private array $items)
+            {
+                $this->rewind();
+            }
+
+            private int $pos = 0;
+
+            public function current(): mixed
+            {
+                return $this->items[$this->pos];
+            }
+
+            public function key(): int
+            {
+                return $this->pos;
+            }
+
+            public function next(): void
+            {
+                $this->pos++;
+            }
+
+            public function rewind(): void
+            {
+                $this->pos = 0;
+            }
+
+            public function valid(): bool
+            {
+                return $this->pos < count($this->items);
+            }
+
+            public function count(): int
+            {
+                return count($this->items);
+            }
+        };
+    }
+
     /**
      * @throws KafkaConsumerSubscriptionException
+     * @throws RdKafkaException
      */
     public function testSubscribeSuccessWithAssignmentWithOffsetOnly(): void
     {
-        $partitions = [
+        $partitions = $this->createPartitionCollection([
             $this->getMetadataPartitionMock(1),
             $this->getMetadataPartitionMock(2)
-        ];
+        ]);
 
-        /** @var RdKafkaConsumerTopic|MockObject $rdKafkaConsumerTopicMock */
-        $rdKafkaConsumerTopicMock = $this->createMock(RdKafkaConsumerTopic::class);
+        /** @var KafkaConsumerTopic&MockObject $rdKafkaConsumerTopicMock */
+        $rdKafkaConsumerTopicMock = $this->createMock(KafkaConsumerTopic::class);
 
-        /** @var RdKafkaMetadataTopic|MockObject $rdKafkaMetadataTopicMock */
+        /** @var RdKafkaMetadataTopic&MockObject $rdKafkaMetadataTopicMock */
         $rdKafkaMetadataTopicMock = $this->createMock(RdKafkaMetadataTopic::class);
         $rdKafkaMetadataTopicMock
             ->expects(self::once())
             ->method('getPartitions')
             ->willReturn($partitions);
 
-        /** @var RdKafkaMetadata|MockObject $rdKafkaMetadataMock */
+        /** @var RdKafkaMetadata&MockObject $rdKafkaMetadataMock */
         $rdKafkaMetadataMock = $this->createMock(RdKafkaMetadata::class);
         $rdKafkaMetadataMock
             ->expects(self::once())
@@ -146,13 +196,12 @@ final class KafkaHighLevelConsumerTest extends TestCase
             ->with('testTopic')
             ->willReturn($rdKafkaConsumerTopicMock);
 
-
         $kafkaConsumer->subscribe();
     }
 
-
     /**
      * @throws KafkaConsumerSubscriptionException
+     * @throws RdKafkaException
      */
     public function testSubscribeFailureOnMixedSubscribe(): void
     {
@@ -169,7 +218,6 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock->expects(self::never())->method('subscribe');
         $rdKafkaConsumerMock->expects(self::never())->method('assign');
 
-
         $this->expectException(KafkaConsumerSubscriptionException::class);
         $this->expectExceptionMessage(KafkaConsumerSubscriptionException::MIXED_SUBSCRIPTION_EXCEPTION_MESSAGE);
 
@@ -178,6 +226,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
     /**
      * @throws KafkaConsumerSubscriptionException
+     * @throws RdKafkaException
      */
     public function testSubscribeFailure(): void
     {
@@ -204,7 +253,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
     /**
      * @throws KafkaConsumerSubscriptionException
      */
-    public function testUnsubscribeSuccesss(): void
+    public function testUnsubscribeSuccess(): void
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
@@ -217,12 +266,14 @@ final class KafkaHighLevelConsumerTest extends TestCase
     }
 
     /**
+     * @throws KafkaConsumerTimeoutException
      * @throws KafkaConsumerSubscriptionException
+     * @throws KafkaConsumerEndOfPartitionException
      */
-    public function testUnsubscribeSuccesssConsumeFails(): void
+    public function testUnsubscribeSuccessConsumeFails(): void
     {
-        self::expectException(KafkaConsumerConsumeException::class);
-        self::expectExceptionMessage(KafkaConsumerConsumeException::NOT_SUBSCRIBED_EXCEPTION_MESSAGE);
+        $this->expectException(KafkaConsumerConsumeException::class);
+        $this->expectExceptionMessage(KafkaConsumerConsumeException::NOT_SUBSCRIBED_EXCEPTION_MESSAGE);
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
@@ -232,7 +283,6 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $rdKafkaConsumerMock->expects(self::once())->method('unsubscribe');
 
         $kafkaConsumer->unsubscribe();
-
         $kafkaConsumer->consume();
     }
 
@@ -255,32 +305,30 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $this->expectExceptionCode(100);
         $this->expectExceptionMessage('Error');
 
-
         $kafkaConsumer->unsubscribe();
     }
 
     /**
      * @throws KafkaConsumerCommitException
      */
-    public function testCommitSuccesss(): void
+    public function testCommitSuccess(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
-        $message->expects(self::exactly(1))->method('getOffset')->willReturn(0);
-        $message->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
-        $message->expects(self::exactly(1))->method('getPartition')->willReturn(1);
+        $message->expects(self::once())->method('getOffset')->willReturn(0);
+        $message->expects(self::once())->method('getTopicName')->willReturn('test');
+        $message->expects(self::once())->method('getPartition')->willReturn(1);
         $message2 = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
-        $message2->expects(self::exactly(1))->method('getOffset')->willReturn(1);
+        $message2->expects(self::once())->method('getOffset')->willReturn(1);
         $message2->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
         $message2->expects(self::exactly(2))->method('getPartition')->willReturn(1);
         $message3 = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message3->expects(self::exactly(2))->method('getOffset')->willReturn(2);
-        $message3->expects(self::exactly(1))->method('getTopicName')->willReturn('test');
-        $message3->expects(self::exactly(1))->method('getPartition')->willReturn(1);
+        $message3->expects(self::once())->method('getTopicName')->willReturn('test');
+        $message3->expects(self::once())->method('getPartition')->willReturn(1);
         $message4 = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
-        $message4->expects(self::exactly(1))->method('getOffset')->willReturn(0);
+        $message4->expects(self::once())->method('getOffset')->willReturn(0);
         $message4->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
         $message4->expects(self::exactly(2))->method('getPartition')->willReturn(2);
-
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
@@ -306,13 +354,12 @@ final class KafkaHighLevelConsumerTest extends TestCase
     /**
      * @throws KafkaConsumerCommitException
      */
-    public function testCommitSingleSuccesss(): void
+    public function testCommitSingleSuccess(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
-        $message->expects(self::exactly(1))->method('getOffset')->willReturn(0);
+        $message->expects(self::once())->method('getOffset')->willReturn(0);
         $message->expects(self::exactly(2))->method('getTopicName')->willReturn('test');
         $message->expects(self::exactly(2))->method('getPartition')->willReturn(1);
-
 
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
@@ -335,7 +382,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
     /**
      * @throws KafkaConsumerCommitException
      */
-    public function testCommitAsyncSuccesss(): void
+    public function testCommitAsyncSuccess(): void
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
         $kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
@@ -457,6 +504,13 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConsumer->getAssignment();
     }
 
+    /**
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
+     * @throws KafkaConsumerSubscriptionException
+     * @throws RdKafkaException
+     * @throws KafkaConsumerTimeoutException
+     */
     public function testKafkaConsumeWithDecode(): void
     {
         $message = new Message();
@@ -504,6 +558,13 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConsumer->consume();
     }
 
+    /**
+     * @throws KafkaConsumerConsumeException
+     * @throws KafkaConsumerEndOfPartitionException
+     * @throws KafkaConsumerSubscriptionException
+     * @throws RdKafkaException
+     * @throws KafkaConsumerTimeoutException
+     */
     public function testKafkaConsumeWithoutDecode(): void
     {
         $message = new Message();
@@ -611,7 +672,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
     }
 
     /**
-     * @return void
+     * @throws RdKafkaException
      */
     public function testGetOffsetPositions(): void
     {
@@ -628,9 +689,6 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConsumer->getOffsetPositions([]);
     }
 
-    /**
-     * @return void
-     */
     public function testClose(): void
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
@@ -642,9 +700,6 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $kafkaConsumer->close();
     }
 
-    /**
-     * @return void
-     */
     public function testGetTopicSubscriptionsReturnsTopicSubscriptions(): void
     {
         $rdKafkaConsumerMock = $this->createMock(RdKafkaHighLevelConsumer::class);
@@ -667,7 +722,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
 
     public function testMethodVisibility(): void
     {
-        $reflectionClass = new \ReflectionClass(AbstractKafkaConsumer::class);
+        $reflectionClass = new ReflectionClass(AbstractKafkaConsumer::class);
 
         $methodGetConsumerMessage = $reflectionClass->getMethod('getConsumerMessage');
         $methodGetConsumerMessage->setAccessible(true);
@@ -675,11 +730,7 @@ final class KafkaHighLevelConsumerTest extends TestCase
         $this->assertTrue($methodGetConsumerMessage->isProtected());
     }
 
-    /**
-     * @param int $partitionId
-     * @return RdKafkaMetadataPartition|MockObject
-     */
-    private function getMetadataPartitionMock(int $partitionId): RdKafkaMetadataPartition
+    private function getMetadataPartitionMock(int $partitionId): RdKafkaMetadataPartition&MockObject
     {
         $partitionMock = $this->getMockBuilder(RdKafkaMetadataPartition::class)
             ->disableOriginalConstructor()

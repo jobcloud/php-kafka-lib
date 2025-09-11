@@ -14,31 +14,13 @@ use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
 final class AvroEncoder implements AvroEncoderInterface
 {
-    /**
-     * @var AvroSchemaRegistryInterface
-     */
-    private $registry;
-
-    /**
-     * @var RecordSerializer
-     */
-    private $recordSerializer;
-
-    /**
-     * @param AvroSchemaRegistryInterface $registry
-     * @param RecordSerializer            $recordSerializer
-     */
     public function __construct(
-        AvroSchemaRegistryInterface $registry,
-        RecordSerializer $recordSerializer
+        private AvroSchemaRegistryInterface $registry,
+        private RecordSerializer $recordSerializer
     ) {
-        $this->recordSerializer = $recordSerializer;
-        $this->registry = $registry;
     }
 
     /**
-     * @param KafkaProducerMessageInterface $producerMessage
-     * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
      * @throws AvroEncoderException
      */
@@ -50,8 +32,6 @@ final class AvroEncoder implements AvroEncoderInterface
     }
 
     /**
-     * @param KafkaProducerMessageInterface $producerMessage
-     * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
      */
     private function encodeBody(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
@@ -79,8 +59,6 @@ final class AvroEncoder implements AvroEncoderInterface
     }
 
     /**
-     * @param KafkaProducerMessageInterface $producerMessage
-     * @return KafkaProducerMessageInterface
      * @throws SchemaRegistryException
      */
     private function encodeKey(KafkaProducerMessageInterface $producerMessage): KafkaProducerMessageInterface
@@ -123,9 +101,6 @@ final class AvroEncoder implements AvroEncoderInterface
         return $schemaDefinition;
     }
 
-    /**
-     * @return AvroSchemaRegistryInterface
-     */
     public function getRegistry(): AvroSchemaRegistryInterface
     {
         return $this->registry;

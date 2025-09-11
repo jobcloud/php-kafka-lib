@@ -1,33 +1,29 @@
 <?php
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Producer;
+namespace Jobcloud\Kafka\Tests\Unit\Producer;
 
 use Jobcloud\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Kafka\Producer\KafkaProducerBuilder;
 use Jobcloud\Kafka\Producer\KafkaProducerInterface;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
+use ReflectionProperty;
 
 /**
  * @covers \Jobcloud\Kafka\Producer\KafkaProducerBuilder
  */
 class KafkaProducerBuilderTest extends TestCase
 {
+    protected KafkaProducerBuilder $kafkaProducerBuilder;
 
-    /** @var $kafkaProducerBuilder KafkaProducerBuilder */
-    protected $kafkaProducerBuilder;
-
-    /**
-     * @return void
-     */
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->kafkaProducerBuilder = KafkaProducerBuilder::create();
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testAddConfig(): void
     {
@@ -36,29 +32,27 @@ class KafkaProducerBuilderTest extends TestCase
         $config = ['auto.offset.reset' => 'latest'];
         $clone = $clone->withAdditionalConfig($config);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'config');
+        $reflectionProperty = new ReflectionProperty($clone, 'config');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($config, $reflectionProperty->getValue($clone));
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testAddBroker(): void
     {
         $clone = $this->kafkaProducerBuilder->withAdditionalBroker('localhost');
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'brokers');
+        $reflectionProperty = new ReflectionProperty($clone, 'brokers');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(['localhost'], $reflectionProperty->getValue($clone));
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetEncoder(): void
     {
@@ -66,15 +60,14 @@ class KafkaProducerBuilderTest extends TestCase
 
         $clone = $this->kafkaProducerBuilder->withEncoder($encoder);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'encoder');
+        $reflectionProperty = new ReflectionProperty($clone, 'encoder');
         $reflectionProperty->setAccessible(true);
 
         self::assertInstanceOf(EncoderInterface::class, $reflectionProperty->getValue($clone));
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetDeliveryReportCallback(): void
     {
@@ -84,15 +77,14 @@ class KafkaProducerBuilderTest extends TestCase
 
         $clone = $this->kafkaProducerBuilder->withDeliveryReportCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'deliverReportCallback');
+        $reflectionProperty = new ReflectionProperty($clone, 'deliverReportCallback');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetErrorCallback(): void
     {
@@ -102,7 +94,7 @@ class KafkaProducerBuilderTest extends TestCase
 
         $clone = $this->kafkaProducerBuilder->withErrorCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'errorCallback');
+        $reflectionProperty = new ReflectionProperty($clone, 'errorCallback');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
@@ -113,14 +105,11 @@ class KafkaProducerBuilderTest extends TestCase
      */
     public function testBuildNoBroker(): void
     {
-        self::expectException(KafkaProducerException::class);
+        $this->expectException(KafkaProducerException::class);
 
         $this->kafkaProducerBuilder->build();
     }
 
-    /**
-     * @return void
-     */
     public function testBuild(): void
     {
         $callback = function ($kafka, $errId, $msg) {
@@ -138,8 +127,7 @@ class KafkaProducerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testKafkaProducerBuilderConfig(): void
     {
@@ -154,7 +142,7 @@ class KafkaProducerBuilderTest extends TestCase
             ->withLogCallback($callback)
             ->build();
 
-        $reflectionProperty = new \ReflectionProperty($this->kafkaProducerBuilder, 'config');
+        $reflectionProperty = new ReflectionProperty($this->kafkaProducerBuilder, 'config');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(

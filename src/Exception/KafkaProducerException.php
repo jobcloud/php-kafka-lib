@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Exception;
 
-class KafkaProducerException extends \Exception
+use Exception;
+
+class KafkaProducerException extends Exception
 {
     public const TIMEOUT_EXCEPTION_MESSAGE = 'Error message timed out: %s';
     public const UNEXPECTED_EXCEPTION_MESSAGE = 'Unexpected error during production: %s';

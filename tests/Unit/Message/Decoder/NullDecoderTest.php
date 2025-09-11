@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Decoder;
+namespace Jobcloud\Kafka\Tests\Unit\Message\Decoder;
 
 use Jobcloud\Kafka\Message\Decoder\NullDecoder;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
@@ -13,10 +13,6 @@ use PHPUnit\Framework\TestCase;
  */
 class NullDecoderTest extends TestCase
 {
-
-    /**
-     * @return void
-     */
     public function testDecode(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);

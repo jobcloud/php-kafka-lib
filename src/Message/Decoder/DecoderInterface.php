@@ -8,9 +8,5 @@ use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 
 interface DecoderInterface
 {
-    /**
-     * @param KafkaConsumerMessageInterface $consumerMessage
-     * @return KafkaConsumerMessageInterface
-     */
     public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface;
 }

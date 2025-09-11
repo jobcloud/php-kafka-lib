@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
+namespace Jobcloud\Kafka\Tests\Unit\Consumer;
 
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use PHPUnit\Framework\TestCase;
-use RdKafka\TopicConf;
 
 /**
  * @covers \Jobcloud\Kafka\Consumer\TopicSubscription
  */
 final class TopicSubscriptionTest extends TestCase
 {
-    public function testGettersAndSetters()
+    public function testGettersAndSetters(): void
     {
         $topicName = 'test';
         $partitions = [1, 2];

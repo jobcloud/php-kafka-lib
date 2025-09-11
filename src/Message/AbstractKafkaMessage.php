@@ -11,10 +11,7 @@ abstract class AbstractKafkaMessage implements KafkaMessageInterface
      */
     protected $key;
 
-    /**
-     * @var mixed
-     */
-    protected $body;
+    protected mixed $body = null;
 
     /**
      * @var string
@@ -32,32 +29,23 @@ abstract class AbstractKafkaMessage implements KafkaMessageInterface
     protected $headers;
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getKey()
     {
         return $this->key;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getBody()
+    public function getBody(): mixed
     {
         return $this->body;
     }
 
-    /**
-     * @return string
-     */
     public function getTopicName(): string
     {
         return $this->topicName;
     }
 
-    /**
-     * @return integer
-     */
     public function getPartition(): int
     {
         return $this->partition;

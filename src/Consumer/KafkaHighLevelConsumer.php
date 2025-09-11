@@ -13,7 +13,6 @@ use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use RdKafka\Exception as RdKafkaException;
 use RdKafka\Message as RdKafkaMessage;
-use RdKafka\TopicPartition;
 use RdKafka\TopicPartition as RdKafkaTopicPartition;
 use RdKafka\KafkaConsumer as RdKafkaHighLevelConsumer;
 
@@ -22,17 +21,12 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * @var RdKafkaHighLevelConsumer
      */
-    protected $consumer;
+    protected mixed $consumer;
 
-    /**
-     * @param RdKafkaHighLevelConsumer $consumer
-     * @param KafkaConfiguration       $kafkaConfiguration
-     * @param DecoderInterface         $decoder
-     */
     public function __construct(
         RdKafkaHighLevelConsumer $consumer,
         KafkaConfiguration $kafkaConfiguration,
-        DecoderInterface $decoder
+        DecoderInterface $decoder,
     ) {
         parent::__construct($consumer, $kafkaConfiguration, $decoder);
     }
@@ -43,7 +37,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      *
      * @param array<TopicSubscription> $topicSubscriptions
      * @throws KafkaConsumerSubscriptionException
-     * @return void
+     * @throws RdKafkaException
      */
     public function subscribe(array $topicSubscriptions = []): void
     {
@@ -72,7 +66,6 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      * Unsubscribes from the current subscription / assignment
      *
      * @throws KafkaConsumerSubscriptionException
-     * @return void
      */
     public function unsubscribe(): void
     {
@@ -86,10 +79,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
 
     /**
      * Commits the offset to the broker for the given message(s)
-     * This is a blocking function, checkout out commitAsync if you want to commit in a non blocking manner
+     * This is a blocking function, checkout out commitAsync if you want to commit in a non-blocking manner
      *
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
-     * @return void
      * @throws KafkaConsumerCommitException
      */
     public function commit($messages): void
@@ -102,7 +94,6 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
      *
      * @param RdKafkaTopicPartition[] $topicPartitions
      * @throws KafkaConsumerAssignmentException
-     * @return void
      */
     public function assign(array $topicPartitions): void
     {
@@ -114,10 +105,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * Asynchronous version of commit (non blocking)
+     * Asynchronous version of commit (non-blocking)
      *
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
-     * @return void
      * @throws KafkaConsumerCommitException
      */
     public function commitAsync($messages): void
@@ -128,7 +118,7 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Gets the current assignment for the consumer
      *
-     * @return array|RdKafkaTopicPartition[]
+     * @return RdKafkaTopicPartition[]
      * @throws KafkaConsumerAssignmentException
      */
     public function getAssignment(): array
@@ -143,9 +133,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Gets the commited offset for a TopicPartition for the configured consumer group
      *
-     * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @param integer                       $timeoutMs
-     * @return array|RdKafkaTopicPartition[]
+     * @param RdKafkaTopicPartition[] $topicPartitions
+     * @return RdKafkaTopicPartition[]
      * @throws KafkaConsumerRequestException
      */
     public function getCommittedOffsets(array $topicPartitions, int $timeoutMs): array
@@ -160,8 +149,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     /**
      * Get current offset positions of the consumer
      *
-     * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @return array|RdKafkaTopicPartition[]
+     * @param RdKafkaTopicPartition[] $topicPartitions
+     * @return RdKafkaTopicPartition[]
+     * @throws RdKafkaException
      */
     public function getOffsetPositions(array $topicPartitions): array
     {
@@ -170,8 +160,6 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
 
     /**
      * Close the consumer connection
-     *
-     * @return void;
      */
     public function close(): void
     {
@@ -179,22 +167,18 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param integer $timeoutMs
-     * @return RdKafkaMessage|null
      * @throws RdKafkaException
      */
-    protected function kafkaConsume(int $timeoutMs): ?RdKafkaMessage
+    protected function kafkaConsume(int $timeoutMs): RdKafkaMessage
     {
         return $this->consumer->consume($timeoutMs);
     }
 
     /**
      * @param KafkaConsumerMessageInterface|KafkaConsumerMessageInterface[] $messages
-     * @param boolean                                                       $asAsync
-     * @return void
      * @throws KafkaConsumerCommitException
      */
-    private function commitMessages($messages, bool $asAsync = false): void
+    private function commitMessages(array|KafkaConsumerMessageInterface $messages, bool $asAsync = false): void
     {
         $messages = is_array($messages) ? $messages : [$messages];
 
@@ -212,8 +196,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param array|KafkaConsumerMessageInterface[] $messages
-     * @return array|RdKafkaTopicPartition[]
+     * @param KafkaConsumerMessageInterface[] $messages
+     * @return RdKafkaTopicPartition[]
      */
     private function getOffsetsToCommitForMessages(array $messages): array
     {
@@ -240,8 +224,8 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param array<TopicSubscription> $topicSubscriptions
-     * @return array|string[]
+     * @param TopicSubscription[] $topicSubscriptions
+     * @return string[]
      */
     private function getTopicSubscriptionNames(array $topicSubscriptions = []): array
     {
@@ -265,8 +249,9 @@ final class KafkaHighLevelConsumer extends AbstractKafkaConsumer implements Kafk
     }
 
     /**
-     * @param array<TopicSubscription> $topicSubscriptions
-     * @return array|RdKafkaTopicPartition[]
+     * @param TopicSubscription[] $topicSubscriptions
+     * @return RdKafkaTopicPartition[]
+     * @throws RdKafkaException
      */
     private function getTopicAssignments(array $topicSubscriptions = []): array
     {

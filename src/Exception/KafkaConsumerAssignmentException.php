@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jobcloud\Kafka\Exception;
 
-class KafkaConsumerAssignmentException extends \Exception
+use Exception;
+
+class KafkaConsumerAssignmentException extends Exception
 {
 }

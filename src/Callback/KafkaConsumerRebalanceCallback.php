@@ -16,23 +16,16 @@ require_once __DIR__ . '/../Exception/KafkaRebalanceException.php'; // @codeCove
 final class KafkaConsumerRebalanceCallback
 {
     /**
-     * @param RdKafkaConsumer $consumer
-     * @param integer         $errorCode
-     * @param array|RdKafkaTopicPartition[]|null      $partitions
+     * @param RdKafkaTopicPartition[]|null $partitions
      * @throws KafkaRebalanceException
-     * @return void
      */
-    public function __invoke(RdKafkaConsumer $consumer, int $errorCode, array $partitions = null)
+    public function __invoke(RdKafkaConsumer $consumer, int $errorCode, ?array $partitions = null): void
     {
         try {
-            switch ($errorCode) {
-                case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
-                    $consumer->assign($partitions);
-                    break;
-
-                default:
-                    $consumer->assign(null);
-                    break;
+            if ($errorCode === RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS) {
+                $consumer->assign($partitions);
+            } else {
+                $consumer->assign();
             }
         } catch (RdKafkaException $e) {
             throw new KafkaRebalanceException($e->getMessage(), $e->getCode(), $e);

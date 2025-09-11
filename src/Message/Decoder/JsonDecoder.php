@@ -9,10 +9,6 @@ use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 
 class JsonDecoder implements DecoderInterface
 {
-    /**
-     * @param KafkaConsumerMessageInterface $consumerMessage
-     * @return KafkaConsumerMessageInterface
-     */
     public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
     {
         $body = json_decode($consumerMessage->getBody(), true, 512, JSON_THROW_ON_ERROR);

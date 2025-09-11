@@ -1,4 +1,4 @@
-FROM php:8.0-cli-alpine3.16
+FROM php:8.1-cli-alpine3.22
 
 ARG HOST_USER_ID
 ARG HOST_USER
@@ -24,11 +24,11 @@ RUN echo "$HOST_USER:x:$HOST_USER_ID:82:Linux User,,,:/home/$HOST_USER:" >> /etc
     addgroup $HOST_USER www-data
 
 # COMPOSER: install binary and prestissimo
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer --version=2.5.1
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka-6.0.3 pcov && \
+    pecl install rdkafka pcov && \
     docker-php-ext-install pcntl && \
     php-ext-enable rdkafka pcntl pcov
 

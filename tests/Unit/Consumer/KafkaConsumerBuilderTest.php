@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Consumer;
+namespace Jobcloud\Kafka\Tests\Unit\Consumer;
 
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumer;
 use Jobcloud\Kafka\Consumer\KafkaHighLevelConsumerInterface;
@@ -12,35 +12,28 @@ use Jobcloud\Kafka\Exception\KafkaConsumerBuilderException;
 use Jobcloud\Kafka\Consumer\KafkaConsumerInterface;
 use Jobcloud\Kafka\Consumer\KafkaLowLevelConsumerInterface;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
+use ReflectionProperty;
 
 /**
  * @covers \Jobcloud\Kafka\Consumer\KafkaConsumerBuilder
  */
 final class KafkaConsumerBuilderTest extends TestCase
 {
+    private KafkaConsumerBuilder $kafkaConsumerBuilder;
 
-    /** @var KafkaConsumerBuilder */
-    private $kafkaConsumerBuilder;
-
-    /**
-     * @return void
-     */
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->kafkaConsumerBuilder = KafkaConsumerBuilder::create();
     }
 
-    /**
-     * @return void
-     */
     public function testCreate(): void
     {
         self::assertInstanceOf(KafkaConsumerBuilder::class, KafkaConsumerBuilder::create());
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testAddBroker(): void
     {
@@ -49,15 +42,14 @@ final class KafkaConsumerBuilderTest extends TestCase
             $clone = $this->kafkaConsumerBuilder->withAdditionalBroker('localhost')
         );
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'brokers');
+        $reflectionProperty = new ReflectionProperty($clone, 'brokers');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(['localhost'], $reflectionProperty->getValue($clone));
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSubscribeToTopic(): void
     {
@@ -66,15 +58,14 @@ final class KafkaConsumerBuilderTest extends TestCase
             $clone = $this->kafkaConsumerBuilder->withAdditionalSubscription('test-topic')
         );
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'topics');
+        $reflectionProperty = new ReflectionProperty($clone, 'topics');
         $reflectionProperty->setAccessible(true);
 
         self::isInstanceOf(TopicSubscription::class, $reflectionProperty->getValue($clone));
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testReplaceSubscribedToTopics(): void
     {
@@ -83,7 +74,7 @@ final class KafkaConsumerBuilderTest extends TestCase
             $clone = $this->kafkaConsumerBuilder->withSubscription('new-topic')
         );
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'topics');
+        $reflectionProperty = new ReflectionProperty($clone, 'topics');
         $reflectionProperty->setAccessible(true);
 
         $topicSubscription = $reflectionProperty->getValue($clone);
@@ -93,17 +84,16 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testAddConfig(): void
     {
-        $intialConfig = ['group.id' => 'test-group', 'enable.auto.offset.store' => true];
+        $initialConfig = ['group.id' => 'test-group', 'enable.auto.offset.store' => true];
         $newConfig = ['offset.store.sync.interval.ms' => 60e3];
-        $clone = $this->kafkaConsumerBuilder->withAdditionalConfig($intialConfig);
+        $clone = $this->kafkaConsumerBuilder->withAdditionalConfig($initialConfig);
         $clone = $clone->withAdditionalConfig($newConfig);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'config');
+        $reflectionProperty = new ReflectionProperty($clone, 'config');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame(
@@ -120,8 +110,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetDecoder(): void
     {
@@ -129,7 +118,7 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $clone = $this->kafkaConsumerBuilder->withDecoder($decoder);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'decoder');
+        $reflectionProperty = new ReflectionProperty($clone, 'decoder');
         $reflectionProperty->setAccessible(true);
 
         self::assertInstanceOf(DecoderInterface::class, $reflectionProperty->getValue($clone));
@@ -137,14 +126,13 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetConsumerGroup(): void
     {
         $clone = $this->kafkaConsumerBuilder->withConsumerGroup('test-consumer');
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'consumerGroup');
+        $reflectionProperty = new ReflectionProperty($clone, 'consumerGroup');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame('test-consumer', $reflectionProperty->getValue($clone));
@@ -152,14 +140,13 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetConsumerTypeLow(): void
     {
         $clone = $this->kafkaConsumerBuilder->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL);
 
-        $actualConsumerType = new \ReflectionProperty($clone, 'consumerType');
+        $actualConsumerType = new ReflectionProperty($clone, 'consumerType');
         $actualConsumerType->setAccessible(true);
 
         self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_LOW_LEVEL, $actualConsumerType->getValue($clone));
@@ -167,14 +154,13 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetConsumerTypeHigh(): void
     {
         $clone = $this->kafkaConsumerBuilder->withConsumerType(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL);
 
-        $actualConsumerType = new \ReflectionProperty($clone, 'consumerType');
+        $actualConsumerType = new ReflectionProperty($clone, 'consumerType');
         $actualConsumerType->setAccessible(true);
 
         self::assertSame(KafkaConsumerBuilder::CONSUMER_TYPE_HIGH_LEVEL, $actualConsumerType->getValue($clone));
@@ -182,8 +168,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetErrorCallback(): void
     {
@@ -193,7 +178,7 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $clone = $this->kafkaConsumerBuilder->withErrorCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'errorCallback');
+        $reflectionProperty = new ReflectionProperty($clone, 'errorCallback');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
@@ -201,8 +186,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetRebalanceCallback(): void
     {
@@ -212,7 +196,7 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $clone = $this->kafkaConsumerBuilder->withRebalanceCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'rebalanceCallback');
+        $reflectionProperty = new ReflectionProperty($clone, 'rebalanceCallback');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
@@ -220,8 +204,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetConsumeCallback(): void
     {
@@ -231,7 +214,7 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $clone = $this->kafkaConsumerBuilder->withConsumeCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'consumeCallback');
+        $reflectionProperty = new ReflectionProperty($clone, 'consumeCallback');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
@@ -239,8 +222,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetOffsetCommitCallback(): void
     {
@@ -250,7 +232,7 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $clone = $this->kafkaConsumerBuilder->withOffsetCommitCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'offsetCommitCallback');
+        $reflectionProperty = new ReflectionProperty($clone, 'offsetCommitCallback');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
@@ -258,8 +240,7 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testSetLogCallback(): void
     {
@@ -269,7 +250,7 @@ final class KafkaConsumerBuilderTest extends TestCase
 
         $clone = $this->kafkaConsumerBuilder->withLogCallback($callback);
 
-        $reflectionProperty = new \ReflectionProperty($clone, 'logCallback');
+        $reflectionProperty = new ReflectionProperty($clone, 'logCallback');
         $reflectionProperty->setAccessible(true);
 
         self::assertSame($callback, $reflectionProperty->getValue($clone));
@@ -277,20 +258,16 @@ final class KafkaConsumerBuilderTest extends TestCase
     }
 
     /**
-     * @return void
      * @throws KafkaConsumerBuilderException
      */
     public function testBuildFailMissingBrokers(): void
     {
-        self::expectException(KafkaConsumerBuilderException::class);
-        self::expectExceptionMessage(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
+        $this->expectException(KafkaConsumerBuilderException::class);
+        $this->expectExceptionMessage(KafkaConsumerBuilderException::NO_BROKER_EXCEPTION_MESSAGE);
 
         $this->kafkaConsumerBuilder->build();
     }
 
-    /**
-     * @return void
-     */
     public function testBuildSuccess(): void
     {
         $callback = function ($kafka, $errId, $msg) {
@@ -312,9 +289,6 @@ final class KafkaConsumerBuilderTest extends TestCase
         self::assertInstanceOf(KafkaHighLevelConsumer::class, $consumer);
     }
 
-    /**
-     * @return void
-     */
     public function testBuildLowLevelSuccess(): void
     {
         $callback = function ($kafka, $errId, $msg) {
@@ -335,20 +309,17 @@ final class KafkaConsumerBuilderTest extends TestCase
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
         self::assertInstanceOf(KafkaLowLevelConsumerInterface::class, $consumer);
         self::assertArrayHasKey('enable.auto.offset.store', $conf);
-        self::assertEquals($conf['enable.auto.offset.store'], 'false');
+        self::assertEquals('false', $conf['enable.auto.offset.store']);
     }
 
-    /**
-     * @return void
-     */
     public function testBuildLowLevelFailureOnUnsupportedCallback(): void
     {
         $callback = function ($kafka, $errId, $msg) {
             // Anonymous test method, no logic required
         };
 
-        self::expectException(KafkaConsumerBuilderException::class);
-        self::expectExceptionMessage(
+        $this->expectException(KafkaConsumerBuilderException::class);
+        $this->expectExceptionMessage(
             sprintf(
                 KafkaConsumerBuilderException::UNSUPPORTED_CALLBACK_EXCEPTION_MESSAGE,
                 'consumerCallback',
@@ -364,9 +335,6 @@ final class KafkaConsumerBuilderTest extends TestCase
             ->build();
     }
 
-    /**
-     * @return void
-     */
     public function testBuildHighLevelSuccess(): void
     {
         $callback = function ($kafka, $errId, $msg) {
@@ -387,6 +355,6 @@ final class KafkaConsumerBuilderTest extends TestCase
         self::assertInstanceOf(KafkaConsumerInterface::class, $consumer);
         self::assertInstanceOf(KafkaHighLevelConsumerInterface::class, $consumer);
         self::assertArrayHasKey('enable.auto.commit', $conf);
-        self::assertEquals($conf['enable.auto.commit'], 'false');
+        self::assertEquals('false', $conf['enable.auto.commit']);
     }
 }

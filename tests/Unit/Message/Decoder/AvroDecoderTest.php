@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Decoder;
+namespace Jobcloud\Kafka\Tests\Unit\Message\Decoder;
 
+use AvroSchema;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
+use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Kafka\Message\Decoder\AvroDecoder;
-use Jobcloud\Kafka\Message\Decoder\AvroDecoderInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
@@ -17,7 +18,10 @@ use PHPUnit\Framework\TestCase;
  */
 class AvroDecoderTest extends TestCase
 {
-    public function testDecodeTombstone()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testDecodeTombstone(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message->expects(self::once())->method('getBody')->willReturn(null);
@@ -37,9 +41,12 @@ class AvroDecoderTest extends TestCase
         self::assertNull($result->getBody());
     }
 
-    public function testDecodeWithSchema()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testDecodeWithSchema(): void
     {
-        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+        $schemaDefinition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $avroSchema->expects(self::exactly(2))->method('getDefinition')->willReturn($schemaDefinition);
@@ -75,12 +82,14 @@ class AvroDecoderTest extends TestCase
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
         self::assertSame(['test'], $result->getBody());
         self::assertSame('decoded-key', $result->getKey());
-
     }
 
-    public function testDecodeKeyMode()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testDecodeKeyMode(): void
     {
-        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+        $schemaDefinition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $avroSchema->expects(self::once())->method('getDefinition')->willReturn($schemaDefinition);
@@ -100,7 +109,6 @@ class AvroDecoderTest extends TestCase
         $registry->expects(self::once())->method('hasBodySchemaForTopic')->willReturn(false);
         $registry->expects(self::once())->method('hasKeySchemaForTopic')->willReturn(true);
 
-
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();
         $recordSerializer->expects(self::once())->method('decodeMessage')->with($message->getKey(), $schemaDefinition)->willReturn('decoded-key');
 
@@ -111,12 +119,14 @@ class AvroDecoderTest extends TestCase
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
         self::assertSame('decoded-key', $result->getKey());
         self::assertSame('body', $result->getBody());
-
     }
 
-    public function testDecodeBodyMode()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testDecodeBodyMode(): void
     {
-        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+        $schemaDefinition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $avroSchema->expects(self::once())->method('getDefinition')->willReturn($schemaDefinition);
@@ -146,10 +156,9 @@ class AvroDecoderTest extends TestCase
         self::assertInstanceOf(KafkaConsumerMessageInterface::class, $result);
         self::assertSame('test-key', $result->getKey());
         self::assertSame(['test'], $result->getBody());
-
     }
 
-    public function testGetRegistry()
+    public function testGetRegistry(): void
     {
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();

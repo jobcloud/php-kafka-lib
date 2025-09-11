@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message;
+namespace Jobcloud\Kafka\Tests\Unit\Message;
 
 use Jobcloud\Kafka\Message\KafkaProducerMessage;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class KafkaProducerMessageTest extends TestCase
 {
-    public function testMessageGettersAndConstructor()
+    public function testMessageGettersAndConstructor(): void
     {
         $key = '1234-1234-1234';
         $body = 'foo bar baz';
@@ -38,14 +38,13 @@ final class KafkaProducerMessageTest extends TestCase
         self::assertEquals($expectedHeader, $message->getHeaders());
     }
 
-    public function testClone()
+    public function testClone(): void
     {
         $key = '1234-1234-1234';
         $body = 'foo bar baz';
         $topic = 'test';
         $partition = 1;
-        $headers = [ 'key' => 'value' ];
-
+        $headers = ['key' => 'value'];
 
         $origMessage = KafkaProducerMessage::create($topic, $partition);
 

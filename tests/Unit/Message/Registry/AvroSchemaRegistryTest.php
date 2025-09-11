@@ -2,23 +2,28 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Registry;
+namespace Jobcloud\Kafka\Tests\Unit\Message\Registry;
 
-use \AvroSchema;
+use AvroSchema;
+use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use FlixTech\SchemaRegistryApi\Registry;
 use Jobcloud\Kafka\Exception\AvroSchemaRegistryException;
-use Jobcloud\Kafka\Message\Encoder\AvroEncoderInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistry;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
+use ReflectionProperty;
 
 /**
  * @covers \Jobcloud\Kafka\Message\Registry\AvroSchemaRegistry
  */
 class AvroSchemaRegistryTest extends TestCase
 {
-    public function testAddBodySchemaMappingForTopic()
+    /**
+     * @throws ReflectionException
+     */
+    public function testAddBodySchemaMappingForTopic(): void
     {
         $flixRegistry = $this->getMockForAbstractClass(Registry::class);
 
@@ -28,7 +33,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $registry->addBodySchemaMappingForTopic('test', $schema);
 
-        $reflectionProperty = new \ReflectionProperty($registry, 'schemaMapping');
+        $reflectionProperty = new ReflectionProperty($registry, 'schemaMapping');
         $reflectionProperty->setAccessible(true);
 
         $schemaMapping = $reflectionProperty->getValue($registry);
@@ -38,7 +43,10 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertSame($schema, $schemaMapping[AvroSchemaRegistryInterface::BODY_IDX]['test']);
     }
 
-    public function testAddKeySchemaMappingForTopic()
+    /**
+     * @throws ReflectionException
+     */
+    public function testAddKeySchemaMappingForTopic(): void
     {
         $flixRegistry = $this->getMockForAbstractClass(Registry::class);
 
@@ -48,7 +56,7 @@ class AvroSchemaRegistryTest extends TestCase
 
         $registry->addKeySchemaMappingForTopic('test2', $schema);
 
-        $reflectionProperty = new \ReflectionProperty($registry, 'schemaMapping');
+        $reflectionProperty = new ReflectionProperty($registry, 'schemaMapping');
         $reflectionProperty->setAccessible(true);
 
         $schemaMapping = $reflectionProperty->getValue($registry);
@@ -58,7 +66,10 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertSame($schema, $schemaMapping[AvroSchemaRegistryInterface::KEY_IDX]['test2']);
     }
 
-    public function testHasBodySchemaMappingForTopic()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testHasBodySchemaMappingForTopic(): void
     {
         $flixRegistry = $this->getMockForAbstractClass(Registry::class);
         $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
@@ -70,7 +81,10 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertFalse($registry->hasBodySchemaForTopic('test2'));
     }
 
-    public function testHasKeySchemaMappingForTopic()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testHasKeySchemaMappingForTopic(): void
     {
         $flixRegistry = $this->getMockForAbstractClass(Registry::class);
         $schema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
@@ -82,10 +96,13 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertFalse($registry->hasKeySchemaForTopic('test2'));
     }
 
-    public function testGetBodySchemaForTopicWithNoMapping()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testGetBodySchemaForTopicWithNoMapping(): void
     {
-        self::expectException(AvroSchemaRegistryException::class);
-        self::expectExceptionMessage(
+        $this->expectException(AvroSchemaRegistryException::class);
+        $this->expectExceptionMessage(
             sprintf(
                 AvroSchemaRegistryException::SCHEMA_MAPPING_NOT_FOUND,
                 'test',
@@ -100,7 +117,10 @@ class AvroSchemaRegistryTest extends TestCase
         $registry->getBodySchemaForTopic('test');
     }
 
-    public function testGetBodySchemaForTopicWithMappingWithDefinition()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testGetBodySchemaForTopicWithMappingWithDefinition(): void
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -116,7 +136,10 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertSame($schema, $registry->getBodySchemaForTopic('test'));
     }
 
-    public function testGetKeySchemaForTopicWithMappingWithDefinition()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testGetKeySchemaForTopicWithMappingWithDefinition(): void
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -132,7 +155,10 @@ class AvroSchemaRegistryTest extends TestCase
         self::assertSame($schema, $registry->getKeySchemaForTopic('test2'));
     }
 
-    public function testGetBodySchemaForTopicWithMappingWithoutDefinitionLatest()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testGetBodySchemaForTopicWithMappingWithoutDefinitionLatest(): void
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -152,7 +178,10 @@ class AvroSchemaRegistryTest extends TestCase
         $registry->getBodySchemaForTopic('test');
     }
 
-    public function testGetBodySchemaForTopicWithMappingWithoutDefinitionVersion()
+    /**
+     * @throws SchemaRegistryException
+     */
+    public function testGetBodySchemaForTopicWithMappingWithoutDefinitionVersion(): void
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -172,7 +201,7 @@ class AvroSchemaRegistryTest extends TestCase
         $registry->getBodySchemaForTopic('test');
     }
 
-    public function testGetTopicSchemaMapping()
+    public function testGetTopicSchemaMapping(): void
     {
         $flixRegistry = $this->getMockForAbstractClass(Registry::class);
 

@@ -6,38 +6,19 @@ namespace Jobcloud\Kafka\Message\Decoder;
 
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
-use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
 final class AvroDecoder implements AvroDecoderInterface
 {
-    /**
-     * @var AvroSchemaRegistryInterface
-     */
-    private $registry;
-
-    /**
-     * @var RecordSerializer
-     */
-    private $recordSerializer;
-
-    /**
-     * @param AvroSchemaRegistryInterface $registry
-     * @param RecordSerializer            $recordSerializer
-     */
     public function __construct(
-        AvroSchemaRegistryInterface $registry,
-        RecordSerializer $recordSerializer
+        private AvroSchemaRegistryInterface $registry,
+        private RecordSerializer $recordSerializer,
     ) {
-        $this->recordSerializer = $recordSerializer;
-        $this->registry = $registry;
     }
 
     /**
-     * @param KafkaConsumerMessageInterface $consumerMessage
-     * @return KafkaConsumerMessageInterface
      * @throws SchemaRegistryException
      */
     public function decode(KafkaConsumerMessageInterface $consumerMessage): KafkaConsumerMessageInterface
@@ -54,11 +35,9 @@ final class AvroDecoder implements AvroDecoderInterface
     }
 
     /**
-     * @param KafkaConsumerMessageInterface $consumerMessage
-     * @return mixed
      * @throws SchemaRegistryException
      */
-    private function decodeBody(KafkaConsumerMessageInterface $consumerMessage)
+    private function decodeBody(KafkaConsumerMessageInterface $consumerMessage): mixed
     {
         $body = $consumerMessage->getBody();
         $topicName = $consumerMessage->getTopicName();
@@ -78,11 +57,9 @@ final class AvroDecoder implements AvroDecoderInterface
     }
 
     /**
-     * @param KafkaConsumerMessageInterface $consumerMessage
-     * @return mixed
      * @throws SchemaRegistryException
      */
-    private function decodeKey(KafkaConsumerMessageInterface $consumerMessage)
+    private function decodeKey(KafkaConsumerMessageInterface $consumerMessage): mixed
     {
         $key = $consumerMessage->getKey();
         $topicName = $consumerMessage->getTopicName();
@@ -101,9 +78,6 @@ final class AvroDecoder implements AvroDecoderInterface
         return $this->recordSerializer->decodeMessage($key, $schemaDefinition);
     }
 
-    /**
-     * @return AvroSchemaRegistryInterface
-     */
     public function getRegistry(): AvroSchemaRegistryInterface
     {
         return $this->registry;

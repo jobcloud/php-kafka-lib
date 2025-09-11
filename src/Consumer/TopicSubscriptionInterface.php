@@ -6,9 +6,6 @@ namespace Jobcloud\Kafka\Consumer;
 
 interface TopicSubscriptionInterface
 {
-    /**
-     * @return string
-     */
     public function getTopicName(): string;
 
     /**
@@ -18,12 +15,8 @@ interface TopicSubscriptionInterface
 
     /**
      * @param int[] $partitions
-     * @return void
      */
     public function setPartitions(array $partitions): void;
 
-    /**
-     * @return integer
-     */
     public function getOffset(): int;
 }
