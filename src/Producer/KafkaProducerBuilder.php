@@ -14,39 +14,24 @@ use RdKafka\Producer as RdKafkaProducer;
 
 final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 {
-    /**
-     * @var array|string[]
-     */
-    private $brokers = [];
+    /** @var string[] */
+    private array $brokers = [];
 
-    /**
-     * @var string[]
-     */
-    private $config = [];
+    /** @var string[] */
+    private array $config = [];
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $deliverReportCallback;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $errorCallback;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $logCallback;
 
-    /**
-     * @var EncoderInterface
-     */
+    /** @var EncoderInterface */
     private $encoder;
 
-    /**
-     * KafkaProducerBuilder constructor.
-     */
     private function __construct()
     {
         $this->deliverReportCallback = new KafkaProducerDeliveryReportCallback();
@@ -56,8 +41,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * Returns the producer builder
-     *
-     * @return KafkaProducerBuilderInterface
      */
     public static function create(): KafkaProducerBuilderInterface
     {
@@ -66,9 +49,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * Adds a broker to which you want to produce
-     *
-     * @param string $broker
-     * @return KafkaProducerBuilderInterface
      */
     public function withAdditionalBroker(string $broker): KafkaProducerBuilderInterface
     {
@@ -81,7 +61,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
      * Add configuration settings, otherwise the kafka defaults apply
      *
      * @param string[] $config
-     * @return KafkaProducerBuilderInterface
      */
     public function withAdditionalConfig(array $config): KafkaProducerBuilderInterface
     {
@@ -93,9 +72,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * Sets callback for the delivery report. The broker will send a delivery
      * report for every message which describes if the delivery was successful or not
-     *
-     * @param callable $deliveryReportCallback
-     * @return KafkaProducerBuilderInterface
      */
     public function withDeliveryReportCallback(callable $deliveryReportCallback): KafkaProducerBuilderInterface
     {
@@ -107,9 +83,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * Set a callback to be called on errors.
      * The default callback will throw an exception for every error
-     *
-     * @param callable $errorCallback
-     * @return KafkaProducerBuilderInterface
      */
     public function withErrorCallback(callable $errorCallback): KafkaProducerBuilderInterface
     {
@@ -120,9 +93,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * Callback for log related events
-     *
-     * @param callable $logCallback
-     * @return KafkaProducerBuilderInterface
      */
     public function withLogCallback(callable $logCallback): KafkaProducerBuilderInterface
     {
@@ -133,9 +103,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
 
     /**
      * Lets you set a custom encoder for produce message
-     *
-     * @param EncoderInterface $encoder
-     * @return KafkaProducerBuilderInterface
      */
     public function withEncoder(EncoderInterface $encoder): KafkaProducerBuilderInterface
     {
@@ -147,7 +114,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
     /**
      * Returns your producer instance
      *
-     * @return KafkaProducerInterface
      * @throws KafkaProducerException
      */
     public function build(): KafkaProducerInterface
@@ -160,7 +126,11 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
         $this->config['socket.timeout.ms'] = '50';
         $this->config['queue.buffering.max.ms'] = '1';
 
-        if (function_exists('pcntl_sigprocmask')) {
+        if (
+            function_exists('pcntl_sigprocmask')
+            && defined('SIG_BLOCK')
+            && defined('SIGIO')
+        ) {
             pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
             $this->config['internal.termination.signal'] = (string) SIGIO;
             unset($this->config['queue.buffering.max.ms']);
@@ -176,10 +146,6 @@ final class KafkaProducerBuilder implements KafkaProducerBuilderInterface
         return new KafkaProducer($rdKafkaProducer, $kafkaConfig, $this->encoder);
     }
 
-    /**
-     * @param KafkaConfiguration $conf
-     * @return void
-     */
     private function registerCallbacks(KafkaConfiguration $conf): void
     {
         $conf->setDrMsgCb($this->deliverReportCallback);

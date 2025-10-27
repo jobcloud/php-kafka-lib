@@ -17,68 +17,40 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     public const CONSUMER_TYPE_LOW_LEVEL = 'low';
     public const CONSUMER_TYPE_HIGH_LEVEL = 'high';
 
-    /**
-     * @var string[]
-     */
-    private $brokers = [];
+    /** @var string[] */
+    private array $brokers = [];
 
-    /**
-     * @var array<string, mixed>
-     */
-    private $config = [
+    /** @var array<string, mixed> */
+    private array $config = [
         'enable.auto.offset.store' => false,
         'enable.auto.commit' => false,
         'auto.offset.reset' => 'earliest'
     ];
 
-    /**
-     * @var array|TopicSubscription[]
-     */
-    private $topics = [];
+    /** @var TopicSubscription[] */
+    private array $topics = [];
 
-    /**
-     * @var string
-     */
-    private $consumerGroup = 'default';
+    private string $consumerGroup = 'default';
 
-    /**
-     * @var string
-     */
-    private $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
+    private string $consumerType = self::CONSUMER_TYPE_HIGH_LEVEL;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $errorCallback;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $rebalanceCallback;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $consumeCallback;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $logCallback;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $offsetCommitCallback;
 
-    /**
-     * @var DecoderInterface
-     */
-    private $decoder;
+    private DecoderInterface $decoder;
 
-    /**
-     * KafkaConsumerBuilder constructor.
-     */
     private function __construct()
     {
         $this->errorCallback = new KafkaErrorCallback();
@@ -87,8 +59,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Returns the builder
-     *
-     * @return KafkaConsumerBuilder
      */
     public static function create(): self
     {
@@ -97,9 +67,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Adds a broker from which you want to consume
-     *
-     * @param string $broker
-     * @return KafkaConsumerBuilderInterface
      */
     public function withAdditionalBroker(string $broker): KafkaConsumerBuilderInterface
     {
@@ -113,10 +80,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * Add topic name(s) (and additionally partitions and offsets) to subscribe to
      *
-     * @param string  $topicName
-     * @param int[]   $partitions
-     * @param integer $offset
-     * @return KafkaConsumerBuilderInterface
+     * @param int[] $partitions
      */
     public function withAdditionalSubscription(
         string $topicName,
@@ -134,10 +98,7 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * Replaces all topic names previously configured with a topic and additionally partitions and an offset to
      * subscribe to
      *
-     * @param string  $topicName
-     * @param int[]   $partitions
-     * @param integer $offset
-     * @return KafkaConsumerBuilderInterface
+     * @param int[] $partitions
      */
     public function withSubscription(
         string $topicName,
@@ -155,7 +116,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
      * Add configuration settings, otherwise the kafka defaults apply
      *
      * @param string[] $config
-     * @return KafkaConsumerBuilderInterface
      */
     public function withAdditionalConfig(array $config): KafkaConsumerBuilderInterface
     {
@@ -167,9 +127,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Set the consumer group
-     *
-     * @param string $consumerGroup
-     * @return KafkaConsumerBuilderInterface
      */
     public function withConsumerGroup(string $consumerGroup): KafkaConsumerBuilderInterface
     {
@@ -181,9 +138,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Set the consumer type, can be either CONSUMER_TYPE_LOW_LEVEL or CONSUMER_TYPE_HIGH_LEVEL
-     *
-     * @param string $consumerType
-     * @return KafkaConsumerBuilderInterface
      */
     public function withConsumerType(string $consumerType): KafkaConsumerBuilderInterface
     {
@@ -196,9 +150,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * Set a callback to be called on errors.
      * The default callback will throw an exception for every error
-     *
-     * @param callable $errorCallback
-     * @return KafkaConsumerBuilderInterface
      */
     public function withErrorCallback(callable $errorCallback): KafkaConsumerBuilderInterface
     {
@@ -210,9 +161,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Set a callback to be called on consumer rebalance
-     *
-     * @param callable $rebalanceCallback
-     * @return KafkaConsumerBuilderInterface
      */
     public function withRebalanceCallback(callable $rebalanceCallback): KafkaConsumerBuilderInterface
     {
@@ -225,9 +173,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * Only applicable for the high level consumer
      * Callback that is going to be called when you call consume
-     *
-     * @param callable $consumeCallback
-     * @return KafkaConsumerBuilderInterface
      */
     public function withConsumeCallback(callable $consumeCallback): KafkaConsumerBuilderInterface
     {
@@ -239,9 +184,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Callback for log related events
-     *
-     * @param callable $logCallback
-     * @return KafkaConsumerBuilderInterface
      */
     public function withLogCallback(callable $logCallback): KafkaConsumerBuilderInterface
     {
@@ -253,9 +195,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Set callback that is being called on offset commits
-     *
-     * @param callable $offsetCommitCallback
-     * @return KafkaConsumerBuilderInterface
      */
     public function withOffsetCommitCallback(callable $offsetCommitCallback): KafkaConsumerBuilderInterface
     {
@@ -267,9 +206,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
 
     /**
      * Lets you set a custom decoder for the consumed message
-     *
-     * @param DecoderInterface $decoder
-     * @return KafkaConsumerBuilderInterface
      */
     public function withDecoder(DecoderInterface $decoder): KafkaConsumerBuilderInterface
     {
@@ -282,7 +218,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
     /**
      * Returns your consumer instance
      *
-     * @return KafkaConsumerInterface
      * @throws KafkaConsumerBuilderException
      */
     public function build(): KafkaConsumerInterface
@@ -331,10 +266,6 @@ final class KafkaConsumerBuilder implements KafkaConsumerBuilderInterface
         return new KafkaHighLevelConsumer($rdKafkaConsumer, $kafkaConfig, $this->decoder);
     }
 
-    /**
-     * @param KafkaConfiguration $conf
-     * @return void
-     */
     private function registerCallbacks(KafkaConfiguration $conf): void
     {
         $conf->setErrorCb($this->errorCallback);

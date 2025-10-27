@@ -20,46 +20,21 @@ use RdKafka\TopicPartition as RdKafkaTopicPartition;
 
 abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 {
-    /**
-     * @var KafkaConfiguration
-     */
-    protected $kafkaConfiguration;
+    protected bool $subscribed = false;
 
     /**
-     * @var boolean
-     */
-    protected $subscribed = false;
-
-    /**
-     * @var RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer
-     */
-    protected $consumer;
-
-    /**
-     * @var DecoderInterface
-     */
-    protected $decoder;
-
-    /**
-     * @param mixed              $consumer
-     * @param KafkaConfiguration $kafkaConfiguration
-     * @param DecoderInterface   $decoder
+     * @param RdKafkaLowLevelConsumer|RdKafkaHighLevelConsumer $consumer
      */
     public function __construct(
-        $consumer,
-        KafkaConfiguration $kafkaConfiguration,
-        DecoderInterface $decoder
+        protected mixed $consumer,
+        protected KafkaConfiguration $kafkaConfiguration,
+        protected DecoderInterface $decoder
     ) {
-        $this->consumer = $consumer;
-        $this->kafkaConfiguration = $kafkaConfiguration;
-        $this->decoder = $decoder;
     }
 
     /**
      * Returns true if the consumer has subscribed to its topics, otherwise false
      * It is mandatory to call `subscribe` before `consume`
-     *
-     * @return boolean
      */
     public function isSubscribed(): bool
     {
@@ -80,9 +55,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
      * Consumes a message and returns it
      * In cases of errors / timeouts an exception is thrown
      *
-     * @param integer $timeoutMs
-     * @param boolean $autoDecode
-     * @return KafkaConsumerMessageInterface
      * @throws KafkaConsumerConsumeException
      * @throws KafkaConsumerEndOfPartitionException
      * @throws KafkaConsumerTimeoutException
@@ -102,7 +74,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 
         if (RD_KAFKA_RESP_ERR__PARTITION_EOF === $rdKafkaMessage->err) {
             throw new KafkaConsumerEndOfPartitionException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
-        } elseif (RD_KAFKA_RESP_ERR__TIMED_OUT === $rdKafkaMessage->err) {
+        }
+        if (RD_KAFKA_RESP_ERR__TIMED_OUT === $rdKafkaMessage->err) {
             throw new KafkaConsumerTimeoutException($rdKafkaMessage->errstr(), $rdKafkaMessage->err);
         }
 
@@ -121,9 +94,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 
     /**
      * Decode consumer message
-     *
-     * @param KafkaConsumerMessageInterface $message
-     * @return KafkaConsumerMessageInterface
      */
     public function decodeMessage(KafkaConsumerMessageInterface $message): KafkaConsumerMessageInterface
     {
@@ -133,9 +103,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /**
      * Queries the broker for metadata on a certain topic
      *
-     * @param string $topicName
-     * @param integer $timeoutMs
-     * @return RdKafkaMetadataTopic
      * @throws RdKafkaException
      */
     public function getMetadataForTopic(string $topicName, int $timeoutMs = 10000): RdKafkaMetadataTopic
@@ -154,9 +121,8 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     /**
      * Get the earliest offset for a certain timestamp for topic partitions
      *
-     * @param array|RdKafkaTopicPartition[] $topicPartitions
-     * @param integer                       $timeoutMs
-     * @return array|RdKafkaTopicPartition[]
+     * @param RdKafkaTopicPartition[] $topicPartitions
+     * @return RdKafkaTopicPartition[]
      */
     public function offsetsForTimes(array $topicPartitions, int $timeoutMs): array
     {
@@ -165,11 +131,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 
     /**
      * Queries the broker for the first offset of a given topic and partition
-     *
-     * @param string  $topic
-     * @param integer $partition
-     * @param integer $timeoutMs
-     * @return integer
      */
     public function getFirstOffsetForTopicPartition(string $topic, int $partition, int $timeoutMs): int
     {
@@ -183,11 +144,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
 
     /**
      * Queries the broker for the last offset of a given topic and partition
-     *
-     * @param string  $topic
-     * @param integer $partition
-     * @param integer $timeoutMs
-     * @return integer
      */
     public function getLastOffsetForTopicPartition(string $topic, int $partition, int $timeoutMs): int
     {
@@ -200,7 +156,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
     }
 
     /**
-     * @param string $topic
      * @return int[]
      * @throws RdKafkaException
      */
@@ -217,10 +172,6 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
         return $partitions;
     }
 
-    /**
-     * @param RdKafkaMessage $message
-     * @return KafkaConsumerMessageInterface
-     */
     protected function getConsumerMessage(RdKafkaMessage $message): KafkaConsumerMessageInterface
     {
         return new KafkaConsumerMessage(
@@ -242,9 +193,5 @@ abstract class AbstractKafkaConsumer implements KafkaConsumerInterface
         return $this->kafkaConfiguration->getTopicSubscriptions();
     }
 
-    /**
-     * @param integer $timeoutMs
-     * @return null|RdKafkaMessage
-     */
     abstract protected function kafkaConsume(int $timeoutMs): ?RdKafkaMessage;
 }

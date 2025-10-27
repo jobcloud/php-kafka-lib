@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message;
+namespace Jobcloud\Kafka\Tests\Unit\Message;
 
 use Jobcloud\Kafka\Message\KafkaConsumerMessage;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class KafkaConsumerMessageTest extends TestCase
 {
-    public function testMessageGettersAndConstructor()
+    public function testMessageGettersAndConstructor(): void
     {
         $key = '1234-1234-1234';
         $body = 'foo bar baz';

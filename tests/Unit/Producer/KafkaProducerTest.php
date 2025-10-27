@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Producer;
+namespace Jobcloud\Kafka\Tests\Unit\Producer;
 
 use Jobcloud\Kafka\Exception\KafkaProducerTransactionAbortException;
 use Jobcloud\Kafka\Exception\KafkaProducerTransactionFatalException;
@@ -10,6 +10,7 @@ use Jobcloud\Kafka\Message\Encoder\EncoderInterface;
 use Jobcloud\Kafka\Exception\KafkaProducerException;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use Jobcloud\Kafka\Producer\KafkaProducer;
+use Jobcloud\Kafka\Producer\KafkaProducerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Producer as RdKafkaProducer;
@@ -24,28 +25,19 @@ use RdKafka\KafkaErrorException as RdKafkaErrorException;
  */
 class KafkaProducerTest extends TestCase
 {
-
-    /**
-     * @var KafkaConfiguration|MockObject
-     */
+    /** @var KafkaConfiguration|MockObject */
     private $kafkaConfigurationMock;
 
-    /**
-     * @var RdKafkaProducer|MockObject
-     */
+    /** @var RdKafkaProducer|MockObject */
     private $rdKafkaProducerMock;
 
-    /**
-     * @var EncoderInterface|MockObject
-     */
+    /** @var EncoderInterface|MockObject */
     private $encoderMock;
 
-    /**
-     * @var KafkaProducer
-     */
-    private $kafkaProducer;
+    /** @var KafkaProducer */
+    private KafkaProducerInterface $kafkaProducer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->kafkaConfigurationMock = $this->createMock(KafkaConfiguration::class);
         $this->rdKafkaProducerMock = $this->createMock(RdKafkaProducer::class);
@@ -54,7 +46,6 @@ class KafkaProducerTest extends TestCase
     }
 
     /**
-     * @return void
      * @throws KafkaProducerException
      */
     public function testProduceError(): void
@@ -66,7 +57,7 @@ class KafkaProducerTest extends TestCase
 
         $this->encoderMock->expects(self::once())->method('encode')->willReturn($message);
 
-        self::expectException(KafkaProducerException::class);
+        $this->expectException(KafkaProducerException::class);
 
         /** @var RdKafkaProducerTopic|MockObject $rdKafkaProducerTopicMock */
         $rdKafkaProducerTopicMock = $this->createMock(RdKafkaProducerTopic::class);
@@ -90,7 +81,7 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->produce($message);
     }
 
-    public function testProduceSuccess()
+    public function testProduceSuccess(): void
     {
         $message = KafkaProducerMessage::create('test-topic', 1)
             ->withKey('asdf-asdf-asfd-asdf')
@@ -128,7 +119,7 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->produce($message);
     }
 
-    public function testSyncProduceSuccess()
+    public function testSyncProduceSuccess(): void
     {
         $message = KafkaProducerMessage::create('test-topic', 1)
             ->withKey('asdf-asdf-asfd-asdf')
@@ -166,7 +157,7 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->syncProduce($message);
     }
 
-    public function testPoll()
+    public function testPoll(): void
     {
         $this->rdKafkaProducerMock
             ->expects(self::once())
@@ -176,7 +167,7 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->poll(1000);
     }
 
-    public function testPollDefault()
+    public function testPollDefault(): void
     {
         $this->rdKafkaProducerMock
             ->expects(self::once())
@@ -186,7 +177,7 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->poll();
     }
 
-    public function testPollUntilQueueSizeReached()
+    public function testPollUntilQueueSizeReached(): void
     {
         $message = KafkaProducerMessage::create('test-topic', 1)
             ->withKey('asdf-asdf-asfd-asdf')
@@ -240,9 +231,6 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->pollUntilQueueSizeReached();
     }
 
-    /**
-     * @return void
-     */
     public function testPurge(): void
     {
         $this->rdKafkaProducerMock
@@ -254,9 +242,6 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->purge(RD_KAFKA_PURGE_F_QUEUE);
     }
 
-    /**
-     * @return void
-     */
     public function testFlush(): void
     {
         $this->rdKafkaProducerMock
@@ -268,9 +253,6 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->flush(100);
     }
 
-    /**
-     * @return void
-     */
     public function testGetMetadataForTopic(): void
     {
         $topicMock = $this->createMock(RdKafkaProducerTopic::class);
@@ -298,9 +280,6 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->getMetadataForTopic('test-topic-name', 1000);
     }
 
-    /**
-     * @return void
-     */
     public function testGetMetadataForTopicDefault(): void
     {
         $topicMock = $this->createMock(RdKafkaProducerTopic::class);
@@ -328,9 +307,6 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->getMetadataForTopic('test-topic-name');
     }
 
-    /**
-     * @return void
-     */
     public function testBeginTransactionSuccess(): void
     {
         $this->rdKafkaProducerMock
@@ -343,12 +319,9 @@ class KafkaProducerTest extends TestCase
             ->method('beginTransaction')
             ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
 
-        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+        $this->kafkaProducer->beginTransaction(10000);
     }
 
-    /**
-     * @return void
-     */
     public function testBeginTransactionConsecutiveSuccess(): void
     {
         $this->rdKafkaProducerMock
@@ -361,18 +334,15 @@ class KafkaProducerTest extends TestCase
             ->method('beginTransaction')
             ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
 
-        self::assertNull($this->kafkaProducer->beginTransaction(10000));
-        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+        $this->kafkaProducer->beginTransaction(10000);
+        $this->kafkaProducer->beginTransaction(10000);
 
     }
 
-    /**
-     * @return void
-     */
     public function testBeginTransactionWithRetriableError(): void
     {
-        self::expectException(KafkaProducerTransactionRetryException::class);
-        self::expectExceptionMessage(
+        $this->expectException(KafkaProducerTransactionRetryException::class);
+        $this->expectExceptionMessage(
             sprintf(KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE, '')
         );
 
@@ -387,16 +357,13 @@ class KafkaProducerTest extends TestCase
 
         $this->rdKafkaProducerMock->expects(self::never())->method('beginTransaction');
 
-        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+        $this->kafkaProducer->beginTransaction(10000);
     }
 
-    /**
-     * @return void
-     */
     public function testBeginTransactionWithAbortError(): void
     {
-        self::expectException(KafkaProducerTransactionAbortException::class);
-        self::expectExceptionMessage(
+        $this->expectException(KafkaProducerTransactionAbortException::class);
+        $this->expectExceptionMessage(
             sprintf(KafkaProducerTransactionAbortException::TRANSACTION_REQUIRES_ABORT_EXCEPTION_MESSAGE, '')
         );
 
@@ -415,13 +382,10 @@ class KafkaProducerTest extends TestCase
         self::assertNull($this->kafkaProducer->beginTransaction(10000));
     }
 
-    /**
-     * @return void
-     */
     public function testBeginTransactionWithFatalError(): void
     {
-        self::expectException(KafkaProducerTransactionFatalException::class);
-        self::expectExceptionMessage(
+        $this->expectException(KafkaProducerTransactionFatalException::class);
+        $this->expectExceptionMessage(
             sprintf(KafkaProducerTransactionFatalException::FATAL_TRANSACTION_EXCEPTION_MESSAGE, '')
         );
 
@@ -437,18 +401,15 @@ class KafkaProducerTest extends TestCase
 
         $this->rdKafkaProducerMock->expects(self::never())->method('beginTransaction');
 
-        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+        $this->kafkaProducer->beginTransaction(10000);
     }
 
-    /**
-     * @return void
-     */
     public function testBeginTransactionWithFatalErrorWillTriggerInit(): void
     {
         $firstExceptionCaught = false;
 
-        self::expectException(KafkaProducerTransactionFatalException::class);
-        self::expectExceptionMessage(
+        $this->expectException(KafkaProducerTransactionFatalException::class);
+        $this->expectExceptionMessage(
             sprintf(KafkaProducerTransactionFatalException::FATAL_TRANSACTION_EXCEPTION_MESSAGE, '')
         );
 
@@ -465,18 +426,15 @@ class KafkaProducerTest extends TestCase
         $this->rdKafkaProducerMock->expects(self::never())->method('beginTransaction');
 
         try {
-            self::assertNull($this->kafkaProducer->beginTransaction(10000));
+            $this->kafkaProducer->beginTransaction(10000);
         } catch (KafkaProducerTransactionFatalException $e) {
             $firstExceptionCaught = true;
         }
 
         self::assertTrue($firstExceptionCaught);
-        self::assertNull($this->kafkaProducer->beginTransaction(10000));
+        $this->kafkaProducer->beginTransaction(10000);
     }
 
-    /**
-     * @return void
-     */
     public function testAbortTransactionSuccess(): void
     {
         $this->rdKafkaProducerMock
@@ -484,16 +442,13 @@ class KafkaProducerTest extends TestCase
             ->method('abortTransaction')
             ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
 
-        self::assertNull($this->kafkaProducer->abortTransaction(10000));
+        $this->kafkaProducer->abortTransaction(10000);
     }
 
-    /**
-     * @return void
-     */
     public function testAbortTransactionFailure(): void
     {
-        self::expectException(KafkaProducerTransactionRetryException::class);
-        self::expectExceptionMessage(
+        $this->expectException(KafkaProducerTransactionRetryException::class);
+        $this->expectExceptionMessage(
             sprintf(KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE, 'test')
         );
 
@@ -507,9 +462,6 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->abortTransaction(10000);
     }
 
-    /**
-     * @return void
-     */
     public function testCommitTransactionSuccess(): void
     {
         $this->rdKafkaProducerMock
@@ -518,16 +470,13 @@ class KafkaProducerTest extends TestCase
             ->with(10000)
             ->willReturn(RD_KAFKA_RESP_ERR_NO_ERROR);
 
-        self::assertNull($this->kafkaProducer->commitTransaction(10000));
+        $this->kafkaProducer->commitTransaction(10000);
     }
 
-    /**
-     * @return void
-     */
     public function testCommitTransactionFailure(): void
     {
-        self::expectException(KafkaProducerTransactionRetryException::class);
-        self::expectExceptionMessage(
+        $this->expectException(KafkaProducerTransactionRetryException::class);
+        $this->expectExceptionMessage(
             sprintf(KafkaProducerTransactionRetryException::RETRIABLE_TRANSACTION_EXCEPTION_MESSAGE, 'test')
         );
 
@@ -542,9 +491,6 @@ class KafkaProducerTest extends TestCase
         $this->kafkaProducer->commitTransaction(10000);
     }
 
-    /**
-     * @return void
-     */
     public function testCommitTransactionFailurePreviousException(): void
     {
         $exception = new RdKafkaErrorException('test', 1, 'some failure', false, true, false);

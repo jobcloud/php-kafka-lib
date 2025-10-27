@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Decoder;
+namespace Jobcloud\Kafka\Tests\Unit\Message\Decoder;
 
+use AvroSchema;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use Jobcloud\Kafka\Message\Decoder\AvroDecoder;
-use Jobcloud\Kafka\Message\Decoder\AvroDecoderInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
  */
 class AvroDecoderTest extends TestCase
 {
-    public function testDecodeTombstone()
+    public function testDecodeTombstone(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message->expects(self::once())->method('getBody')->willReturn(null);
@@ -37,9 +37,9 @@ class AvroDecoderTest extends TestCase
         self::assertNull($result->getBody());
     }
 
-    public function testDecodeWithSchema()
+    public function testDecodeWithSchema(): void
     {
-        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+        $schemaDefinition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $avroSchema->expects(self::exactly(2))->method('getDefinition')->willReturn($schemaDefinition);
@@ -78,9 +78,9 @@ class AvroDecoderTest extends TestCase
 
     }
 
-    public function testDecodeKeyMode()
+    public function testDecodeKeyMode(): void
     {
-        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+        $schemaDefinition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $avroSchema->expects(self::once())->method('getDefinition')->willReturn($schemaDefinition);
@@ -114,9 +114,9 @@ class AvroDecoderTest extends TestCase
 
     }
 
-    public function testDecodeBodyMode()
+    public function testDecodeBodyMode(): void
     {
-        $schemaDefinition = $this->getMockBuilder(\AvroSchema::class)->disableOriginalConstructor()->getMock();
+        $schemaDefinition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
         $avroSchema = $this->getMockForAbstractClass(KafkaAvroSchemaInterface::class);
         $avroSchema->expects(self::once())->method('getDefinition')->willReturn($schemaDefinition);
@@ -149,7 +149,7 @@ class AvroDecoderTest extends TestCase
 
     }
 
-    public function testGetRegistry()
+    public function testGetRegistry(): void
     {
         $registry = $this->getMockForAbstractClass(AvroSchemaRegistryInterface::class);
         $recordSerializer = $this->getMockBuilder(RecordSerializer::class)->disableOriginalConstructor()->getMock();

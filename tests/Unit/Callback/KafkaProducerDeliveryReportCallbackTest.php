@@ -1,9 +1,10 @@
 <?php
 
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Callback;
+namespace Jobcloud\Kafka\Tests\Unit\Callback;
 
 use Jobcloud\Kafka\Exception\KafkaProducerException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RdKafka\Producer as RdKafkaProducer;
 use RdKafka\Message;
@@ -14,16 +15,16 @@ use Jobcloud\Kafka\Callback\KafkaProducerDeliveryReportCallback;
  */
 class KafkaProducerDeliveryReportCallbackTest extends TestCase
 {
-    public function getProducerMock()
+    public function getProducerMock(): RdKafkaProducer|MockObject
     {
         return $this->getMockBuilder(RdKafkaProducer::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
 
-    public function testInvokeDefault()
+    public function testInvokeDefault(): void
     {
-        self::expectException(KafkaProducerException::class);
+        $this->expectException(KafkaProducerException::class);
 
         $message = new Message();
         $message->err = -1;
@@ -31,9 +32,9 @@ class KafkaProducerDeliveryReportCallbackTest extends TestCase
         call_user_func(new KafkaProducerDeliveryReportCallback(), $this->getProducerMock(), $message);
     }
 
-    public function testInvokeTimeout()
+    public function testInvokeTimeout(): void
     {
-        self::expectException(KafkaProducerException::class);
+        $this->expectException(KafkaProducerException::class);
 
         $message = new Message();
         $message->err = RD_KAFKA_RESP_ERR__MSG_TIMED_OUT;
@@ -41,7 +42,7 @@ class KafkaProducerDeliveryReportCallbackTest extends TestCase
         call_user_func(new KafkaProducerDeliveryReportCallback(), $this->getProducerMock(), $message);
     }
 
-    public function testInvokeNoError()
+    public function testInvokeNoError(): void
     {
         $message = new Message();
         $message->err = RD_KAFKA_RESP_ERR_NO_ERROR;

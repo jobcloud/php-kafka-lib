@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message;
+namespace Jobcloud\Kafka\Tests\Unit\Message;
 
 use Jobcloud\Kafka\Message\KafkaAvroSchema;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use PHPUnit\Framework\TestCase;
-use \AvroSchema;
+use AvroSchema;
 
 /**
  * @covers \Jobcloud\Kafka\Message\KafkaAvroSchema
  */
 class KafkaAvroSchemaTest extends TestCase
 {
-    public function testGetters()
+    public function testGetters(): void
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -28,7 +28,7 @@ class KafkaAvroSchemaTest extends TestCase
         self::assertEquals($definition, $avroSchema->getDefinition());
     }
 
-    public function testSetters()
+    public function testSetters(): void
     {
         $definition = $this->getMockBuilder(AvroSchema::class)->disableOriginalConstructor()->getMock();
 
@@ -41,7 +41,7 @@ class KafkaAvroSchemaTest extends TestCase
         self::assertEquals($definition, $avroSchema->getDefinition());
     }
 
-    public function testAvroSchemaWithJustName()
+    public function testAvroSchemaWithJustName(): void
     {
         $schemaName = 'testSchema';
 

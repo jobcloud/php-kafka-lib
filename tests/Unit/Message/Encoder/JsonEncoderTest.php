@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Encoder;
+namespace Jobcloud\Kafka\Tests\Unit\Message\Encoder;
 
 use Jobcloud\Kafka\Message\Encoder\JsonEncoder;
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
+use JsonException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,31 +14,25 @@ use PHPUnit\Framework\TestCase;
  */
 class JsonEncoderTest extends TestCase
 {
-    /**
-     * @return void
-     */
     public function testEncode(): void
     {
         $message = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $message->expects(self::once())->method('getBody')->willReturn(['name' => 'foo']);
         $message->expects(self::once())->method('withBody')->with('{"name":"foo"}')->willReturn($message);
 
-        $encoder = $this->getMockForAbstractClass(JsonEncoder::class);
+        $encoder = new JsonEncoder();
 
         self::assertSame($message, $encoder->encode($message));
     }
 
-    /**
-     * @return void
-     */
     public function testEncodeThrowsException(): void
     {
         $message = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);
         $message->expects(self::once())->method('getBody')->willReturn(chr(255));
 
-        $encoder = $this->getMockForAbstractClass(JsonEncoder::class);
+        $encoder = new JsonEncoder();
 
-        self::expectException(\JsonException::class);
+        $this->expectException(JsonException::class);
 
         $encoder->encode($message);
     }

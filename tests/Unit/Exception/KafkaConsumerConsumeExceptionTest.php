@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Exception;
+namespace Jobcloud\Kafka\Tests\Unit\Exception;
 
-use Jobcloud\Kafka\Message\KafkaConsumerMessage;
 use Jobcloud\Kafka\Exception\KafkaConsumerConsumeException;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
 use PHPUnit\Framework\TestCase;
@@ -14,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class KafkaConsumerConsumeExceptionTest extends TestCase
 {
-    public function testGetAndConstructOfKafkaConsumerConsumeException()
+    public function testGetAndConstructOfKafkaConsumerConsumeException(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
 
@@ -23,7 +22,7 @@ class KafkaConsumerConsumeExceptionTest extends TestCase
         self::assertSame($message, $exception->getKafkaMessage());
     }
 
-    public function testGetAndConstructOfKafkaConsumerConsumeExceptionWithNullAsMessage()
+    public function testGetAndConstructOfKafkaConsumerConsumeExceptionWithNullAsMessage(): void
     {
         $exception = new KafkaConsumerConsumeException('test', 100, null);
 
@@ -32,7 +31,7 @@ class KafkaConsumerConsumeExceptionTest extends TestCase
         self::assertEquals(100, $exception->getCode());
     }
 
-    public function testGetDefaults()
+    public function testGetDefaults(): void
     {
         $exception = new KafkaConsumerConsumeException();
 
@@ -40,6 +39,5 @@ class KafkaConsumerConsumeExceptionTest extends TestCase
         self::assertEquals('', $exception->getMessage());
         self::assertEquals(0, $exception->getCode());
         self::assertNull($exception->getPrevious());
-
     }
 }

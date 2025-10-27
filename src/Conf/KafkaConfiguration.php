@@ -11,42 +11,25 @@ use RdKafka\TopicConf as RdKafkaTopicConf;
 
 class KafkaConfiguration extends RdKafkaConf
 {
-    /**
-     * @var string[]
-     */
-    protected $brokers;
-
-    /**
-     * @var array|TopicSubscription[]
-     */
-    protected $topicSubscriptions;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var array<string,int>
-     */
-    private $lowLevelTopicSettings = [
+    /** @var array<string, int> */
+    private array $lowLevelTopicSettings = [
         'auto.commit.interval.ms' => 1,
         'auto.offset.reset' => 1,
     ];
 
     /**
-     * @param string[] $brokers
-     * @param array|TopicSubscription[] $topicSubscriptions
-     * @param mixed[] $config
-     * @param string $type
+     * @param string[]             $brokers
+     * @param TopicSubscription[]  $topicSubscriptions
+     * @param array<string, mixed> $config
      */
-    public function __construct(array $brokers, array $topicSubscriptions = [], array $config = [], string $type = '')
-    {
+    public function __construct(
+        private array $brokers,
+        private array $topicSubscriptions = [],
+        array $config = [],
+        private string $type = '',
+    ) {
         parent::__construct();
 
-        $this->brokers = $brokers;
-        $this->topicSubscriptions = $topicSubscriptions;
-        $this->type = $type;
         $this->initializeConfig($config);
     }
 
@@ -59,7 +42,7 @@ class KafkaConfiguration extends RdKafkaConf
     }
 
     /**
-     * @return array|TopicSubscription[]
+     * @return TopicSubscription[]
      */
     public function getTopicSubscriptions(): array
     {
@@ -75,8 +58,7 @@ class KafkaConfiguration extends RdKafkaConf
     }
 
     /**
-     * @param mixed[] $config
-     * @return void
+     * @param array<string, mixed> $config
      */
     protected function initializeConfig(array $config = []): void
     {
@@ -105,10 +87,6 @@ class KafkaConfiguration extends RdKafkaConf
         $this->set('metadata.broker.list', implode(',', $this->getBrokers()));
     }
 
-    /**
-     * @param string $settingName
-     * @return bool
-     */
     private function isLowLevelTopicConfSetting(string $settingName): bool
     {
         return true === isset($this->lowLevelTopicSettings[$settingName]);

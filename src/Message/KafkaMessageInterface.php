@@ -12,14 +12,8 @@ interface KafkaMessageInterface
      */
     public function getKey();
 
-    /**
-     * @return string
-     */
     public function getTopicName(): string;
 
-    /**
-     * @return integer
-     */
     public function getPartition(): int;
 
     /**

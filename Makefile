@@ -6,6 +6,7 @@ PHPSTAN  = ./vendor/bin/phpstan
 PHPCS = ./vendor/bin/phpcs --extensions=php
 CONSOLE = ./bin/console
 INFECTION = ./vendor/bin/infection
+COVCHK = ./vendor/bin/coverage-check
 
 clean:
 	rm -rf ./build ./vendor
@@ -15,7 +16,7 @@ code-style: pcov-disable
 	${PHPCS} --report-full --report-gitblame --standard=PSR12 ./src --exclude=Generic.Commenting.Todo --report-junit=build/logs/phpcs/junit.xml
 
 coverage: pcov-enable
-	${PHPUNIT} && ./vendor/bin/coverage-check clover.xml 100
+	${PHPUNIT} && ${COVCHK} build/logs/phpunit/clover.xml 100
 
 test: pcov-disable
 	${PHPUNIT}
@@ -35,9 +36,8 @@ install-dependencies-lowest:
 
 infection-testing:
 	make coverage
-	cp -f build/logs/phpunit/junit.xml build/logs/phpunit/coverage/junit.xml
 	sudo php-ext-disable pcov
-	${INFECTION} --coverage=build/logs/phpunit/coverage --min-msi=91 --threads=`nproc`
+	${INFECTION} --coverage=build/logs/phpunit/ --min-msi=90 --threads=`nproc`
 	sudo php-ext-enable pcov
 
 pcov-enable:

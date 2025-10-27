@@ -15,12 +15,9 @@ require_once __DIR__ . '/../Exception/KafkaProducerException.php';  // @codeCove
 final class KafkaProducerDeliveryReportCallback
 {
     /**
-     * @param RdKafkaProducer $producer
-     * @param RdKafkaMessage  $message
-     * @return void
      * @throws KafkaProducerException
      */
-    public function __invoke(RdKafkaProducer $producer, RdKafkaMessage $message)
+    public function __invoke(RdKafkaProducer $producer, RdKafkaMessage $message): void
     {
 
         if (RD_KAFKA_RESP_ERR_NO_ERROR === $message->err) {

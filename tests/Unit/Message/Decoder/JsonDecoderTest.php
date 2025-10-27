@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Decoder;
+namespace Jobcloud\Kafka\Tests\Unit\Message\Decoder;
 
 use Jobcloud\Kafka\Message\Decoder\JsonDecoder;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
+use JsonException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,10 +14,6 @@ use PHPUnit\Framework\TestCase;
  */
 class JsonDecoderTest extends TestCase
 {
-
-    /**
-     * @return void
-     */
     public function testDecode(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
@@ -28,16 +25,13 @@ class JsonDecoderTest extends TestCase
         self::assertEquals(['name' => 'foo'], $result->getBody());
     }
 
-    /**
-     * @return void
-     */
     public function testDecodeNonJson(): void
     {
         $message = $this->getMockForAbstractClass(KafkaConsumerMessageInterface::class);
         $message->expects(self::once())->method('getBody')->willReturn('test');
         $decoder = new JsonDecoder();
 
-        self::expectException(\JsonException::class);
+        $this->expectException(JsonException::class);
 
         $decoder->decode($message);
     }

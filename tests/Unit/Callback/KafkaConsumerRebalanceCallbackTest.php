@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Callback;
+namespace Jobcloud\Kafka\Tests\Unit\Callback;
 
 use Jobcloud\Kafka\Callback\KafkaConsumerRebalanceCallback;
 use Jobcloud\Kafka\Exception\KafkaRebalanceException;
@@ -14,14 +14,14 @@ use PHPUnit\Framework\TestCase;
  */
 class KafkaConsumerRebalanceCallbackTest extends TestCase
 {
-    public function testInvokeWithError()
+    public function testInvokeWithError(): void
     {
         $exceptionMessage = 'Foo';
         $exceptionCode = 10;
 
-        self::expectException(KafkaRebalanceException::class);
-        self::expectExceptionMessage($exceptionMessage);
-        self::expectExceptionCode($exceptionCode);
+        $this->expectException(KafkaRebalanceException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionCode($exceptionCode);
 
         $consumer = $this->getConsumerMock();
 
@@ -34,7 +34,7 @@ class KafkaConsumerRebalanceCallbackTest extends TestCase
         call_user_func(new KafkaConsumerRebalanceCallback(), $consumer, 1, []);
     }
 
-    public function testInvokeAssign()
+    public function testInvokeAssign(): void
     {
         $partitions = [1, 2, 3];
 
@@ -55,7 +55,7 @@ class KafkaConsumerRebalanceCallbackTest extends TestCase
         );
     }
 
-    public function testInvokeRevoke()
+    public function testInvokeRevoke(): void
     {
         $consumer = $this->getConsumerMock();
 
@@ -68,10 +68,7 @@ class KafkaConsumerRebalanceCallbackTest extends TestCase
         call_user_func(new KafkaConsumerRebalanceCallback(), $consumer, RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS);
     }
 
-    /**
-     * @return MockObject|RdKafkaConsumer
-     */
-    private function getConsumerMock()
+    private function getConsumerMock(): RdKafkaConsumer|MockObject
     {
         //create mock to assign topics
         $consumerMock = $this->getMockBuilder(RdKafkaConsumer::class)

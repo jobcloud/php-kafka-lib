@@ -1,41 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         backupGlobals="false"
-         backupStaticAttributes="false"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
          forceCoversAnnotation="true"
-         bootstrap="tests/bootstrap.php"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd">
-  <coverage>
-    <include>
-      <directory>src</directory>
-    </include>
-    <report>
-      <clover outputFile="clover.xml"/>
-      <html outputDirectory="build/logs/phpunit/coverage"/>
-      <text outputFile="php://stdout" showOnlySummary="true"/>
-      <xml outputDirectory="build/logs/phpunit/coverage/coverage-xml"/>
-    </report>
-  </coverage>
-  <php>
-    <ini name="max_execution_time" value="-1"/>
-    <ini name="html_errors" value="false"/>
-    <ini name="memory_limit" value="2G"/>
-  </php>
-  <testsuites>
-    <testsuite name="Unit">
-      <directory>./tests/Unit</directory>
-    </testsuite>
-  </testsuites>
-  <logging>
-    <junit outputFile="build/logs/phpunit/junit.xml"/>
-  </logging>
-  <listeners>
-    <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener"/>
-  </listeners>
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd">
+    <coverage>
+        <include>
+            <directory>src</directory>
+        </include>
+        <report>
+            <clover outputFile="build/logs/phpunit/clover.xml"/>
+            <html outputDirectory="build/logs/phpunit/coverage-html"/>
+            <text outputFile="php://stdout" showOnlySummary="true"/>
+            <xml outputDirectory="build/logs/phpunit/coverage-xml"/>
+        </report>
+    </coverage>
+    <php>
+        <ini name="max_execution_time" value="-1"/>
+        <ini name="html_errors" value="false"/>
+        <ini name="memory_limit" value="-1"/>
+    </php>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>./tests/Unit</directory>
+        </testsuite>
+    </testsuites>
+    <logging>
+        <junit outputFile="build/logs/phpunit/junit.xml"/>
+    </logging>
+    <listeners>
+        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener"/>
+    </listeners>
 </phpunit>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Message\Encoder;
+namespace Jobcloud\Kafka\Tests\Unit\Message\Encoder;
 
 use Jobcloud\Kafka\Message\KafkaProducerMessageInterface;
 use Jobcloud\Kafka\Message\Encoder\NullEncoder;
@@ -13,10 +13,6 @@ use PHPUnit\Framework\TestCase;
  */
 class NullEncoderTest extends TestCase
 {
-
-    /**
-     * @return void
-     */
     public function testEncode(): void
     {
         $message = $this->getMockForAbstractClass(KafkaProducerMessageInterface::class);

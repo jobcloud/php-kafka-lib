@@ -1,11 +1,12 @@
 <?php
 
-namespace Jobcloud\Kafka\Tests\Unit\Kafka\Conf;
+namespace Jobcloud\Kafka\Tests\Unit\Conf;
 
 use Jobcloud\Kafka\Consumer\KafkaConsumerBuilder;
 use Jobcloud\Kafka\Consumer\TopicSubscription;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use stdClass;
 
 /**
@@ -14,17 +15,11 @@ use stdClass;
 class KafkaConfigurationTest extends TestCase
 {
 
-    /**
-     * @return void
-     */
     public function testInstance(): void
     {
         self::assertInstanceOf(KafkaConfiguration::class, new KafkaConfiguration([], []));
     }
 
-    /**
-     * @return array
-     */
     public function kafkaConfigurationDataProvider(): array
     {
         $brokers = ['localhost'];
@@ -40,9 +35,6 @@ class KafkaConfigurationTest extends TestCase
 
     /**
      * @dataProvider kafkaConfigurationDataProvider
-     * @param array $brokers
-     * @param array $topicSubscriptions
-     * @return void
      */
     public function testGettersAndSetters(array $brokers, array $topicSubscriptions): void
     {
@@ -54,9 +46,6 @@ class KafkaConfigurationTest extends TestCase
 
     /**
      * @dataProvider kafkaConfigurationDataProvider
-     * @param array $brokers
-     * @param array $topicSubscriptions
-     * @return void
      */
     public function testGetConfiguration(array $brokers, array $topicSubscriptions): void
     {
@@ -65,9 +54,6 @@ class KafkaConfigurationTest extends TestCase
         self::assertEquals($kafkaConfiguration->dump(), $kafkaConfiguration->getConfiguration());
     }
 
-    /**
-     * @return array
-     */
     public function configValuesProvider(): array
     {
         return [
@@ -85,10 +71,8 @@ class KafkaConfigurationTest extends TestCase
 
     /**
      * @dataProvider configValuesProvider
-     * @param mixed $inputValue
-     * @param mixed $expectedValue
      */
-    public function testConfigValues($inputValue, $expectedValue): void
+    public function testConfigValues(mixed $inputValue, mixed $expectedValue): void
     {
         $kafkaConfiguration = new KafkaConfiguration(
             ['localhost'],
@@ -107,7 +91,7 @@ class KafkaConfigurationTest extends TestCase
             return;
         }
 
-        self::assertEquals($config['metadata.broker.list'], 'localhost');
+        self::assertEquals('localhost', $config['metadata.broker.list']);
         self::assertEquals($expectedValue, $config['group.id']);
         self::assertEquals('100', $config['auto.commit.interval.ms']);
         self::assertArrayHasKey('default_topic_conf', $config);
@@ -116,7 +100,7 @@ class KafkaConfigurationTest extends TestCase
 
     public function testMethodVisibility(): void
     {
-        $reflectionClass = new \ReflectionClass(KafkaConfiguration::class);
+        $reflectionClass = new ReflectionClass(KafkaConfiguration::class);
 
         $methodInitializedConfig = $reflectionClass->getMethod('initializeConfig');
         $methodInitializedConfig->setAccessible(true);

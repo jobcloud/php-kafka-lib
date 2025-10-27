@@ -47,17 +47,11 @@ abstract class AbstractKafkaMessage implements KafkaMessageInterface
         return $this->body;
     }
 
-    /**
-     * @return string
-     */
     public function getTopicName(): string
     {
         return $this->topicName;
     }
 
-    /**
-     * @return integer
-     */
     public function getPartition(): int
     {
         return $this->partition;

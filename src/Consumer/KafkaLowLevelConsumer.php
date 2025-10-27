@@ -6,7 +6,6 @@ namespace Jobcloud\Kafka\Consumer;
 
 use Jobcloud\Kafka\Message\Decoder\DecoderInterface;
 use Jobcloud\Kafka\Message\KafkaConsumerMessageInterface;
-use Jobcloud\Kafka\Message\KafkaMessageInterface;
 use Jobcloud\Kafka\Exception\KafkaConsumerCommitException;
 use Jobcloud\Kafka\Exception\KafkaConsumerSubscriptionException;
 use Jobcloud\Kafka\Conf\KafkaConfiguration;
@@ -19,26 +18,15 @@ use RdKafka\Queue as RdKafkaQueue;
 
 final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements KafkaLowLevelConsumerInterface
 {
-    /**
-     * @var RdKafkaLowLevelConsumer
-     */
-    protected $consumer;
+    /** @var RdKafkaLowLevelConsumer */
+    protected mixed $consumer;
 
-    /**
-     * @var array|RdKafkaConsumerTopic[]
-     */
-    protected $topics = [];
+    /** @var RdKafkaConsumerTopic[] */
+    protected array $topics = [];
 
-    /**
-     * @var RdKafkaQueue
-     */
+    /** @var RdKafkaQueue */
     protected $queue;
 
-    /**
-     * @param RdKafkaLowLevelConsumer $consumer
-     * @param KafkaConfiguration      $kafkaConfiguration
-     * @param DecoderInterface        $decoder
-     */
     public function __construct(
         RdKafkaLowLevelConsumer $consumer,
         KafkaConfiguration $kafkaConfiguration,
@@ -49,10 +37,9 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     }
 
     /**
-     * Subcribes to all defined topics, if no partitions were set, subscribes to all partitions.
+     * Subscribes to all defined topics, if no partitions were set, subscribes to all partitions.
      * If partition(s) (and optionally offset(s)) were set, subscribes accordingly
      *
-     * @return void
      * @throws KafkaConsumerSubscriptionException
      */
     public function subscribe(): void
@@ -94,16 +81,14 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
     /**
      * Commits the offset to the broker for the given message(s). This is a blocking function
      *
-     * @param mixed $messages
-     * @return void
      * @throws KafkaConsumerCommitException
      */
-    public function commit($messages): void
+    public function commit(mixed $messages): void
     {
         $messages = is_array($messages) ? $messages : [$messages];
 
         foreach ($messages as $i => $message) {
-            if (false === $message instanceof KafkaConsumerMessageInterface) {
+            if (false === $message instanceof KafkaConsumerMessageInterface) { // @phpstan-ignore-line
                 throw new KafkaConsumerCommitException(
                     sprintf('Provided message (index: %d) is not an instance of "%s"', $i, KafkaConsumerMessage::class)
                 );
@@ -118,8 +103,6 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
 
     /**
      * Unsubscribes from the current subscription
-     *
-     * @return void
      */
     public function unsubscribe(): void
     {
@@ -129,7 +112,6 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
 
         $topicSubscriptions = $this->kafkaConfiguration->getTopicSubscriptions();
 
-        /** @var TopicSubscription $topicSubscription */
         foreach ($topicSubscriptions as $topicSubscription) {
             foreach ($topicSubscription->getPartitions() as $partitionId) {
                 $this->topics[$topicSubscription->getTopicName()]->consumeStop($partitionId);
@@ -139,10 +121,6 @@ final class KafkaLowLevelConsumer extends AbstractKafkaConsumer implements Kafka
         $this->subscribed = false;
     }
 
-    /**
-     * @param integer $timeoutMs
-     * @return null|RdKafkaMessage
-     */
     protected function kafkaConsume(int $timeoutMs): ?RdKafkaMessage
     {
         return $this->queue->consume($timeoutMs);
