@@ -12,7 +12,7 @@ clean:
 
 code-style: pcov-disable
 	mkdir -p build/logs/phpcs
-	${PHPCS} --report-full --report-gitblame --standard=PSR12 ./src --exclude=Generic.Commenting.Todo --report-junit=build/logs/phpcs/junit.xml
+	${PHPCS} --report-full --standard=PSR12 ./src --exclude=Generic.Commenting.Todo --report-junit=build/logs/phpcs/junit.xml
 
 coverage: pcov-enable
 	${PHPUNIT} && ./vendor/bin/coverage-check clover.xml 100
